@@ -1,0 +1,40 @@
+import React, { createContext, useContext, ReactNode, useEffect } from "react";
+import { AppGuiSettingStateAndMethod, useAppGuiSetting } from "../scripts/useAppGuiSetting";
+import { AudioConfigState, useAudioConfig } from "../scripts/useAudioConfig";
+
+type AppRootProviderProps = {
+    children: ReactNode;
+};
+
+export type AppRootValue = {
+    audioContextState: AudioConfigState;
+    appGuiSettingState: AppGuiSettingStateAndMethod;
+    getGUISetting: () => Promise<void>;
+};
+
+const AppRootContext = createContext<AppRootValue | null>(null);
+
+export const useAppRoot = (): AppRootValue => {
+    const context = useContext(AppRootContext);
+    if (!context) {
+        throw new Error("useAppRoot must be used within an AppRootProvider");
+    }
+    return context;
+};
+
+export const AppRootProvider = ({ children }: AppRootProviderProps) => {
+    const audioContextState = useAudioConfig(); // This hook provides { audioContext: AudioContext | null }
+    const appGuiSettingState = useAppGuiSetting(); // This hook provides appGuiSetting, guiSettingLoaded, version, edition, getAppGuiSetting, clearAppGuiSetting
+
+    const getGUISetting = async () => {
+        await appGuiSettingState.getAppGuiSetting(`/assets/gui_settings/GUI.json`);
+    };
+
+    const providerValue: AppRootValue = {
+        audioContextState,
+        appGuiSettingState,
+        getGUISetting,
+    };
+
+    return <AppRootContext.Provider value={providerValue}>{children}</AppRootContext.Provider>;
+}; 
