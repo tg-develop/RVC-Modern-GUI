@@ -4,7 +4,7 @@ import BottomBar from './components/BottomBar';
 import React, { useContext, JSX, useState, useEffect, ReactNode } from 'react';
 import { ThemeContext } from './context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import GenericModal from './components/modals/GenericModal';
 import MergeLabModal from './components/modals/content/MergeLabModal';
 import AdvancedSettingsModal from './components/modals/content/AdvancedSettingsModal';
@@ -13,6 +13,7 @@ import ClientInfoModal from './components/modals/content/ClientInfoModal';
 import UploadModelModal from './components/modals/content/UploadModelModal';
 import EditModelModal from './components/modals/content/EditModelModal';
 import DeleteModelModal from './components/modals/content/DeleteModelModal';
+import PassthroughConfirmModal, { PassthroughConfirmModalProps } from './components/modals/content/PassthroughConfirmModal';
 import { useAppState } from './context/AppContext';
 import { RVCModelSlot, ModelSlotUnion } from '@dannadori/voice-changer-client-js';
 import MainContent from './components/MainContent';
@@ -28,14 +29,20 @@ interface AppStateForApptsx {
 
 const MD_BREAKPOINT = 768; // Typical Tailwind md breakpoint
 
-interface CurrentModalState {
-  content: ReactNode | null;
-  title: string;
-  props?: {
+// Define a more flexible type for modalProps passed to openModal
+interface ModelRelatedProps {
     modelId?: string; 
     modelName?: string;
     model?: RVCModelSlot; 
-  };
+}
+
+// Combine with PassthroughConfirmModalProps (excluding closeModal as it's added by App.tsx)
+type OpenModalProps = ModelRelatedProps | (Omit<PassthroughConfirmModalProps, 'closeModal'> & { typeSpecificProp?: any });
+
+interface CurrentModalState {
+  content: ReactNode | null;
+  title: string;
+  props?: OpenModalProps; 
   primaryButton?: { text: string; onClick: () => void; className?: string };
   secondaryButton?: { text: string; onClick: () => void; className?: string };
 }
@@ -150,16 +157,18 @@ function App(): JSX.Element {
     setCurrentModal(null);
   };
 
-  const openModal = (type: string, modalProps?: { modelId?: string; modelName?: string; model?: RVCModelSlot }) => {
-    let modalDetails: Omit<CurrentModalState, 'props'> = { content: null, title: '' };
-    let finalPropsForModalState: CurrentModalState['props'] = undefined;
+  const openModal = (type: string, modalProps?: OpenModalProps) => {
+    let modalDetails: Partial<CurrentModalState> = { content: null, title: '' };
+    let finalPropsForContent: any = modalProps || {}; // Pass all modalProps to content by default
 
     switch (type) {
       case 'mergeLab':
-        modalDetails = { title: 'Merge Lab', content: <MergeLabModal />, primaryButton: { text: 'Start Merge', onClick: () => { alert('Merging...'); closeModal(); } } };
+        modalDetails = { title: 'Merge Lab', content: <MergeLabModal />,
+          primaryButton: { text: 'Start Merge', onClick: () => { alert('Merging...'); closeModal(); } } };
         break;
       case 'advancedSettings':
-        modalDetails = { title: 'Advanced Settings', content: <AdvancedSettingsModal />, primaryButton: { text: 'Save Changes', onClick: () => { alert('Saving...'); closeModal(); } } };
+        modalDetails = { title: 'Advanced Settings', content: <AdvancedSettingsModal />,
+          primaryButton: { text: 'Save Changes', onClick: () => { alert('Saving...'); closeModal(); } } };
         break;
       case 'serverInfo':
         modalDetails = { title: 'Server Info', content: <ServerInfoModal /> };
@@ -168,52 +177,53 @@ function App(): JSX.Element {
         modalDetails = { title: 'Client Info', content: <ClientInfoModal /> };
         break;
       case 'uploadModel':
-        modalDetails = { title: 'Upload New Model', content: <UploadModelModal />, primaryButton: { text: 'Upload', onClick: () => { alert('Uploading...'); closeModal(); } } };
+        modalDetails = { title: 'Upload New Model', content: <UploadModelModal />,
+          primaryButton: { text: 'Upload', onClick: () => { alert('Uploading...'); closeModal(); } } };
         break;
       case 'editModel':
-        if (modalProps?.model) {
-          const modelToEdit = modalProps.model;
-          modalDetails = { 
-            title: `Edit Model: ${modelToEdit.name}`,
-            content: <EditModelModal modelId={modelToEdit.slotIndex.toString()} modelName={modelToEdit.name} />,
-            primaryButton: { text: 'Save Changes', onClick: () => { alert(`Saving ${modelToEdit.name}...`); closeModal(); } }
-          };
-          finalPropsForModalState = { modelId: modelToEdit.slotIndex.toString(), modelName: modelToEdit.name };
-        } else if (modalProps?.modelId && modalProps?.modelName) {
-            modalDetails = { 
-              title: `Edit Model: ${modalProps.modelName}`,
-              content: <EditModelModal modelId={modalProps.modelId} modelName={modalProps.modelName} />,
-              primaryButton: { text: 'Save Changes', onClick: () => { alert(`Saving ${modalProps.modelName}...`); closeModal(); } }
-            };
-            finalPropsForModalState = { modelId: modalProps.modelId, modelName: modalProps.modelName };
+        const editProps = modalProps as ModelRelatedProps;
+        if (editProps?.model) {
+          modalDetails = { title: `Edit Model: ${editProps.model.name}`, content: <EditModelModal modelId={editProps.model.slotIndex.toString()} modelName={editProps.model.name} />,
+            primaryButton: { text: 'Save Changes', onClick: () => { alert(`Saving ${editProps.model?.name}...`); closeModal(); } } };
+        } else if (editProps?.modelId && editProps?.modelName) {
+            modalDetails = { title: `Edit Model: ${editProps.modelName}`, content: <EditModelModal modelId={editProps.modelId} modelName={editProps.modelName} />,
+            primaryButton: { text: 'Save Changes', onClick: () => { alert(`Saving ${editProps.modelName}...`); closeModal(); } } };
         }
+        finalPropsForContent = editProps; // Ensure modelId, modelName are passed to CurrentModalState.props
         break;
       case 'deleteModel':
-        if (modalProps?.model) {
-          const modelToDelete = modalProps.model;
-          modalDetails = { 
-            title: `Delete Model: ${modelToDelete.name}`,
-            content: <DeleteModelModal modelId={modelToDelete.slotIndex.toString()} modelName={modelToDelete.name} />,
-            primaryButton: { text: 'Delete', onClick: () => { alert(`Deleting ${modelToDelete.name}...`); closeModal(); }, className: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white' },
-            secondaryButton: { text: 'Cancel', onClick: closeModal }
-          };
-          finalPropsForModalState = { modelId: modelToDelete.slotIndex.toString(), modelName: modelToDelete.name };
-        } else if (modalProps?.modelId && modalProps?.modelName) {
-            modalDetails = { 
-              title: `Delete Model: ${modalProps.modelName}`,
-              content: <DeleteModelModal modelId={modalProps.modelId} modelName={modalProps.modelName} />,
-              primaryButton: { text: 'Delete', onClick: () => { alert(`Deleting ${modalProps.modelName}...`); closeModal(); }, className: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white' },
-              secondaryButton: { text: 'Cancel', onClick: closeModal }
-            };
-            finalPropsForModalState = { modelId: modalProps.modelId, modelName: modalProps.modelName };
+        const deleteProps = modalProps as ModelRelatedProps;
+        if (deleteProps?.model) {
+            modalDetails = { title: `Delete Model: ${deleteProps.model.name}`, content: <DeleteModelModal modelId={deleteProps.model.slotIndex.toString()} modelName={deleteProps.model.name} />,
+            primaryButton: { text: 'Delete', onClick: () => { alert(`Deleting ${deleteProps.model?.name}...`); closeModal(); }, className: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white' },
+            secondaryButton: { text: 'Cancel', onClick: closeModal }};
+        } else if (deleteProps?.modelId && deleteProps?.modelName) {
+            modalDetails = { title: `Delete Model: ${deleteProps.modelName}`, content: <DeleteModelModal modelId={deleteProps.modelId} modelName={deleteProps.modelName} />,
+            primaryButton: { text: 'Delete', onClick: () => { alert(`Deleting ${deleteProps.modelName}...`); closeModal(); }, className: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white' },
+            secondaryButton: { text: 'Cancel', onClick: closeModal }};
         }
+        finalPropsForContent = deleteProps;
         break;
+      case 'passThrough':
+        const passThroughProps = modalProps as Omit<PassthroughConfirmModalProps, 'closeModal'>;
+        modalDetails = {
+          title: passThroughProps.title || 'Confirm',
+          content: <PassthroughConfirmModal {...passThroughProps} closeModal={closeModal} />
+        };
+        finalPropsForContent = passThroughProps;
+        break;
+      default:
+        console.warn('Unknown modal type:', type);
+        return;
     }
-    if (finalPropsForModalState) {
-        setCurrentModal({ ...modalDetails, props: finalPropsForModalState });
-    } else {
-        setCurrentModal({ ...modalDetails });
-    }
+    
+    setCurrentModal({ 
+      title: modalDetails.title || 'Modal',
+      content: modalDetails.content,
+      props: finalPropsForContent,
+      primaryButton: modalDetails.primaryButton,
+      secondaryButton: modalDetails.secondaryButton
+    });
   };
 
   return (

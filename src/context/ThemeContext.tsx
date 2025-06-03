@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 
 interface ThemeContextType {
   theme: string;
@@ -6,6 +6,14 @@ interface ThemeContextType {
 }
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const useThemeContext = (): ThemeContextType => {
+  const state = useContext(ThemeContext);
+  if (!state) {
+      throw new Error("useAppState must be used within AppContextProvider");
+  }
+  return state;
+};
 
 interface ThemeProviderProps {
   children: ReactNode;
