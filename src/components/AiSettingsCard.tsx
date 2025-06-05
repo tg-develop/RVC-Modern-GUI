@@ -2,7 +2,10 @@ import React, { JSX, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import DragHandle from './DragHandle';
+import DebouncedSlider from './DebouncedSlider';
 import { useAppState } from '../context/AppContext';
+import { useUIContext } from '../context/UIContext';
+import { F0Detector } from '@dannadori/voice-changer-client-js';
 
 // Props for icons
 interface AiSettingsCardProps {
@@ -18,59 +21,36 @@ interface GpuInfo {
   memory?: number;
 }
 
-// Interface for client-side AI settings
-interface ClientAiSettings {
-  echoCancel?: boolean;
-  noiseSuppression?: boolean;
-  noiseSuppression2?: boolean;
-  // Add other client AI settings here
-}
-
-// Interface for server-side AI settings
-interface ServerAiSettings {
-  extraConvertSize?: number;
-  silenceThreshold?: number; // Corrected typo: Threshhold -> Threshold
-  gpus?: GpuInfo[];
-  gpu?: number; // Selected GPU ID
-  serverReadChunkSize?: number;
-  // Add other server AI settings here
-}
-
-// Temporary interface to help with appState typing
-interface AppStateForAiCard {
-  serverSetting?: { serverSetting: ServerAiSettings };
-  clientSetting?: { setting: ClientAiSettings };
-  updateClientSetting?: (setting: Partial<ClientAiSettings>) => void;
-  // Assuming a similar update function for server settings might exist or be needed
-  // For now, we'll focus on reading server settings and updating client settings.
-  // If server settings need to be updated from this card, an updateServerSetting function would be needed in AppContext.
-  updateServerSetting?: (setting: Partial<ServerAiSettings>) => void; // Added for completeness
-}
-
 function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): JSX.Element {
-  const appState = useAppState() as AppStateForAiCard;
+  const appState = useAppState();
+  const uiState = useUIContext();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const handleClientSettingUpdate = (newSetting: Partial<ClientAiSettings>) => {
-    if (appState.updateClientSetting) {
-      appState.updateClientSetting({
-        ...(appState.clientSetting?.setting || {}),
-        ...newSetting,
-      });
-    }
-  };
+  // Local state for immediate slider labels
+  const [localSilentThreshold, setLocalSilentThreshold] = useState<number>(
+    appState.serverSetting?.serverSetting?.silentThreshold ?? -75
+  );
+  const [localChunkSize, setLocalChunkSize] = useState<number>(
+    appState.serverSetting?.serverSetting?.serverReadChunkSize
+      ? appState.serverSetting.serverSetting.serverReadChunkSize * 2.66667
+      : 5
+  );
+  const [localExtraSize, setLocalExtraSize] = useState<number>(
+    appState.serverSetting?.serverSetting?.extraConvertSize ?? 1
+  );
 
-  // Placeholder for server setting updates, assuming similar pattern to client settings
-  const handleServerSettingUpdate = (newSetting: Partial<ServerAiSettings>) => {
-    if (appState.updateServerSetting) { // Check if the function exists
-      appState.updateServerSetting({
-        ...(appState.serverSetting?.serverSetting || {}),
-        ...newSetting,
-      });
-    } else {
-      console.warn("updateServerSetting function not provided in AppState");
-    }
-  };
+  useEffect(() => {
+    const st = appState.serverSetting?.serverSetting?.silentThreshold;
+    if (st != null) setLocalSilentThreshold(st);
+  }, [appState.serverSetting?.serverSetting?.silentThreshold]);
+  useEffect(() => {
+    const cs = appState.serverSetting?.serverSetting?.serverReadChunkSize;
+    if (cs != null) setLocalChunkSize(cs * 2.66667);
+  }, [appState.serverSetting?.serverSetting?.serverReadChunkSize]);
+  useEffect(() => {
+    const ex = appState.serverSetting?.serverSetting?.extraConvertSize;
+    if (ex != null) setLocalExtraSize(ex);
+  }, [appState.serverSetting?.serverSetting?.extraConvertSize]);
 
   const commonSelectClass = "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm transition-colors duration-150";
   const commonRangeClass = "w-full h-2 bg-slate-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400 transition-colors duration-150";
@@ -103,8 +83,11 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     type="checkbox" 
                     name="echoCancel" 
                     className={checkboxClass} 
-                    checked={appState.clientSetting?.setting?.echoCancel ?? false}
-                    onChange={(e) => handleClientSettingUpdate({ echoCancel: e.target.checked })}
+                    checked={appState.setting.voiceChangerClientSetting.echoCancel ?? false}
+                    onChange={(e) => appState.setVoiceChangerClientSetting({
+                        ...appState.setting.voiceChangerClientSetting,
+                        echoCancel: e.target.checked
+                    })}
                   /> Echo Cancellation
                 </label>
                 <label className={checkboxLabelClass}>
@@ -112,8 +95,11 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     type="checkbox" 
                     name="noiseSuppression" 
                     className={checkboxClass} 
-                    checked={appState.clientSetting?.setting?.noiseSuppression ?? false}
-                    onChange={(e) => handleClientSettingUpdate({ noiseSuppression: e.target.checked })}
+                    checked={appState.setting.voiceChangerClientSetting.noiseSuppression ?? false}
+                    onChange={(e) => appState.setVoiceChangerClientSetting({
+                        ...appState.setting.voiceChangerClientSetting,
+                        noiseSuppression: e.target.checked
+                    })}
                   /> Noise Suppression
                 </label>
                 <label className={checkboxLabelClass}>
@@ -121,58 +107,70 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     type="checkbox" 
                     name="noiseSuppression2" 
                     className={checkboxClass} 
-                    checked={appState.clientSetting?.setting?.noiseSuppression2 ?? false}
-                    onChange={(e) => handleClientSettingUpdate({ noiseSuppression2: e.target.checked })}
+                    checked={appState.setting.voiceChangerClientSetting.noiseSuppression2 ?? false}
+                    onChange={(e) => appState.setVoiceChangerClientSetting({
+                        ...appState.setting.voiceChangerClientSetting,
+                        noiseSuppression2: e.target.checked
+                    })}
                   /> Noise Suppression 2
                 </label>
               </div>
             </div>
             <div>
               <label htmlFor="inSens" className={commonLabelClass}>Input Sensitivity (In. Sens):</label>
-              <input 
-                type="range" 
-                id="inSens" 
-                name="inSens" 
-                min="-90"
-                max="-60"
-                step="1"
-                value={appState.serverSetting?.serverSetting?.silenceThreshold ?? -75} 
-                className={commonRangeClass} 
-                onChange={(e) => handleServerSettingUpdate({ silenceThreshold: parseInt(e.target.value) })}
+              <DebouncedSlider
+                id="inSens"
+                name="inSens"
+                min={-90}
+                max={-60}
+                step={1}
+                value={localSilentThreshold}
+                className={commonRangeClass}
+                onImmediateChange={setLocalSilentThreshold}
+                onChange={(val) => appState.serverSetting.updateServerSettings({
+                  ...appState.serverSetting?.serverSetting,
+                  silentThreshold: val
+                })}
               />
-              <p className={commonSliderValueClass}>{appState.serverSetting?.serverSetting?.silenceThreshold ?? -75} dB</p>
+              <p className={commonSliderValueClass}>{localSilentThreshold} dB</p>
             </div>
           </div>
           <div className="space-y-3">
             <div>
               <label htmlFor="chunk" className={commonLabelClass}>Chunk Size:</label>
-              <input 
-                type="range" 
-                id="chunk" 
-                name="chunk" 
-                min="2.7" 
-                max="2730.7" 
-                step="2.7" 
-                value={appState.serverSetting?.serverSetting?.serverReadChunkSize ? (appState.serverSetting.serverSetting.serverReadChunkSize * 2.66667).toFixed(1) : "5"} 
+              <DebouncedSlider
+                id="chunk"
+                name="chunk"
+                min={2.7}
+                max={2730.7}
+                step={2.7}
+                value={localChunkSize}
                 className={commonRangeClass}
-                onChange={(e) => handleServerSettingUpdate({ serverReadChunkSize: Math.round(parseFloat(e.target.value) / 2.66667) })}
+                onImmediateChange={setLocalChunkSize}
+                onChange={(val) => appState.serverSetting.updateServerSettings({
+                  ...appState.serverSetting?.serverSetting,
+                  serverReadChunkSize: Math.round(val / 2.66667)
+                })}
               />
-              <p className={commonSliderValueClass}>{appState.serverSetting?.serverSetting?.serverReadChunkSize ? (appState.serverSetting.serverSetting.serverReadChunkSize * 2.66667).toFixed(1): "5"} ms</p>
+              <p className={commonSliderValueClass}>{localChunkSize.toFixed(1)} ms</p>
             </div>
             <div>
               <label htmlFor="extra" className={commonLabelClass}>Extra Processing Time (Extra):</label>
-              <input 
-                type="range" 
-                id="extra" 
-                name="extra" 
-                min="0"
-                max="5" 
-                step="0.1" 
-                value={appState.serverSetting?.serverSetting?.extraConvertSize ? (appState.serverSetting.serverSetting.extraConvertSize) : "1"}
-                className={commonRangeClass} 
-                onChange={(e) => handleServerSettingUpdate({ extraConvertSize: Math.round(parseFloat(e.target.value)) })}
+              <DebouncedSlider
+                id="extra"
+                name="extra"
+                min={0}
+                max={5}
+                step={0.1}
+                value={localExtraSize}
+                className={commonRangeClass}
+                onImmediateChange={setLocalExtraSize}
+                onChange={(val) => appState.serverSetting.updateServerSettings({
+                  ...appState.serverSetting?.serverSetting,
+                  extraConvertSize: val
+                })}
               />
-              <p className={commonSliderValueClass}>{appState.serverSetting?.serverSetting?.extraConvertSize ? (appState.serverSetting.serverSetting.extraConvertSize) : "1"} s</p>
+              <p className={commonSliderValueClass}>{localExtraSize} s</p>
             </div>
             <div>
               <label htmlFor="gpu" className={commonLabelClass}>Processing Unit (GPU):</label>
@@ -181,13 +179,43 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 name="gpu" 
                 className={commonSelectClass} 
                 value={appState.serverSetting?.serverSetting?.gpu ?? -1}
-                onChange={(e) => handleServerSettingUpdate({ gpu: parseInt(e.target.value) })}
+                onChange={async (e) => {
+                  uiState.startLoading(`Changing to Processing Unit: ${appState.serverSetting?.serverSetting?.gpus?.find(gpu => gpu.id === parseInt(e.target.value))?.name}`);
+                  await appState.serverSetting.updateServerSettings({
+                     ...appState.serverSetting?.serverSetting,
+                     gpu: parseInt(e.target.value)
+                  })
+                  uiState.stopLoading();
+                }}
               >
                 {appState.serverSetting?.serverSetting?.gpus?.length && appState.serverSetting?.serverSetting?.gpus?.length > 0 ? (
                   appState.serverSetting?.serverSetting?.gpus?.map((gpu: GpuInfo) => <option key={gpu.id} value={gpu.id}>{gpu.name}</option>)
                 ) : (
                   <option value="-1" disabled>No GPUs available</option>
                 )}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="f0Detector" className={commonLabelClass}>Pitch Extraction Algorithm</label>
+              <select
+                id="f0Detector"
+                className={commonSelectClass}
+                value={appState.serverSetting?.serverSetting?.f0Detector ?? ''}
+                onChange={async (e) => {
+                  uiState.startLoading(`Changing F0 Detector to ${e.target.value}`);
+                  await appState.serverSetting.updateServerSettings({
+                    ...appState.serverSetting?.serverSetting,
+                    f0Detector: e.target.value as F0Detector
+                  });
+                  uiState.stopLoading();
+                }}
+              >
+                {[
+                  'crepe_full_onnx', 'crepe_tiny_onnx', 'crepe_full', 'crepe_tiny',
+                  'rmvpe', 'rmvpe_onnx', 'fcpe', 'fcpe_onnx'
+                ].map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
               </select>
             </div>
           </div>

@@ -1,11 +1,12 @@
-import React, { JSX, useState, useContext, useEffect, useMemo, useCallback } from 'react';
+import React, { JSX, useState, useEffect, useMemo, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faPlayCircle, faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import DragHandle from './DragHandle';
 import { useThemeContext } from '../context/ThemeContext';
+import { useAppState } from '../context/AppContext';
 
-// Define types for the context data
+// Define types for the performance data
 interface PerformanceMetrics {
   vol: number;
   responseTime: number;
@@ -22,32 +23,73 @@ interface AppPerformanceContextType {
   serverSetting: { serverSetting: ServerSettings };
 }
 
-// Mock Context (replace with actual context)
-const usePerformanceContext = (): AppPerformanceContextType => {
-  const [performanceData, setPerformanceData] = useState<PerformanceMetrics>({
-    vol: 0.5,
-    responseTime: 30,
-    mainprocessTime: 12,
-  });
-  const serverSettingData = {
-    serverSetting: {
-      serverReadChunkSize: 64,
-      crossFadeOverlapSize: 0.020,
-    },
-  };
+// Custom hook to get performance data from app state
+const usePerformanceData = (): AppPerformanceContextType => {
+  const appState = useAppState();
+  
+  // Get the latest performance data from app state
+  const getLatestPerformanceData = useCallback((): PerformanceMetrics => {
+    // Default values
+    const defaultMetrics: PerformanceMetrics = {
+      vol: 0.01, // Default to very low volume to avoid log(0)
+      responseTime: 0,
+      mainprocessTime: 0
+    };
 
+    if (!appState) return defaultMetrics;
+
+    // Extract performance data from app state
+    // Note: Adjust these property names based on your actual app state structure
+    const serverSetting = appState.serverSetting?.serverSetting;
+    
+    return {
+      // Get volume from audio input or use default
+      vol: (appState as any).inputVolume || defaultMetrics.vol,
+      // Get response time from server settings or use default
+      responseTime: (serverSetting as any)?.responseTime || defaultMetrics.responseTime,
+      // Get process time from server settings or use default
+      mainprocessTime: (serverSetting as any)?.processTime || defaultMetrics.mainprocessTime
+    };
+  }, [appState]);
+
+  // Get the latest server settings
+  const getServerSettings = useCallback((): { serverSetting: ServerSettings } => {
+    if (!appState?.serverSetting?.serverSetting) {
+      return {
+        serverSetting: {
+          serverReadChunkSize: 64, // Default chunk size
+          crossFadeOverlapSize: 0.020 // Default crossfade
+        }
+      };
+    }
+
+    
+    return {
+      serverSetting: {
+        serverReadChunkSize: appState.serverSetting.serverSetting.serverReadChunkSize || 64,
+        crossFadeOverlapSize: appState.serverSetting.serverSetting.crossFadeOverlapSize || 0.020
+      }
+    };
+  }, [appState]);
+
+  // State to hold the latest performance data
+  const [performanceData, setPerformanceData] = useState<PerformanceMetrics>(getLatestPerformanceData());
+  const [serverSettings, setServerSettings] = useState<{ serverSetting: ServerSettings }>(getServerSettings());
+
+  // Update performance data periodically
   useEffect(() => {
     const interval = setInterval(() => {
-      setPerformanceData({
-        vol: Math.random() * 0.9 + 0.1,
-        responseTime: 20 + Math.random() * 30,
-        mainprocessTime: 5 + Math.random() * 250,
-      });
-    }, 200); // User changed interval
+      setPerformanceData(getLatestPerformanceData());
+      setServerSettings(getServerSettings());
+    }, 200); // Update every 200ms
+    
     return () => clearInterval(interval);
-  }, []);
+  }, [getLatestPerformanceData, getServerSettings]);
 
-  return { performance: performanceData, serverSetting: serverSettingData };
+  return { 
+    performance: performanceData, 
+    serverSetting: serverSettings 
+  };
 };
 
 interface PerformanceStatsCardProps {
@@ -103,7 +145,7 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
   const performanceMetricKeys: string[] = ["Vol", "Ping", "Total", "Perf"];
   const iconButtonClass = "p-1 text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200";
 
-  const { performance, serverSetting } = usePerformanceContext();
+  const { performance, serverSetting } = usePerformanceData();
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [maxDataPoints, setMaxDataPoints] = useState(DEFAULT_MAX_CHART_DATA_POINTS);
 

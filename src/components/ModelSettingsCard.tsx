@@ -36,15 +36,6 @@ interface ClientSettingStructure {
     // Add other client setting properties here if they exist
 }
 
-// Define a type for our local editable model state
-// It includes all RVCModelSlot properties plus UI-specific editable values
-type modelState = RVCModelSlot & {
-    uiTune: number;
-    uiF0Factor: number;
-    uiIndexRatio: number;
-    uiSpeakerId: number;
-};
-
 function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSettingsCardProps): JSX.Element {
   const appState = useAppState() as AppStateForCard; 
   const [isCollapsed, setIsCollapsed] = useState(false);

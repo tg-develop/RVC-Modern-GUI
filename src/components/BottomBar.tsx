@@ -1,7 +1,9 @@
 import React, { useContext, JSX, useState, useEffect } from 'react';
 import { ThemeContext, useThemeContext } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSun, faMoon, faPlay, faStop, faRightLeft, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faSun, faMoon, faPlay, faStop, faRightLeft, faTriangleExclamation, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
+import { useAppState } from '../context/AppContext';
+import { ClientState } from '@dannadori/voice-changer-client-js';
 
 // Mock Performance Context - Replace with actual import from PerformanceStatsCard or a shared context file
 // This is for demonstration and to access performance.vol
@@ -48,53 +50,62 @@ interface ModalContentProps {
 }
 
 interface BottomBarProps {
-  openModal: (type: string, props?: ModalContentProps) => void; // Added openModal prop
+  openModal: (type: string, props?: any) => void; // Added openModal prop
 }
 
 const INPUT_SENSITIVITY_THRESHOLD = 0.5; // Example threshold for sound wave
 
 function BottomBar({ openModal }: BottomBarProps): JSX.Element {
-  const themeContext = useThemeContext();
+  const { theme, toggleTheme } = useThemeContext();
   const { performance } = usePerformanceContext(); // Consume performance context
-
-  const { theme, toggleTheme } = themeContext;
-  const [isClientActive, setIsClientActive] = useState(false);
-  const [isPassthroughActive, setIsPassthroughActive] = useState(false);
+  const appState = useAppState() as ClientState; // Cast via unknown for broader compatibility if types are complex
 
   const handleToggleClientActivity = () => {
-    setIsClientActive(prev => !prev);
-    console.log(isClientActive ? "Requesting to stop client" : "Requesting to start client");
+    if (appState.serverSetting.serverSetting?.enableServerAudio) {
+      console.log("Requesting to stop server audio");
+      appState.stop();
+    } else {
+      console.log("Requesting to start server audio");
+      appState.start();
+    }
+
   };
 
   const handleTogglePassthrough = () => {
-    console.log("[BottomBar] handleTogglePassthrough called. isPassthroughActive:", isPassthroughActive);
-    if (!isPassthroughActive) {
-      // Request to activate passthrough: Show confirmation modal
-      openModal('passThrough', {
-        title: "Activate Passthrough?",
-        message: "Activating passthrough will output your input voice directly without any changes.",
-        icon: faTriangleExclamation,
-        iconClassName: "text-yellow-500 w-12 h-12 mx-auto mb-4", // Example styling for icon in modal
-        confirmText: "Activate Passthrough",
-        cancelText: "Cancel",
-        onConfirm: () => {
-          console.log("[BottomBar] Passthrough confirmed via modal.");
-          setIsPassthroughActive(true);
-          // Add actual passthrough *activation* logic here (e.g., API call, global state update)
-        },
-        onCancel: () => {
-          console.log("[BottomBar] Passthrough activation cancelled via modal.");
-        }
+    const isCurrentlyPassthrough = appState.serverSetting?.serverSetting?.passThrough === true;
+
+    // Ensure setting and voiceChangerClientSetting are available before accessing passThroughConfirmationSkip
+    const skipConfirmation = appState.setting?.voiceChangerClientSetting?.passThroughConfirmationSkip === true;
+
+    if (!appState.serverSetting?.serverSetting?.passThrough) { // Attempting to activate passthrough
+      if (skipConfirmation) {
+        appState.serverSetting.updateServerSettings({
+          ...appState.serverSetting.serverSetting,
+          passThrough: true,
+        });
+      } else {
+        openModal('passThrough', {
+          title: "Activate Passthrough?",
+          message: "Activating passthrough will output your input voice directly without any changes.",
+          icon: faTriangleExclamation,
+          iconClassName: "text-yellow-500 w-12 h-12 mx-auto mb-4",
+          confirmText: "Activate Passthrough",
+          cancelText: "Cancel",
+          onConfirm: () => {
+            appState.serverSetting.updateServerSettings({
+              ...appState.serverSetting.serverSetting,
+              passThrough: true,
+            });
+          }
+        });
+      }
+    } else { // Attempting to deactivate passthrough
+      appState.serverSetting.updateServerSettings({
+        ...appState.serverSetting.serverSetting,
+        passThrough: false,
       });
-    } else {
-      // Request to deactivate passthrough: Deactivate directly
-      console.log("[BottomBar] Deactivating passthrough directly.");
-      setIsPassthroughActive(false);
-      // Add actual passthrough *deactivation* logic here
     }
   };
-
-  const showSoundWave = isClientActive && performance.vol > INPUT_SENSITIVITY_THRESHOLD;
 
   // Standard buttons: px-3 py-2, h-auto (derived from padding)
   // Taller action buttons: px-4 py-3, h-12 (explicit height for consistency)
@@ -103,14 +114,14 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
   
   // Enhanced Start/Stop Button Styling
   const activityButtonBase = `${buttonBaseClass} px-4 h-12 w-32 rounded-lg shadow-lg`; // Taller, wider, more rounded, more shadow
-  const activityButtonClass = isClientActive 
+  const activityButtonClass = appState.serverSetting?.serverSetting?.enableServerAudio 
     ? `${activityButtonBase} bg-red-500 hover:bg-red-600 text-white focus:ring-red-400 active:bg-red-700`
     : `${activityButtonBase} bg-green-500 hover:bg-green-600 text-white focus:ring-green-400 active:bg-green-700`;
 
   // Passthrough Button Styling
   const passthroughButtonHeightClass = "h-10"; // Shorter than activityButton (h-12)
   const passthroughButtonBase = `${buttonBaseClass} ${passthroughButtonHeightClass} px-3 w-32 rounded-md`; // Adjusted padding and width
-  const passthroughButtonClass = isPassthroughActive
+  const passthroughButtonClass = appState.serverSetting?.serverSetting?.passThrough
     ? `${passthroughButtonBase} text-white passthrough-active-animate focus:ring-red-500` // Animation class
     : `${passthroughButtonBase} text-slate-700 bg-slate-200 hover:bg-slate-300 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-blue-500`;
 
@@ -120,57 +131,31 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
         <button onClick={() => openModal('mergeLab')} className={`${buttonBaseClass} ${lightButtonClass}`}>Merge Lab</button>
         <button onClick={() => openModal('advancedSettings')} className={`${buttonBaseClass} ${lightButtonClass}`}>Advanced Settings</button>
       </div>
-      
-      {/* Sound Wave CSS - can be moved to a CSS file */}
-      <style>
-        {`
-          .sound-wave-bar {
-            width: 4px; /* Slightly thicker */
-            height: 100%;
-            background-color: currentColor;
-            margin: 0 1.5px; /* Adjusted spacing */
-            animation: sound-wave 0.7s infinite ease-in-out alternate;
-            transform-origin: bottom;
-            border-radius: 2px 2px 0 0; /* Slightly rounded tops */
-          }
-          .sound-wave-bar:nth-child(1) { animation-delay: -0.6s; }
-          .sound-wave-bar:nth-child(2) { animation-delay: -0.5s; }
-          .sound-wave-bar:nth-child(3) { animation-delay: -0.4s; }
-          .sound-wave-bar:nth-child(4) { animation-delay: -0.3s; }
-
-          @keyframes sound-wave {
-            0% { transform: scaleY(0.1); opacity: 0.7; }
-            100% { transform: scaleY(1); opacity: 1; }
-          }
-
-          .passthrough-active-animate {
-            animation: flickerAnimation 0.7s infinite; /* Slightly adjusted speed */
-            /* Base color will be set by Tailwind, animation overrides */
-          }
-          @keyframes flickerAnimation {
-            0%, 100% { background-color: #DC2626; /* Tailwind red-600 */ box-shadow: 0 0 7px 1px rgba(220, 38, 38, 0.4); }
-            50% { background-color: #F87171; /* Tailwind red-400 */ box-shadow: 0 0 10px 2px rgba(248, 113, 113, 0.6); }
-          }
-        `}
-      </style>
 
       <div className="flex items-center space-x-3">
-        <button onClick={handleToggleClientActivity} className={activityButtonClass}>
-          {showSoundWave ? (
-            <div className="flex items-end h-5 w-auto" aria-hidden="true"> {/* Increased height for sound wave */}
-              <span className="sound-wave-bar"></span>
-              <span className="sound-wave-bar"></span>
-              <span className="sound-wave-bar"></span>
-              <span className="sound-wave-bar"></span>
-            </div>
-          ) : (
-            <FontAwesomeIcon icon={isClientActive ? faStop : faPlay} className="h-5 w-5" /> /* Slightly larger icon */
-          )}
-          <span className="ml-2 text-base font-semibold">{isClientActive ? 'Stop' : 'Start'}</span> {/* Larger, bolder text */}
+        <button 
+          onClick={handleToggleClientActivity}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 flex items-center space-x-2 
+            ${appState.serverSetting?.serverSetting?.enableServerAudio 
+              ? 'bg-red-500 hover:bg-red-600 text-white'
+              : 'bg-green-500 hover:bg-green-600 text-white'}
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 
+            ${appState.serverSetting?.serverSetting?.enableServerAudio ? 'focus:ring-red-400' : 'focus:ring-green-400'}`}
+        >
+          <FontAwesomeIcon icon={appState.serverSetting?.serverSetting?.enableServerAudio ? faStop : faPlay} />
+          <span>{appState.serverSetting?.serverSetting?.enableServerAudio ? 'Stop Server' : 'Start Server'}</span>
         </button>
-        <button onClick={handleTogglePassthrough} className={passthroughButtonClass} title={isPassthroughActive ? "Deactivate Passthrough" : "Activate Passthrough (Confirmation Required)"}>
-            <FontAwesomeIcon icon={faRightLeft} className="h-4 w-4" /> {/* Icon size can be smaller for this button */}
-            <span className="ml-1.5 font-medium">Passthrough</span> {/* Text can be slightly smaller */}
+        <button 
+          onClick={handleTogglePassthrough}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 flex items-center space-x-2 
+            ${appState.serverSetting?.serverSetting?.passThrough 
+              ? 'bg-yellow-500 hover:bg-yellow-600 text-gray-900'
+              : 'bg-gray-600 hover:bg-gray-500 text-white'}
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 
+            ${appState.serverSetting?.serverSetting?.passThrough ? 'focus:ring-yellow-400' : 'focus:ring-gray-400'}`}
+        >
+          <FontAwesomeIcon icon={appState.serverSetting?.serverSetting?.passThrough ? faVolumeUp : faVolumeMute} />
+          <span>{appState.serverSetting?.serverSetting?.passThrough ? 'Passthrough ON' : 'Passthrough OFF'}</span>
         </button>
       </div>
 

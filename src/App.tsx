@@ -82,19 +82,6 @@ function App(): JSX.Element {
   }, [serverModelSlotIndexFromContext, isLoadingModel, activelySwitchingToSlot, appState.serverSetting?.serverSetting?.modelSlots]);
 
   useEffect(() => {
-    const handleResize = () => {
-      const isDesktop = window.innerWidth >= MD_BREAKPOINT;
-      if (isDesktop && !isSidebarOpen && window.innerWidth >= MD_BREAKPOINT) {
-         setIsSidebarOpen(true);
-      } else if (!isDesktop && isSidebarOpen && window.innerWidth < MD_BREAKPOINT) {
-        setIsSidebarOpen(false);
-      }
-    };
-
-    const simplifiedHandleResize = () => {
-        setIsSidebarOpen(window.innerWidth >= MD_BREAKPOINT);
-    };
-
     const breakpointHandleResize = () => {
       const currentIsDesktop = window.innerWidth >= MD_BREAKPOINT;
       setIsSidebarOpen(currentIsDesktop);

@@ -5,6 +5,7 @@ import { AppRootProvider } from './context/AppRootProvider';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppContextProvider } from './context/AppContext';
 import App from './App';
+import { UIContextProvider } from './context/UIContext';
 
 const rootElement = document.getElementById('root');
 
@@ -14,10 +15,12 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
     <ThemeProvider>
-      <AppRootProvider>
-        <AppContextProvider>
-          <App />
-        </AppContextProvider>
-      </AppRootProvider>
+      <UIContextProvider>
+        <AppRootProvider>
+          <AppContextProvider>
+            <App />
+          </AppContextProvider>
+        </AppRootProvider>
+      </UIContextProvider>
     </ThemeProvider>
 );
