@@ -18,7 +18,7 @@ import SortableCardItem from './SortableCardItem';
 import ModelSettingsCard from './ModelSettingsCard';
 import PerformanceStatsCard from './PerformanceStatsCard';
 import AiSettingsCard from './AiSettingsCard';
-import AudioSettingsCard from './AudioSettingsCard';
+import AudioSettingsCard from './AudioSettings/AudioSettingsCard';
 import { RVCModelSlot } from '@dannadori/voice-changer-client-js'; // For openModal prop
 
 // Define Card IDs
@@ -106,7 +106,7 @@ function MainContent({ openModal }: MainContentProps) {
                 cardComponent = (
                   <SortableCardItem key={cardId} id={cardId}>
                     {(attributes, listeners) => (
-                      <AudioSettingsCard openModal={openModal} dndAttributes={attributes} dndListeners={listeners} />
+                      <AudioSettingsCard dndAttributes={attributes} dndListeners={listeners} />
                     )}
                   </SortableCardItem>
                 );

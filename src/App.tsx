@@ -155,13 +155,16 @@ function App(): JSX.Element {
         break;
       case 'advancedSettings':
         modalDetails = { title: 'Advanced Settings', content: <AdvancedSettingsModal />,
-          primaryButton: { text: 'Save Changes', onClick: () => { alert('Saving...'); closeModal(); } } };
+          primaryButton: { text: 'Save', onClick: () => { alert('Saving...'); closeModal(); } },
+          secondaryButton: { text: 'Close', onClick: () => { closeModal(); } } };
         break;
       case 'serverInfo':
-        modalDetails = { title: 'Server Info', content: <ServerInfoModal /> };
+        modalDetails = { title: 'Server Info', content: <ServerInfoModal />,
+          secondaryButton: { text: 'Close', onClick: () => { closeModal(); } } };
         break;
       case 'clientInfo':
-        modalDetails = { title: 'Client Info', content: <ClientInfoModal /> };
+        modalDetails = { title: 'Client Info', content: <ClientInfoModal />,
+          secondaryButton: { text: 'Close', onClick: () => { closeModal(); } } };
         break;
       case 'uploadModel':
         modalDetails = { title: 'Upload New Model', content: <UploadModelModal />,

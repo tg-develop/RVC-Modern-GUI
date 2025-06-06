@@ -1,0 +1,30 @@
+export const CSS_CLASSES = {
+    // Form Controls
+    select: "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm transition-colors duration-150",
+    input: "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm",
+    range: "w-full h-2 bg-slate-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400 transition-colors duration-150",
+    checkbox: "mr-2 accent-blue-500 dark:accent-blue-400",
+    radioButton: "mr-2 accent-blue-500 dark:accent-blue-400",
+    
+    // Typography
+    label: "block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1",
+    heading: "text-lg font-semibold text-slate-700 dark:text-gray-200",
+    sliderValue: "text-xs text-slate-600 dark:text-gray-400 text-right",
+    checkboxLabel: "flex items-center text-sm text-slate-700 dark:text-gray-300",
+    radioLabel: "inline-flex items-center mr-4 text-sm text-slate-700 dark:text-gray-300",
+    
+    // Buttons
+    iconButton: "p-1 text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-150",
+    primaryButton: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-150",
+    secondaryButton: "px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors duration-150",
+    
+    // Layout
+    card: "p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300",
+    cardHeader: "flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-gray-700",
+    
+    // States
+    error: "p-2 mb-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded",
+    success: "p-2 mb-4 text-sm text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 rounded",
+    warning: "p-2 mb-4 text-sm text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400 rounded",
+    loading: "text-blue-500 animate-spin"
+};

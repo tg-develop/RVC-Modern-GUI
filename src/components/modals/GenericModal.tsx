@@ -34,7 +34,7 @@ function GenericModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-40 p-4 transition-opacity duration-300 ease-in-out" onClick={onClose}>
       <div 
-        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalFadeInScaleUp" 
+        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalFadeInScaleUp" 
         onClick={(e) => e.stopPropagation()} // Prevent click inside modal from closing it
       >
         {/* Modal Header */}
