@@ -1,7 +1,8 @@
 import { CSS_CLASSES } from "../../styles/constants";
 import { useAppState } from "../../context/AppContext";
+import { Dispatch, SetStateAction } from "react";
 
-function AudioMode(): JSX.Element {
+function AudioMode({ audioState, setAudioState }: { audioState: "client" | "server"; setAudioState: Dispatch<SetStateAction<"client" | "server">>; }): JSX.Element {
     const appState = useAppState();
 
     const handleClientRadioChange = () => {
@@ -9,6 +10,7 @@ function AudioMode(): JSX.Element {
             ...appState.serverSetting.serverSetting,
             enableServerAudio: 0
         })
+        setAudioState("client")
     }
     
     const handleServerRadioChange = () => {
@@ -16,6 +18,7 @@ function AudioMode(): JSX.Element {
             ...appState.serverSetting.serverSetting,
             enableServerAudio: 1
         })
+        setAudioState("server")
     }
     
     return (
@@ -27,7 +30,7 @@ function AudioMode(): JSX.Element {
                 <input
                   type="radio"
                   className={CSS_CLASSES.radioButton}
-                  checked={appState.serverSetting.serverSetting.enableServerAudio === 0}
+                  checked={audioState === "client"}
                   onChange={handleClientRadioChange}
                 />
                 Client
@@ -36,7 +39,7 @@ function AudioMode(): JSX.Element {
                 <input
                   type="radio"
                   className={CSS_CLASSES.radioButton}
-                  checked={appState.serverSetting.serverSetting.enableServerAudio === 1}
+                  checked={audioState === "server"}
                   onChange={handleServerRadioChange}
                 />
                 Server
