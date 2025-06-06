@@ -8,13 +8,13 @@ type Props = {
     children: ReactNode;
 };
 
-type AppStateValue = ClientState & {
+export type AppContextValue = ClientState & {
     audioContext: AudioContext;
     initializedRef: React.MutableRefObject<boolean>;
 };
 
-const AppStateContext = React.createContext<AppStateValue | null>(null);
-export const useAppState = (): AppStateValue => {
+const AppStateContext = React.createContext<AppContextValue | null>(null);
+export const useAppState = (): AppContextValue => {
     const state = useContext(AppStateContext);
     if (!state) {
         throw new Error("useAppState must be used within AppContextProvider");
@@ -37,7 +37,7 @@ export const AppContextProvider = ({ children }: Props) => {
         }
     }, [clientState.clientState.initialized]);
     
-    const providerValue: AppStateValue = {
+    const providerValue: AppContextValue = {
         audioContext: appRoot.audioContextState.audioContext!,
         ...clientState.clientState,
         initializedRef,

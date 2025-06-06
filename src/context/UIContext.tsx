@@ -14,6 +14,8 @@ interface UIContextType {
   startLoading: (message?: string) => void;
   stopLoading: () => void;
   showError: (message: string, type?: ErrorType) => void;
+  setIsConverting: (isConverting: boolean) => void;
+  isConverting: boolean;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>();
   const [errors, setErrors] = useState<UIError[]>([]);
+  const [isConverting, setIsConverting] = useState<boolean>(false);
   const idRef = useRef(0);
 
   const startLoading = useCallback((message?: string) => {
@@ -48,7 +51,7 @@ export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children 
   }, []);
 
   return (
-    <UIContext.Provider value={{ startLoading, stopLoading, showError }}>
+    <UIContext.Provider value={{ startLoading, stopLoading, showError, isConverting, setIsConverting }}>
       {children}
       {isLoading && <LoadingScreen message={loadingMessage} />}
       <ErrorNotifications errors={errors} removeError={removeError} />

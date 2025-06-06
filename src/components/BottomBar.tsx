@@ -2,8 +2,9 @@ import React, { useContext, JSX, useState, useEffect } from 'react';
 import { ThemeContext, useThemeContext } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faPlay, faStop, faRightLeft, faTriangleExclamation, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
-import { useAppState } from '../context/AppContext';
+import { AppContextValue, useAppState } from '../context/AppContext';
 import { ClientState } from '@dannadori/voice-changer-client-js';
+import { useUIContext } from '../context/UIContext';
 
 // Mock Performance Context - Replace with actual import from PerformanceStatsCard or a shared context file
 // This is for demonstration and to access performance.vol
@@ -53,28 +54,85 @@ interface BottomBarProps {
   openModal: (type: string, props?: any) => void; // Added openModal prop
 }
 
-const INPUT_SENSITIVITY_THRESHOLD = 0.5; // Example threshold for sound wave
-
 function BottomBar({ openModal }: BottomBarProps): JSX.Element {
   const { theme, toggleTheme } = useThemeContext();
   const { performance } = usePerformanceContext(); // Consume performance context
-  const appState = useAppState() as ClientState; // Cast via unknown for broader compatibility if types are complex
+  const appState = useAppState() as AppContextValue; // Cast via unknown for broader compatibility if types are complex
+  const uiContext = useUIContext();
 
-  const handleToggleClientActivity = () => {
-    if (appState.serverSetting.serverSetting?.enableServerAudio) {
-      console.log("Requesting to stop server audio");
-      appState.stop();
-    } else {
-      console.log("Requesting to start server audio");
+  const [startWithAudioContextCreate, setStartWithAudioContextCreate] = useState<boolean>(false);
+  useEffect(() => {
+      if (!startWithAudioContextCreate) {
+          return;
+      }
+      uiContext.setIsConverting(true);
       appState.start();
-    }
+  }, [startWithAudioContextCreate]);
 
+
+  const handleToggleClientActivity = async () => {
+    if(uiContext.isConverting){
+      handleStop();
+    }else{
+      handleStart();
+    }
+  }
+
+  const handleStart = async () => {
+    if (appState.serverSetting.serverSetting.modelSlotIndex === -1) {
+      uiContext.showError('Select a voice model first.', "Warning")
+      return
+  }
+  if (appState.serverSetting.serverSetting.enableServerAudio == 0) {
+      if (!appState.setting.voiceChangerClientSetting.audioInput || appState.setting.voiceChangerClientSetting.audioInput == 'none') {
+          uiContext.showError('Select an audio input device.', "Warning")
+          return
+      }
+      // TODO: Refactor
+      //if (guiState.audioOutputForGUI == 'none') {
+      //    uiContext.showError('Select an audio output device.', "Warning")
+      //    return
+      //}
+
+      if (!appState.initializedRef.current) {
+          while (true) {
+              await new Promise<void>((resolve) => {
+                  setTimeout(resolve, 500);
+              });
+              if (appState.initializedRef.current) {
+                  break;
+              }
+          }
+          setStartWithAudioContextCreate(true);
+      } else {
+          uiContext.setIsConverting(true);
+          await appState.start();
+      }
+  } else {
+      if (appState.serverSetting.serverSetting.serverInputDeviceId == -1) {
+          uiContext.showError('Select an audio input device.', "Warning")
+          return
+      }
+      if (appState.serverSetting.serverSetting.serverOutputDeviceId == -1) {
+          uiContext.showError('Select an audio output device.', "Warning")
+          return
+      }
+      appState.serverSetting.updateServerSettings({ ...appState.serverSetting.serverSetting, serverAudioStated: 1 });
+      uiContext.setIsConverting(true);
+    }
   };
 
-  const handleTogglePassthrough = () => {
-    const isCurrentlyPassthrough = appState.serverSetting?.serverSetting?.passThrough === true;
+  const handleStop = async () => {
+    if (appState.serverSetting.serverSetting.enableServerAudio == 0) {
+        uiContext.setIsConverting(false);
+        await appState.stop();
+    } else {
+        uiContext.setIsConverting(false);
+        appState.serverSetting.updateServerSettings({ ...appState.serverSetting.serverSetting, serverAudioStated: 0 });
+    }
+};
 
-    // Ensure setting and voiceChangerClientSetting are available before accessing passThroughConfirmationSkip
+  const handleTogglePassthrough = () => {
     const skipConfirmation = appState.setting?.voiceChangerClientSetting?.passThroughConfirmationSkip === true;
 
     if (!appState.serverSetting?.serverSetting?.passThrough) { // Attempting to activate passthrough
@@ -114,7 +172,7 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
   
   // Enhanced Start/Stop Button Styling
   const activityButtonBase = `${buttonBaseClass} px-4 h-12 w-32 rounded-lg shadow-lg`; // Taller, wider, more rounded, more shadow
-  const activityButtonClass = appState.serverSetting?.serverSetting?.enableServerAudio 
+  const activityButtonClass = uiContext.isConverting 
     ? `${activityButtonBase} bg-red-500 hover:bg-red-600 text-white focus:ring-red-400 active:bg-red-700`
     : `${activityButtonBase} bg-green-500 hover:bg-green-600 text-white focus:ring-green-400 active:bg-green-700`;
 
@@ -136,14 +194,14 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
         <button 
           onClick={handleToggleClientActivity}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 flex items-center space-x-2 
-            ${appState.serverSetting?.serverSetting?.enableServerAudio 
+            ${uiContext.isConverting 
               ? 'bg-red-500 hover:bg-red-600 text-white'
               : 'bg-green-500 hover:bg-green-600 text-white'}
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 
-            ${appState.serverSetting?.serverSetting?.enableServerAudio ? 'focus:ring-red-400' : 'focus:ring-green-400'}`}
+            ${uiContext.isConverting ? 'focus:ring-red-400' : 'focus:ring-green-400'}`}
         >
-          <FontAwesomeIcon icon={appState.serverSetting?.serverSetting?.enableServerAudio ? faStop : faPlay} />
-          <span>{appState.serverSetting?.serverSetting?.enableServerAudio ? 'Stop Server' : 'Start Server'}</span>
+          <FontAwesomeIcon icon={uiContext.isConverting ? faStop : faPlay} />
+          <span>{uiContext.isConverting ? 'Stop Server' : 'Start Server'}</span>
         </button>
         <button 
           onClick={handleTogglePassthrough}

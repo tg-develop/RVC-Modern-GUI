@@ -41,13 +41,8 @@ function MainContent({ openModal }: MainContentProps) {
     CARD_IDS.AUDIO_SETTINGS,
   ]);
 
-  // Simplified sensor setup - if error persists, this is not the root cause
   const sensors = useSensors(
     useSensor(PointerSensor)
-    // Re-enable KeyboardSensor later if PointerSensor works
-    // useSensor(KeyboardSensor, {
-    //   coordinateGetter: sortableKeyboardCoordinates,
-    // })
   );
 
   const handleDragEnd = (event: DragEndEvent) => {

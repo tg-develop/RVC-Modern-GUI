@@ -17,8 +17,6 @@ const DragHandle: React.FC<DragHandleProps> = ({ attributes, listeners, classNam
       {...listeners} 
       className={`p-1 text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 cursor-grab ${className}`}
       title={title}
-      // Prevent click event from propagating when dragging starts from the handle, if necessary
-      // onClick={(e) => e.stopPropagation()} 
     >
       <FontAwesomeIcon icon={faArrowsAlt} className="h-5 w-5" />
     </button>

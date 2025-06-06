@@ -4,6 +4,7 @@ import { faChevronUp, faChevronDown, faPen, faInfoCircle } from '@fortawesome/fr
 import { RVCModelSlot, ModelSlotUnion, VoiceChangerType } from '@dannadori/voice-changer-client-js';
 import { useAppState } from '../context/AppContext';
 import DragHandle from './DragHandle';
+import { CSS_CLASSES } from '../styles/constants';
 
 interface ModelSettingsCardProps {
   openModal: (type: string, props?: { model?: RVCModelSlot }) => void;
@@ -85,12 +86,6 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
     handleClientSettingUpdate({ speakerId: val });
   };
 
-  const commonLabelClass = "w-28 text-sm font-medium text-slate-600 dark:text-gray-400 flex-shrink-0";
-  const commonRangeClass = "flex-grow h-2 bg-slate-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400";
-  const commonValueDisplayClass = "w-12 text-sm text-slate-700 dark:text-gray-300 text-center flex-shrink-0";
-  const commonSelectClass = "flex-grow p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm";
-  const iconButtonClass = "p-1 text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200";
-
   // Use model for these properties, reflecting user's preference for direct access
   const isONNX = model?.isONNX ?? false;
   const modelTypeDisplay = isONNX 
@@ -114,7 +109,7 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
       <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-gray-700">
         <h4 className="text-lg font-semibold text-slate-800 dark:text-gray-200">Model Settings</h4>
         <div className="flex space-x-1 items-center">
-          <button onClick={() => setIsCollapsed(!isCollapsed)} className={`${iconButtonClass} focus:ring-blue-500`} title={isCollapsed ? "Expand" : "Collapse"}>
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className={`${CSS_CLASSES.iconButton} focus:ring-blue-500`} title={isCollapsed ? "Expand" : "Collapse"}>
             <FontAwesomeIcon icon={isCollapsed ? faChevronDown : faChevronUp} className="h-5 w-5" />
           </button>
           <DragHandle attributes={dndAttributes} listeners={dndListeners} title="Drag" />
@@ -159,28 +154,28 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
           )}
           <div className={`space-y-4 ${!model ? 'opacity-50 pointer-events-none' : ''}`}>
             <div className="flex items-center space-x-2">
-              <label htmlFor="pitch" className={commonLabelClass}>Pitch:</label>
-              <input type="range" id="pitch" name="pitch" min="-50" max="50" step="1" value={model?.defaultTune ?? 0} onChange={(e) => handlePitchChange(parseInt(e.target.value))} className={commonRangeClass} disabled={!model} />
-              <span className={commonValueDisplayClass}>{model?.defaultTune ?? 0}</span>
+              <label htmlFor="pitch" className={CSS_CLASSES.label}>Pitch:</label>
+              <input type="range" id="pitch" name="pitch" min="-50" max="50" step="1" value={model?.defaultTune ?? 0} onChange={(e) => handlePitchChange(parseInt(e.target.value))} className={CSS_CLASSES.range} disabled={!model} />
+              <span className={CSS_CLASSES.sliderValue}>{model?.defaultTune ?? 0}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <label htmlFor="formatShift" className={commonLabelClass}>Formant Shift:</label>
-              <input type="range" id="formatShift" name="formatShift" min="-5" max="5" step="0.1" value={model?.defaultFormantShift ?? 0} onChange={(e) => handleFormatShiftChange(parseFloat(e.target.value))} className={commonRangeClass} disabled={!model}/>
-              <span className={commonValueDisplayClass}>{(model?.defaultFormantShift ?? 0).toFixed(1)}</span>
+              <label htmlFor="formatShift" className={CSS_CLASSES.label}>Formant Shift:</label>
+              <input type="range" id="formatShift" name="formatShift" min="-5" max="5" step="0.1" value={model?.defaultFormantShift ?? 0} onChange={(e) => handleFormatShiftChange(parseFloat(e.target.value))} className={CSS_CLASSES.range} disabled={!model}/>
+              <span className={CSS_CLASSES.sliderValue}>{(model?.defaultFormantShift ?? 0).toFixed(1)}</span>
             </div>
             {model && model.indexFile !== "" && (
                 <div className="flex items-center space-x-2">
-                    <label htmlFor="indexRatio" className={commonLabelClass}>Index Ratio:</label>
-                    <input type="range" id="indexRatio" name="indexRatio" min="0" max="1" step="0.01" value={model?.defaultIndexRatio ?? 0.5} onChange={(e) => handleIndexRatioChange(parseFloat(e.target.value))} className={commonRangeClass} disabled={!model}/>
-                    <span className={commonValueDisplayClass}>{(model?.defaultIndexRatio ?? 0.5).toFixed(2)}</span>
+                    <label htmlFor="indexRatio" className={CSS_CLASSES.label}>Index Ratio:</label>
+                    <input type="range" id="indexRatio" name="indexRatio" min="0" max="1" step="0.01" value={model?.defaultIndexRatio ?? 0.5} onChange={(e) => handleIndexRatioChange(parseFloat(e.target.value))} className={CSS_CLASSES.range} disabled={!model}/>
+                    <span className={CSS_CLASSES.sliderValue}>{(model?.defaultIndexRatio ?? 0.5).toFixed(2)}</span>
                 </div>
             )}
             <div className="flex items-center space-x-2">
-              <label htmlFor="speaker" className={commonLabelClass}>Speaker:</label>
+              <label htmlFor="speaker" className={CSS_CLASSES.label}>Speaker:</label>
               <select 
                 id="speaker" 
                 name="speaker" 
-                className={commonSelectClass} 
+                className={CSS_CLASSES.select} 
                 disabled={!model || !model.speakers || Object.keys(model.speakers).length === 0} 
                 value={model?.slotIndex ?? 0}
                 onChange={(e) => handleSpeakerChange(parseInt(e.target.value))}

@@ -1,64 +1,109 @@
-import React, { JSX } from 'react';
+import React, { JSX, useState } from 'react';
 import { useAppState } from '../../context/AppContext';
 import { CSS_CLASSES } from '../../styles/constants';
+import DebouncedSlider from '../DebouncedSlider';
 
 // CSS Class Constants (can be moved to a shared file or passed as props if preferred)
 
-function AudioVolume(): JSX.Element {
-  const appState = useAppState(); // To access serverSetting for max volume
+interface AudioVolumeProps {
+  audioState: "client" | "server";
+} 
+
+function AudioVolume({ audioState }: AudioVolumeProps): JSX.Element {
+  const appState = useAppState();
+
+  const [inputGain, setInputGain] = useState(1);
+  const [outputGain, setOutputGain] = useState(1);
+  const [monitorGain, setMonitorGain] = useState(1); 
+
+  const handleInputGainChange = (value: number) => {
+    const gain = value / 100
+    if(audioState == "server"){
+      appState.serverSetting.updateServerSettings({
+        ...appState.serverSetting.serverSetting,
+        serverInputAudioGain: gain
+      })
+    }else{
+      appState.setVoiceChangerClientSetting({
+        ...appState.setting.voiceChangerClientSetting,
+        inputGain: gain
+      })
+    }
+  }
+
+  const handleOutputGainChange = (value: number) => {
+    const gain = value / 100
+    if(audioState == "server"){
+      appState.serverSetting.updateServerSettings({
+        ...appState.serverSetting.serverSetting,
+        serverOutputAudioGain: gain
+      })
+    }else{
+      appState.setVoiceChangerClientSetting({
+        ...appState.setting.voiceChangerClientSetting,
+        outputGain: gain
+      })
+    }
+  }
+
+  const handleMonitorGainChange = (value: number) => {
+    const gain = value / 100
+    if(audioState == "server"){
+      appState.serverSetting.updateServerSettings({
+        ...appState.serverSetting.serverSetting,
+        serverMonitorAudioGain: gain
+      })
+    }else{
+      appState.setVoiceChangerClientSetting({
+        ...appState.setting.voiceChangerClientSetting,
+        monitorGain: gain
+      })
+    }
+  }
 
   return (
     <>
       <div>
         <label htmlFor="inputGain" className={CSS_CLASSES.label}>Input Volume</label>
-        <input
-          type="range"
+        <DebouncedSlider
           id="inputGain"
-          min="10"
-          max="250"
-          step="1"
-          value={Math.round((appState.setting.voiceChangerClientSetting.inputGain ?? 1) * 100)}
+          min={10}
+          max={250}
+          step={1}
+          value={Math.round(inputGain * 100)}
           className={CSS_CLASSES.range}
-          onChange={(e) => appState.setVoiceChangerClientSetting({
-            ...appState.setting.voiceChangerClientSetting,
-            inputGain: parseInt(e.target.value) / 100
-          })}
+          onChange={handleInputGainChange}
+          onImmediateChange={(value) => setInputGain(value / 100)}
         />
-        <p className={CSS_CLASSES.sliderValue}>{Math.round((appState.setting.voiceChangerClientSetting.inputGain ?? 1) * 100)}%</p>
+        <p className={CSS_CLASSES.sliderValue}>{Math.round(inputGain * 100)}%</p>
       </div>
       <div>
         <label htmlFor="outputGain" className={CSS_CLASSES.label}>Output Volume</label>
-        <input
-          type="range"
+        <DebouncedSlider
           id="outputGain"
-          min="10"
-          max="400"
-          step="1"
-          value={Math.round((appState.setting.voiceChangerClientSetting.outputGain ?? 1) * 100)}
+          min={10}
+          max={400}
+          step={1}
+          value={Math.round(outputGain * 100)}
           className={CSS_CLASSES.range}
-          onChange={(e) => appState.setVoiceChangerClientSetting({
-            ...appState.setting.voiceChangerClientSetting,
-            outputGain: parseInt(e.target.value) / 100
-          })}
+          onChange={handleOutputGainChange}
+          onImmediateChange={(value) => setOutputGain(value / 100)}
         />
-        <p className={CSS_CLASSES.sliderValue}>{Math.round((appState.setting.voiceChangerClientSetting.outputGain ?? 1) * 100)}%</p>
+        <p className={CSS_CLASSES.sliderValue}>{Math.round(outputGain * 100)}%</p>
       </div>
       <div>
         <label htmlFor="monitorGain" className={CSS_CLASSES.label}>Monitor Volume</label>
-        <input
-          type="range"
+        <DebouncedSlider
           id="monitorGain"
-          min="10"
-          max="400"
-          step="1"
-          value={Math.round((appState.setting.voiceChangerClientSetting.monitorGain ?? 1) * 100)}
+          min={10}
+          max={400}
+          step={1}
+          value={Math.round(monitorGain * 100)}
           className={CSS_CLASSES.range}
-          onChange={(e) => appState.setVoiceChangerClientSetting({
-            ...appState.setting.voiceChangerClientSetting,
-            monitorGain: parseInt(e.target.value) / 100
-          })}
+          onChange={handleMonitorGainChange}
+          onImmediateChange={(value) => setMonitorGain(value / 100)}
         />
-        <p className={CSS_CLASSES.sliderValue}>{Math.round((appState.setting.voiceChangerClientSetting.monitorGain ?? 1) * 100)}%</p>
+        <p className={CSS_CLASSES.sliderValue}>{Math.round(monitorGain * 100)}%</p>
       </div>
 
       {/* Monitoring toggle */}

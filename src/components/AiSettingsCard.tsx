@@ -6,6 +6,7 @@ import DebouncedSlider from './DebouncedSlider';
 import { useAppState } from '../context/AppContext';
 import { useUIContext } from '../context/UIContext';
 import { F0Detector } from '@dannadori/voice-changer-client-js';
+import { CSS_CLASSES } from '../styles/constants';
 
 // Props for icons
 interface AiSettingsCardProps {
@@ -52,21 +53,12 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
     if (ex != null) setLocalExtraSize(ex);
   }, [appState.serverSetting?.serverSetting?.extraConvertSize]);
 
-  const commonSelectClass = "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm transition-colors duration-150";
-  const commonRangeClass = "w-full h-2 bg-slate-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400 transition-colors duration-150";
-  const commonLabelClass = "block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1";
-  const commonSliderValueClass = "text-xs text-slate-600 dark:text-gray-400 text-right";
-  const checkboxLabelClass = "flex items-center text-sm text-slate-700 dark:text-gray-300";
-  const checkboxClass = "mr-2 accent-blue-500 dark:accent-blue-400";
-  const headingClass = "text-lg font-semibold text-slate-700 dark:text-gray-200";
-  const iconButtonClass = "p-1 text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200";
-
   return (
     <div className={`p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300 flex-1 min-h-0 flex flex-col ${isCollapsed ? 'h-auto' : 'overflow-y-auto'}`}>
       <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-gray-700">
-        <h4 className={headingClass}>AI Settings</h4>
+        <h4 className={CSS_CLASSES.heading}>AI Settings</h4>
         <div className="flex space-x-1 items-center">
-          <button onClick={() => setIsCollapsed(!isCollapsed)} className={iconButtonClass} title={isCollapsed ? "Expand" : "Collapse"}>
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className={CSS_CLASSES.iconButton} title={isCollapsed ? "Expand" : "Collapse"}>
             <FontAwesomeIcon icon={isCollapsed ? faChevronDown : faChevronUp} className="h-5 w-5" />
           </button>
           <DragHandle attributes={dndAttributes} listeners={dndListeners} title="Drag" />
@@ -76,13 +68,13 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           <div className="space-y-3">
             <div>
-              <label className={commonLabelClass}>Noise Reduction:</label>
+              <label className={CSS_CLASSES.label}>Noise Reduction:</label>
               <div className="space-y-1">
-                <label className={checkboxLabelClass}>
+                <label className={CSS_CLASSES.checkboxLabel}>
                   <input 
                     type="checkbox" 
                     name="echoCancel" 
-                    className={checkboxClass} 
+                    className={CSS_CLASSES.checkbox} 
                     checked={appState.setting.voiceChangerClientSetting.echoCancel ?? false}
                     onChange={(e) => appState.setVoiceChangerClientSetting({
                         ...appState.setting.voiceChangerClientSetting,
@@ -90,11 +82,11 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     })}
                   /> Echo Cancellation
                 </label>
-                <label className={checkboxLabelClass}>
+                <label className={CSS_CLASSES.checkboxLabel}>
                   <input 
                     type="checkbox" 
                     name="noiseSuppression" 
-                    className={checkboxClass} 
+                    className={CSS_CLASSES.checkbox} 
                     checked={appState.setting.voiceChangerClientSetting.noiseSuppression ?? false}
                     onChange={(e) => appState.setVoiceChangerClientSetting({
                         ...appState.setting.voiceChangerClientSetting,
@@ -102,11 +94,11 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     })}
                   /> Noise Suppression
                 </label>
-                <label className={checkboxLabelClass}>
+                <label className={CSS_CLASSES.checkboxLabel}>
                   <input 
                     type="checkbox" 
                     name="noiseSuppression2" 
-                    className={checkboxClass} 
+                    className={CSS_CLASSES.checkbox} 
                     checked={appState.setting.voiceChangerClientSetting.noiseSuppression2 ?? false}
                     onChange={(e) => appState.setVoiceChangerClientSetting({
                         ...appState.setting.voiceChangerClientSetting,
@@ -117,7 +109,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
               </div>
             </div>
             <div>
-              <label htmlFor="inSens" className={commonLabelClass}>Input Sensitivity (In. Sens):</label>
+              <label htmlFor="inSens" className={CSS_CLASSES.label}>Input Sensitivity (In. Sens):</label>
               <DebouncedSlider
                 id="inSens"
                 name="inSens"
@@ -125,19 +117,19 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 max={-60}
                 step={1}
                 value={localSilentThreshold}
-                className={commonRangeClass}
+                className={CSS_CLASSES.range}
                 onImmediateChange={setLocalSilentThreshold}
                 onChange={(val) => appState.serverSetting.updateServerSettings({
                   ...appState.serverSetting?.serverSetting,
                   silentThreshold: val
                 })}
               />
-              <p className={commonSliderValueClass}>{localSilentThreshold} dB</p>
+              <p className={CSS_CLASSES.sliderValue}>{localSilentThreshold} dB</p>
             </div>
           </div>
           <div className="space-y-3">
             <div>
-              <label htmlFor="chunk" className={commonLabelClass}>Chunk Size:</label>
+              <label htmlFor="chunk" className={CSS_CLASSES.label}>Chunk Size:</label>
               <DebouncedSlider
                 id="chunk"
                 name="chunk"
@@ -145,17 +137,17 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 max={2730.7}
                 step={2.7}
                 value={localChunkSize}
-                className={commonRangeClass}
+                className={CSS_CLASSES.range}
                 onImmediateChange={setLocalChunkSize}
                 onChange={(val) => appState.serverSetting.updateServerSettings({
                   ...appState.serverSetting?.serverSetting,
                   serverReadChunkSize: Math.round(val / 2.66667)
                 })}
               />
-              <p className={commonSliderValueClass}>{localChunkSize.toFixed(1)} ms</p>
+              <p className={CSS_CLASSES.sliderValue}>{localChunkSize.toFixed(1)} ms</p>
             </div>
             <div>
-              <label htmlFor="extra" className={commonLabelClass}>Extra Processing Time (Extra):</label>
+              <label htmlFor="extra" className={CSS_CLASSES.label}>Extra Processing Time (Extra):</label>
               <DebouncedSlider
                 id="extra"
                 name="extra"
@@ -163,21 +155,21 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 max={5}
                 step={0.1}
                 value={localExtraSize}
-                className={commonRangeClass}
+                className={CSS_CLASSES.range}
                 onImmediateChange={setLocalExtraSize}
                 onChange={(val) => appState.serverSetting.updateServerSettings({
                   ...appState.serverSetting?.serverSetting,
                   extraConvertSize: val
                 })}
               />
-              <p className={commonSliderValueClass}>{localExtraSize} s</p>
+              <p className={CSS_CLASSES.sliderValue}>{localExtraSize} s</p>
             </div>
             <div>
-              <label htmlFor="gpu" className={commonLabelClass}>Processing Unit (GPU):</label>
+              <label htmlFor="gpu" className={CSS_CLASSES.label}>Processing Unit (GPU):</label>
               <select 
                 id="gpu" 
                 name="gpu" 
-                className={commonSelectClass} 
+                className={CSS_CLASSES.select} 
                 value={appState.serverSetting?.serverSetting?.gpu ?? -1}
                 onChange={async (e) => {
                   uiState.startLoading(`Changing to Processing Unit: ${appState.serverSetting?.serverSetting?.gpus?.find(gpu => gpu.id === parseInt(e.target.value))?.name}`);
@@ -196,10 +188,10 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
               </select>
             </div>
             <div>
-              <label htmlFor="f0Detector" className={commonLabelClass}>Pitch Extraction Algorithm</label>
+              <label htmlFor="f0Detector" className={CSS_CLASSES.label}>Pitch Extraction Algorithm</label>
               <select
                 id="f0Detector"
-                className={commonSelectClass}
+                className={CSS_CLASSES.select}
                 value={appState.serverSetting?.serverSetting?.f0Detector ?? ''}
                 onChange={async (e) => {
                   uiState.startLoading(`Changing F0 Detector to ${e.target.value}`);

@@ -1,6 +1,7 @@
 import React, { JSX, ReactNode } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { CSS_CLASSES } from '../../styles/constants';
 
 interface ModalButton {
   text: string;
@@ -28,8 +29,6 @@ function GenericModal({
   if (!isOpen) {
     return null;
   }
-
-  const baseButtonClass = "px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-40 p-4 transition-opacity duration-300 ease-in-out" onClick={onClose}>
@@ -60,7 +59,7 @@ function GenericModal({
             {secondaryButton && (
               <button
                 onClick={secondaryButton.onClick}
-                className={`${baseButtonClass} ${secondaryButton.className || 'bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-200 focus:ring-slate-400'}`}
+                className={`${CSS_CLASSES.modalSecondaryButton} ${secondaryButton.className || ''}`}
               >
                 {secondaryButton.text}
               </button>
@@ -68,7 +67,7 @@ function GenericModal({
             {primaryButton && (
               <button
                 onClick={primaryButton.onClick}
-                className={`${baseButtonClass} ${primaryButton.className || 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'}`}
+                className={`${CSS_CLASSES.modalPrimaryButton} ${primaryButton.className || ''}`}
               >
                 {primaryButton.text}
               </button>
