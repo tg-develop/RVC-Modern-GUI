@@ -1,5 +1,5 @@
 import './App.css';
-import LeftSidebar from './components/LeftSidebar';
+import LeftSidebar from './components/LeftSideBar/Sidebar';
 import BottomBar from './components/BottomBar';
 import React, { useContext, JSX, useState, useEffect, ReactNode } from 'react';
 import { ThemeContext } from './context/ThemeContext';

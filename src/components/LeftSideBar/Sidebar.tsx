@@ -2,7 +2,9 @@ import React, { JSX, useState, useMemo, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faPlus, faPen, faTrash, faTimes, faSort, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { RVCModelSlot, VoiceChangerType, ModelSlotUnion } from '@dannadori/voice-changer-client-js';
-import { useAppState } from '../context/AppContext';
+import { useAppState } from '../../context/AppContext';
+import { useUIContext } from '../../context/UIContext';
+import ModelSlot from './ModelSlot';
 
 interface LeftSidebarProps {
   isSidebarOpen: boolean;
@@ -30,6 +32,8 @@ function LeftSidebar({
   onSelectModel 
 }: LeftSidebarProps): JSX.Element | null {
   const appState = useAppState();
+  const guiState = useUIContext();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currentSort, setCurrentSort] = useState<SortOption>('slot');
   const [typeVersionFilter, setTypeVersionFilter] = useState<ModelTypeVersionFilter>('All');
@@ -54,6 +58,12 @@ function LeftSidebar({
     }
     return [];
   }, [appState.serverSetting?.serverSetting?.modelSlots]);
+
+  const handleSelectModel = async (slot: RVCModelSlot) => {
+    guiState.startLoading(`Swapping to model: ${slot.name}`);
+    await appState.serverSetting.updateServerSettings({ ...appState.serverSetting.serverSetting, modelSlotIndex: slot.slotIndex });
+    guiState.stopLoading();
+  };
 
   // The actual selected model ID from the global context
   const confirmedSelectedSlotIndex = appState.serverSetting?.serverSetting?.modelSlotIndex ?? null;
@@ -140,18 +150,7 @@ function LeftSidebar({
   } else {
     sidebarClasses += " w-0 p-0 overflow-hidden"; // Collapsed state
   }
-
-  // Specific classes for small screens when open (overlay behavior)
-  // md:static ensures it transitions out of fixed positioning on larger screens
-  // md:translate-x-0 ensures it's visible on larger screens if isSidebarOpen is true
-  const smallScreenOverlayClasses = isSidebarOpen ? 
-    "fixed inset-y-0 left-0 transform translate-x-0 md:static md:translate-x-0" : 
-    "fixed inset-y-0 left-0 transform -translate-x-full md:static md:translate-x-0";
-
-  // On medium screens and up, if the sidebar is closed via state, it should truly collapse
-  // The current -translate-x-full on md:static will hide it, but we also set w-0 above.
-  // Let's simplify the logic for md screens and up based on isSidebarOpen directly.
-  
+ 
   let finalSidebarClasses = `bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-200 border-r border-slate-200 dark:border-gray-700 p-4 space-y-4 transition-all duration-300 ease-in-out flex flex-col z-20 `;
 
   if (isSidebarOpen) {
@@ -277,39 +276,13 @@ function LeftSidebar({
           <ul className="space-y-2 flex-grow overflow-y-auto min-h-[100px]">
             {filteredAndSortedModels.length > 0 ? (
                 filteredAndSortedModels.map(model => (
-                  <li 
+                  <ModelSlot 
                     key={model.slotIndex} 
-                    className={`p-2.5 text-sm rounded-md cursor-pointer flex items-center group text-slate-700 dark:text-slate-300 
-                                ${confirmedSelectedSlotIndex === model.slotIndex
-                                  ? 'bg-sky-100 dark:bg-blue-700/30 border border-blue-500' 
-                                  : 'hover:bg-slate-100 dark:hover:bg-gray-700'}`}
-                    onClick={() => {
-                        onSelectModel(model.slotIndex);
-                    }}
-                  >
-                    <img 
-                      src={'https://placehold.co/40x40.png?text=??'} 
-                      alt={model.name} 
-                      className="w-8 h-8 md:w-10 md:h-10 rounded-md mr-3 object-cover flex-shrink-0"
-                    />
-                    <span className="truncate mr-2 flex-grow">{model.name}</span> 
-                    <div className="flex space-x-2 md:space-x-1 items-center md:opacity-0 group-hover:md:opacity-100 transition-opacity">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); openModal('editModel', { model: model }); }}
-                        className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-1 md:p-0" 
-                        title="Edit Model"
-                      >
-                        <FontAwesomeIcon icon={faPen} className="h-4 w-4 md:h-3 md:w-3" /> 
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); openModal('deleteModel', { model: model }); }}
-                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-1 md:p-0" 
-                        title="Delete Model"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="h-4 w-4 md:h-3 md:w-3"/> 
-                      </button>
-                    </div>
-                  </li>
+                    model={model} 
+                    openModal={openModal} 
+                    handleSelectModel={handleSelectModel} 
+                    modelDir={appState.serverSetting.serverSetting.voiceChangerParams.model_dir}
+                    selected={model.slotIndex === confirmedSelectedSlotIndex} />
                 ))
             ) : (
                 <p className="text-center text-sm text-slate-500 dark:text-gray-400 py-4">No models match your criteria.</p>
