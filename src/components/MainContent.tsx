@@ -15,7 +15,7 @@ import {
 } from '@dnd-kit/sortable';
 
 import SortableCardItem from './Helpers/SortableCardItem';
-import ModelSettingsCard from './ModelSettingsCard';
+import ModelSettingsCard from './ModelSettings/ModelSettingsCard';
 import PerformanceStatsCard from './PerformanceStatsCard';
 import AiSettingsCard from './AiSettingsCard';
 import AudioSettingsCard from './AudioSettings/AudioSettingsCard';
