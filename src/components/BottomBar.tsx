@@ -1,54 +1,10 @@
-import React, { useContext, JSX, useState, useEffect } from 'react';
-import { ThemeContext, useThemeContext } from '../context/ThemeContext';
+import { JSX, useState, useEffect } from 'react';
+import { useThemeContext } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSun, faMoon, faPlay, faStop, faRightLeft, faTriangleExclamation, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
+import { faSun, faMoon, faPlay, faStop, faTriangleExclamation, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
 import { AppContextValue, useAppState } from '../context/AppContext';
-import { ClientState } from '@dannadori/voice-changer-client-js';
 import { useUIContext } from '../context/UIContext';
 
-// Mock Performance Context - Replace with actual import from PerformanceStatsCard or a shared context file
-// This is for demonstration and to access performance.vol
-interface PerformanceMetrics {
-  vol: number;
-  responseTime: number;
-  mainprocessTime: number;
-}
-interface ServerSettings {
-  serverReadChunkSize: number;
-  crossFadeOverlapSize: number;
-}
-interface AppPerformanceContextType {
-  performance: PerformanceMetrics;
-  serverSetting: { serverSetting: ServerSettings };
-}
-const usePerformanceContext = (): AppPerformanceContextType => {
-  const [performanceData, setPerformanceData] = useState<PerformanceMetrics>({
-    vol: 0, // Initial vol to 0
-    responseTime: 30,
-    mainprocessTime: 12,
-  });
-  useEffect(() => { // Simulate volume changes for sound wave effect
-    const interval = setInterval(() => {
-      setPerformanceData(prev => ({ ...prev, vol: Math.random() }));
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
-  return { 
-    performance: performanceData, 
-    serverSetting: { serverSetting: { serverReadChunkSize: 64, crossFadeOverlapSize: 0.020 } }
-  };
-};
-// End Mock Performance Context
-
-// Assuming ModalContentProps might not be needed here, but openModal type is generic
-interface ModalContentProps { 
-    modelId?: string;
-    modelName?: string;
-    message?: string;
-    type?: 'warning' | 'info' | 'error'; // For modal styling
-    // Allow any other props your modal might need
-    [key: string]: any; 
-}
 
 interface BottomBarProps {
   openModal: (type: string, props?: any) => void; // Added openModal prop
@@ -56,7 +12,6 @@ interface BottomBarProps {
 
 function BottomBar({ openModal }: BottomBarProps): JSX.Element {
   const { theme, toggleTheme } = useThemeContext();
-  const { performance } = usePerformanceContext(); // Consume performance context
   const appState = useAppState() as AppContextValue; // Cast via unknown for broader compatibility if types are complex
   const uiContext = useUIContext();
 
@@ -170,19 +125,6 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
   const buttonBaseClass = "text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-all duration-150 flex items-center justify-center space-x-2 shadow-sm";
   const lightButtonClass = "px-3 py-2 text-slate-700 bg-slate-200 hover:bg-slate-300 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-blue-500";
   
-  // Enhanced Start/Stop Button Styling
-  const activityButtonBase = `${buttonBaseClass} px-4 h-12 w-32 rounded-lg shadow-lg`; // Taller, wider, more rounded, more shadow
-  const activityButtonClass = uiContext.isConverting 
-    ? `${activityButtonBase} bg-red-500 hover:bg-red-600 text-white focus:ring-red-400 active:bg-red-700`
-    : `${activityButtonBase} bg-green-500 hover:bg-green-600 text-white focus:ring-green-400 active:bg-green-700`;
-
-  // Passthrough Button Styling
-  const passthroughButtonHeightClass = "h-10"; // Shorter than activityButton (h-12)
-  const passthroughButtonBase = `${buttonBaseClass} ${passthroughButtonHeightClass} px-3 w-32 rounded-md`; // Adjusted padding and width
-  const passthroughButtonClass = appState.serverSetting?.serverSetting?.passThrough
-    ? `${passthroughButtonBase} text-white passthrough-active-animate focus:ring-red-500` // Animation class
-    : `${passthroughButtonBase} text-slate-700 bg-slate-200 hover:bg-slate-300 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-blue-500`;
-
   return (
     <div className="h-20 min-h-[60px] bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-gray-700 flex items-center justify-between px-4 py-2 flex-shrink-0 transition-colors duration-300">
       <div className="flex space-x-2">

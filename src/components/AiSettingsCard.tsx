@@ -33,7 +33,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
   );
   const [localChunkSize, setLocalChunkSize] = useState<number>(
     appState.serverSetting?.serverSetting?.serverReadChunkSize
-      ? appState.serverSetting.serverSetting.serverReadChunkSize * 2.66667
+      ? appState.serverSetting.serverSetting.serverReadChunkSize
       : 5
   );
   const [localExtraSize, setLocalExtraSize] = useState<number>(
@@ -46,7 +46,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
   }, [appState.serverSetting?.serverSetting?.silentThreshold]);
   useEffect(() => {
     const cs = appState.serverSetting?.serverSetting?.serverReadChunkSize;
-    if (cs != null) setLocalChunkSize(cs * 2.66667);
+    if (cs != null) setLocalChunkSize(cs);
   }, [appState.serverSetting?.serverSetting?.serverReadChunkSize]);
   useEffect(() => {
     const ex = appState.serverSetting?.serverSetting?.extraConvertSize;
@@ -80,6 +80,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                         ...appState.setting.voiceChangerClientSetting,
                         echoCancel: e.target.checked
                     })}
+                    disabled={appState.serverSetting.serverSetting.enableServerAudio === 1}
                   /> Echo Cancellation
                 </label>
                 <label className={CSS_CLASSES.checkboxLabel}>
@@ -92,6 +93,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                         ...appState.setting.voiceChangerClientSetting,
                         noiseSuppression: e.target.checked
                     })}
+                    disabled={appState.serverSetting.serverSetting.enableServerAudio === 1}
                   /> Noise Suppression
                 </label>
                 <label className={CSS_CLASSES.checkboxLabel}>
@@ -104,6 +106,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                         ...appState.setting.voiceChangerClientSetting,
                         noiseSuppression2: e.target.checked
                     })}
+                    disabled={appState.serverSetting.serverSetting.enableServerAudio === 1}
                   /> Noise Suppression 2
                 </label>
               </div>
@@ -133,18 +136,18 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
               <DebouncedSlider
                 id="chunk"
                 name="chunk"
-                min={2.7}
-                max={2730.7}
-                step={2.7}
+                min={1}
+                max={1024}
+                step={1}
                 value={localChunkSize}
                 className={CSS_CLASSES.range}
                 onImmediateChange={setLocalChunkSize}
                 onChange={(val) => appState.serverSetting.updateServerSettings({
                   ...appState.serverSetting?.serverSetting,
-                  serverReadChunkSize: Math.round(val / 2.66667)
+                  serverReadChunkSize: val
                 })}
               />
-              <p className={CSS_CLASSES.sliderValue}>{localChunkSize.toFixed(1)} ms</p>
+              <p className={CSS_CLASSES.sliderValue}>{((localChunkSize * 128 * 1000) / 48000).toFixed(1)}ms</p>
             </div>
             <div>
               <label htmlFor="extra" className={CSS_CLASSES.label}>Extra Processing Time (Extra):</label>

@@ -2,7 +2,7 @@ import React from 'react';
 import { useAudioConfig } from './scripts/useAudioConfig';
 import { AppContextProvider } from './context/AppContext';
 import App from './App';
-import ParticleBackground from './components/ParticleBackground';
+import ParticleBackground from './components/Helpers/ParticleBackground';
 import GenericModal from './components/modals/GenericModal';
 import WelcomeModal from './components/modals/content/WelcomeModal';
 

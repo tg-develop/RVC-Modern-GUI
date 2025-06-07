@@ -1,4 +1,4 @@
-import { JSX, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import DragHandle from '../Helpers/DragHandle';
@@ -7,6 +7,7 @@ import AudioMode from './AudioMode';
 import AudioDevicesServer from './AudioDevicesServer';
 import AudioVolume from './AudioVolume';
 import AudioDevicesClient from './AudioDevicesClient';
+import { useAppState } from '../../context/AppContext';
 
 // Props for icons
 interface AudioSettingsCardProps {
@@ -15,8 +16,17 @@ interface AudioSettingsCardProps {
 }
 
 function AudioSettingsCard({ dndAttributes, dndListeners }: AudioSettingsCardProps): JSX.Element {
+  const appState = useAppState  ();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [audioState, setAudioState] = useState<"client" | "server">("client")
+
+  useEffect(() => {
+    if(appState.serverSetting.serverSetting.enableServerAudio == 1){
+      setAudioState("server")
+    }else{
+      setAudioState("client")
+    }
+  }, [appState.serverSetting.serverSetting.enableServerAudio]);
   
   return (
     <div className={`p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300 flex-1 min-h-0 flex flex-col ${isCollapsed ? 'h-auto' : 'overflow-y-auto'}`}>

@@ -35,6 +35,7 @@ interface CurrentModalState {
   props?: OpenModalProps; 
   primaryButton?: { text: string; onClick: () => void; className?: string };
   secondaryButton?: { text: string; onClick: () => void; className?: string };
+  transparent?: boolean;
 }
 
 function App(): JSX.Element {
@@ -129,7 +130,8 @@ function App(): JSX.Element {
       content: modalDetails.content,
       props: finalPropsForContent,
       primaryButton: modalDetails.primaryButton,
-      secondaryButton: modalDetails.secondaryButton
+      secondaryButton: modalDetails.secondaryButton,
+      transparent: false
     });
   };
 
@@ -155,6 +157,18 @@ function App(): JSX.Element {
         </main>
       </div>
       <BottomBar openModal={openModal} />
+
+      { currentModal && currentModal.content &&
+        <GenericModal
+          isOpen={!!currentModal}
+          onClose={closeModal}
+          title={currentModal.title}
+          primaryButton={currentModal.primaryButton}
+          secondaryButton={currentModal.secondaryButton}
+        >
+          {currentModal.content}
+        </GenericModal>
+      }
     </div>
   );
 }

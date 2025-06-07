@@ -15,6 +15,7 @@ function AudioVolume({ audioState }: AudioVolumeProps): JSX.Element {
   const [inputGain, setInputGain] = useState(1);
   const [outputGain, setOutputGain] = useState(1);
   const [monitorGain, setMonitorGain] = useState(1); 
+  const [enableMonitor, setEnableMonitor] = useState();
 
   const handleInputGainChange = (value: number) => {
     const gain = value / 100
@@ -95,7 +96,7 @@ function AudioVolume({ audioState }: AudioVolumeProps): JSX.Element {
         <label htmlFor="monitorGain" className={CSS_CLASSES.label}>Monitor Volume</label>
         <DebouncedSlider
           id="monitorGain"
-          min={10}
+          min={0}
           max={400}
           step={1}
           value={Math.round(monitorGain * 100)}
@@ -104,14 +105,6 @@ function AudioVolume({ audioState }: AudioVolumeProps): JSX.Element {
           onImmediateChange={(value) => setMonitorGain(value / 100)}
         />
         <p className={CSS_CLASSES.sliderValue}>{Math.round(monitorGain * 100)}%</p>
-      </div>
-
-      {/* Monitoring toggle */}
-      <div className="pt-2">
-        <label className={CSS_CLASSES.checkboxLabel}>
-          <input type="checkbox" className={CSS_CLASSES.checkbox} defaultChecked />
-          Enable Monitoring
-        </label>
       </div>
     </>
   );
