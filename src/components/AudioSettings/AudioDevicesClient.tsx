@@ -45,7 +45,11 @@ function AudioDevicesClient(): JSX.Element {
         }
         const input = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_INPUT);
         if (input) {
-            uiState.setAudioInputForGUI(input as string);
+          appState.setVoiceChangerClientSetting({
+            ...appState.setting.voiceChangerClientSetting,
+            audioInput: input as string
+          });
+          uiState.setAudioInputForGUI(input as string);
         }
     };
     loadCache();

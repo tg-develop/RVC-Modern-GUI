@@ -1,4 +1,4 @@
-import React, { JSX, useState } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import { useAppState } from '../../context/AppContext';
 import { CSS_CLASSES } from '../../styles/constants';
 import DebouncedSlider from '../Helpers/DebouncedSlider';
@@ -16,49 +16,49 @@ function AudioVolume({ audioState }: AudioVolumeProps): JSX.Element {
   const [outputGain, setOutputGain] = useState(1);
   const [monitorGain, setMonitorGain] = useState(1); 
 
+  useEffect(() => { 
+    setInputGain(appState.serverSetting.serverSetting.serverInputAudioGain)
+    setOutputGain(appState.serverSetting.serverSetting.serverOutputAudioGain)
+    setMonitorGain(appState.serverSetting.serverSetting.serverMonitorAudioGain)
+  }, [appState.serverSetting.serverSetting.serverInputAudioGain, appState.serverSetting.serverSetting.serverOutputAudioGain, appState.serverSetting.serverSetting.serverMonitorAudioGain])
+
   const handleInputGainChange = (value: number) => {
     const gain = value / 100
-    if(audioState == "server"){
-      appState.serverSetting.updateServerSettings({
-        ...appState.serverSetting.serverSetting,
-        serverInputAudioGain: gain
-      })
-    }else{
-      appState.setVoiceChangerClientSetting({
-        ...appState.setting.voiceChangerClientSetting,
-        inputGain: gain
-      })
-    }
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      serverInputAudioGain: gain
+    })  
+
+    appState.setVoiceChangerClientSetting({
+      ...appState.setting.voiceChangerClientSetting,
+      inputGain: gain
+    })
   }
 
   const handleOutputGainChange = (value: number) => {
     const gain = value / 100
-    if(audioState == "server"){
-      appState.serverSetting.updateServerSettings({
-        ...appState.serverSetting.serverSetting,
-        serverOutputAudioGain: gain
-      })
-    }else{
-      appState.setVoiceChangerClientSetting({
-        ...appState.setting.voiceChangerClientSetting,
-        outputGain: gain
-      })
-    }
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      serverOutputAudioGain: gain
+    })
+
+    appState.setVoiceChangerClientSetting({
+      ...appState.setting.voiceChangerClientSetting,
+      outputGain: gain
+    })
   }
 
   const handleMonitorGainChange = (value: number) => {
     const gain = value / 100
-    if(audioState == "server"){
-      appState.serverSetting.updateServerSettings({
-        ...appState.serverSetting.serverSetting,
-        serverMonitorAudioGain: gain
-      })
-    }else{
-      appState.setVoiceChangerClientSetting({
-        ...appState.setting.voiceChangerClientSetting,
-        monitorGain: gain
-      })
-    }
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      serverMonitorAudioGain: gain
+    })
+
+    appState.setVoiceChangerClientSetting({
+      ...appState.setting.voiceChangerClientSetting,
+      monitorGain: gain
+    })
   }
 
   return (
