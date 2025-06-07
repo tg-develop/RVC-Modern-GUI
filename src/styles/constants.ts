@@ -28,4 +28,25 @@ export const CSS_CLASSES = {
     success: "p-2 mb-4 text-sm text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 rounded",
     warning: "p-2 mb-4 text-sm text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400 rounded",
     loading: "text-blue-500 animate-spin"
-  };
+};
+
+export const INDEXEDDB_KEYS = {
+  AUDIO_ELEMENT_FOR_PLAY_RESULT: "audio-result",
+  AUDIO_ELEMENT_FOR_PLAY_MONITOR: "audio-monitor",
+  AUDIO_ELEMENT_FOR_TEST_ORIGINAL: "audio-test-original",
+  AUDIO_ELEMENT_FOR_TEST_CONVERTED: "audio-test-converted",
+  AUDIO_ELEMENT_FOR_TEST_CONVERTED_ECHOBACK: "audio-test-converted-echoback",
+  AUDIO_ELEMENT_FOR_SAMPLING_INPUT: "body-wav-container-wav-input",
+  AUDIO_ELEMENT_FOR_SAMPLING_OUTPUT: "body-wav-container-wav-output",
+  INDEXEDDB_KEY_AUDIO_OUTPUT: "INDEXEDDB_KEY_AUDIO_OUTPUT",
+  INDEXEDDB_KEY_AUDIO_MONITR: "INDEXEDDB_KEY_AUDIO_MONITOR",
+  INDEXEDDB_KEY_DEFAULT_MODEL_TYPE: "INDEXEDDB_KEY_DEFALT_MODEL_TYPE"
+}
+
+export const isDesktopApp = () => {
+    if (navigator.userAgent.indexOf('Electron') >= 0) {
+        return true;
+    } else {
+        return false;
+    }
+};

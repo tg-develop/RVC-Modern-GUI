@@ -1,6 +1,8 @@
 import React, { JSX, useEffect, useState } from 'react';
-import { CSS_CLASSES } from '../../styles/constants';
+import { CSS_CLASSES, INDEXEDDB_KEYS } from '../../styles/constants';
 import { useAppState } from '../../context/AppContext';
+import { useIndexedDB } from '@dannadori/voice-changer-client-js';
+import { useUIContext } from '../../context/UIContext';
 
 interface ClientAudioDevice {
   deviceId: string;
@@ -10,90 +12,23 @@ interface ClientAudioDevice {
 }
 
 function AudioDevicesClient(): JSX.Element {
-  const [clientInputDevices, setClientInputDevices] = useState<ClientAudioDevice[]>([]);
-  const [clientOutputDevices, setClientOutputDevices] = useState<ClientAudioDevice[]>([]);
-  
-  const [selectedInputDevice, setSelectedInputDevice] = useState<string>('');
-  const [selectedOutputDevice, setSelectedOutputDevice] = useState<string>('');
-  const [selectedMonitorDevice, setSelectedMonitorDevice] = useState<string>('');
-
-  useEffect(() => {
-    const loadDevices = async () => {     
-      try {
-        fetchClientDevices();
-      } catch (err) {
-        console.error('Error loading devices:', err);
-      }
-    };
-    
-    loadDevices();
-  }, []);
-  
-
-  // Fetch client devices
-  const fetchClientDevices = async () => {
-    try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-        throw new Error('MediaDevices API not supported in this browser');
-      }
-      
-      // Prompt for audio permission to reveal device labels
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
-      } catch (err) {
-        console.warn('Unable to access microphone for device labels:', err);
-      }
-
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const audioInputs: ClientAudioDevice[] = devices
-        .filter(device => device.kind === 'audioinput')
-        .map(device => ({
-          deviceId: device.deviceId,
-          kind: device.kind,
-          label: device.label || `Microphone ${device.deviceId.slice(0, 8)}...`,
-          groupId: device.groupId
-        }));
-        
-      const audioOutputs: ClientAudioDevice[] = devices
-        .filter(device => device.kind === 'audiooutput')
-        .map(device => ({
-          deviceId: device.deviceId,
-          kind: device.kind,
-          label: device.label || `Speaker ${device.deviceId.slice(0, 8)}...`,
-          groupId: device.groupId
-        }));
-      
-      setClientInputDevices(audioInputs);
-      setClientOutputDevices(audioOutputs);
-      
-      // Set default selections if not already set
-      if (audioInputs.length > 0 && !selectedInputDevice) {
-        setSelectedInputDevice(audioInputs[0].deviceId);
-      }
-      if (audioOutputs.length > 0) {
-        if (!selectedOutputDevice) {
-          setSelectedOutputDevice(audioOutputs[0].deviceId);
-        }
-        if (!selectedMonitorDevice) {
-          setSelectedMonitorDevice(audioOutputs[0].deviceId);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching client devices:', err);
-    }
-  };
+  const appState = useAppState();
+  const uiState = useUIContext();
+  const { getItem, setItem } = useIndexedDB({ clientType: null });
 
   const handleInputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedInputDevice(event.target.value);
+    appState.setting.voiceChangerClientSetting.audioInput = event.target.value;
+    uiState.setAudioInputForGUI(event.target.value);
   };
 
   const handleOutputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOutputDevice(event.target.value);
+    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_OUTPUT, event.target.value);
+    uiState.setAudioOutputForGUI(event.target.value);
   };
 
   const handleMonitorDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedMonitorDevice(event.target.value);
+    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITR, event.target.value);
+    uiState.setAudioMonitorForGUI(event.target.value);
   };
 
   return (
@@ -106,14 +41,14 @@ function AudioDevicesClient(): JSX.Element {
         <select 
           id="inputCh" 
           className={CSS_CLASSES.select}
-          value={selectedInputDevice}
+          value={uiState.audioInputForGUI}
           onChange={handleInputDeviceChange}
         >
           {
-            clientInputDevices.length === 0 ? (
+            uiState.inputAudioDeviceInfo.length === 0 ? (
               <option value="">No input devices found</option>
             ) : (
-              clientInputDevices.map((device) => (
+              uiState.inputAudioDeviceInfo.map((device) => (
                 <option 
                   key={device.deviceId} 
                   value={device.deviceId}
@@ -134,14 +69,14 @@ function AudioDevicesClient(): JSX.Element {
         <select 
           id="outputCh" 
           className={CSS_CLASSES.select}
-          value={selectedOutputDevice}
+          value={uiState.audioOutputForGUI}
           onChange={handleOutputDeviceChange}
         >              
           {
-            clientOutputDevices.length === 0 ? (
+            uiState.outputAudioDeviceInfo.length === 0 ? (
               <option value="">No output devices found</option>
             ) : (
-              clientOutputDevices.map((device) => (
+              uiState.outputAudioDeviceInfo.map((device) => (
                 <option 
                   key={device.deviceId} 
                   value={device.deviceId}
@@ -162,14 +97,14 @@ function AudioDevicesClient(): JSX.Element {
         <select 
           id="monCh" 
           className={CSS_CLASSES.select}
-          value={selectedMonitorDevice}
+          value={uiState.audioMonitorForGUI}
           onChange={handleMonitorDeviceChange}
         >
           {
-            clientOutputDevices.length === 0 ? (
+            uiState.outputAudioDeviceInfo.length === 0 ? (
               <option value="">No output devices found</option>
             ) : (
-              clientOutputDevices.map((device) => (
+              uiState.outputAudioDeviceInfo.map((device) => (
                 <option 
                   key={device.deviceId} 
                   value={device.deviceId}

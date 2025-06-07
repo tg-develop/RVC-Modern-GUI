@@ -15,7 +15,6 @@ function AudioVolume({ audioState }: AudioVolumeProps): JSX.Element {
   const [inputGain, setInputGain] = useState(1);
   const [outputGain, setOutputGain] = useState(1);
   const [monitorGain, setMonitorGain] = useState(1); 
-  const [enableMonitor, setEnableMonitor] = useState();
 
   const handleInputGainChange = (value: number) => {
     const gain = value / 100
