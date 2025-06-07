@@ -43,8 +43,6 @@ export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [errors, setErrors] = useState<UIError[]>([]);
   const idRef = useRef(0);
 
-  console.log(inputAudioDeviceInfo, outputAudioDeviceInfo)
-
   const startLoading = useCallback((message?: string) => {
     setLoadingMessage(message);
     setIsLoading(true);
@@ -124,13 +122,13 @@ export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children 
             const audioOutputDiff = checkDeviceDiff(knownAudiooutputIds, newAudiooutputIds);
 
             if (audioInputDiff.deleted.size > 0 || audioInputDiff.added.size > 0) {
-                console.log(`deleted input device: ${[...audioInputDiff.deleted]}`);
-                console.log(`added input device: ${[...audioInputDiff.added]}`);
+                console.log(`deleted input device:`, [...audioInputDiff.deleted]);
+                console.log(`added input device:`, [...audioInputDiff.added]);
                 setInputAudioDeviceInfo(audioInfo[0]);
             }
             if (audioOutputDiff.deleted.size > 0 || audioOutputDiff.added.size > 0) {
-                console.log(`deleted output device: ${[...audioOutputDiff.deleted]}`);
-                console.log(`added output device: ${[...audioOutputDiff.added]}`);
+                console.log(`deleted output device:`, [...audioOutputDiff.deleted]);
+                console.log(`added output device:`, [...audioOutputDiff.added]);
                 setOutputAudioDeviceInfo(audioInfo[1]);
             }
 

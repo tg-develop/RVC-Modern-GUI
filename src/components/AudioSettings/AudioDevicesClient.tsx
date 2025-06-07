@@ -31,6 +31,34 @@ function AudioDevicesClient(): JSX.Element {
     uiState.setAudioMonitorForGUI(event.target.value);
   };
 
+  // Load Output and Monitor from Cache
+  useEffect(() => {
+    const loadCache = async () => {
+        const output = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_OUTPUT);
+        if (output) {
+            uiState.setAudioOutputForGUI(output as string);
+        }
+        const monitor = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITR);
+        if (monitor) {
+            uiState.setAudioMonitorForGUI(monitor as string);
+        }
+    };
+    loadCache();
+  }, []);
+
+  // Load Input from Cache
+  useEffect(() => {
+    if (typeof appState.setting.voiceChangerClientSetting.audioInput == "string") {
+        if (
+            uiState.inputAudioDeviceInfo.find((x) => {
+                return x.deviceId == appState.setting.voiceChangerClientSetting.audioInput;
+            })
+        ) {
+            uiState.setAudioInputForGUI(appState.setting.voiceChangerClientSetting.audioInput);
+        }
+    }
+  }, [uiState.inputAudioDeviceInfo, appState.setting.voiceChangerClientSetting.audioInput]);
+
   return (
     <>
       {/* Input Device */}
