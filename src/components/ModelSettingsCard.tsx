@@ -1,7 +1,7 @@
-import React, { JSX, useState, useMemo, useEffect } from 'react';
+import React, { JSX, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faPen, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { RVCModelSlot, ModelSlotUnion, VoiceChangerType, ClientState } from '@dannadori/voice-changer-client-js';
+import { faChevronUp, faChevronDown, faPen } from '@fortawesome/free-solid-svg-icons';
+import { RVCModelSlot,  ClientState } from '@dannadori/voice-changer-client-js';
 import { useAppState } from '../context/AppContext';
 import DragHandle from './Helpers/DragHandle';
 import { CSS_CLASSES } from '../styles/constants';
@@ -28,7 +28,7 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
   
   useEffect(() => {
     setModel(appState.serverSetting.serverSetting.modelSlots[appState.serverSetting.serverSetting.modelSlotIndex]);
-  }, [appState.serverSetting?.serverSetting.modelSlotIndex]);
+  }, [appState.serverSetting?.serverSetting.modelSlotIndex, appState.serverSetting?.serverSetting.voiceChangerParams.model_dir]);
 
   const handlePitchChange = (val: number) => {
     appState.serverSetting.updateServerSettings({
@@ -51,19 +51,8 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
     });
   };
 
-  const handleSpeakerChange = (val: number) => {
-    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
-    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
-    if(modelSlotIndex) {
-      updatedSlots[modelSlotIndex] = {
-        ...updatedSlots[modelSlotIndex],
-        slotIndex: val
-      };
-    }
-    appState.serverSetting.updateServerSettings({
-      ...appState.serverSetting.serverSetting,
-      modelSlots: updatedSlots
-    });
+  const handleSaveSettings = () => {
+    appState.serverSetting.updateModelDefault();
   };
 
 
@@ -189,24 +178,38 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
                     <p className={CSS_CLASSES.sliderValue}>{(model?.defaultIndexRatio ?? 0.5).toFixed(2)}</p>
                   </div>
                 )}
-                <div className="flex items-center space-x-2">
-                  <label htmlFor="speaker" className={CSS_CLASSES.label}>Speaker:</label>
-                  <select 
-                    id="speaker" 
-                    name="speaker" 
-                    className={CSS_CLASSES.select} 
-                    disabled={!model || !model.speakers || Object.keys(model.speakers).length === 0} 
-                    value={model?.slotIndex ?? 0}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleSpeakerChange(parseInt(e.target.value))}
-                  >
-                    {speakerOptions}
-                  </select>
-                </div>
+                {
+                  // Only show speaker selection if there is more than one speaker
+                  model.speakers && Object.keys(model.speakers).length > 1 && (
+                    <div className="flex items-center space-x-2">
+                      <label htmlFor="speaker" className={CSS_CLASSES.label}>Speaker:</label>
+                      <select 
+                        id="speaker" 
+                        name="speaker" 
+                        className={CSS_CLASSES.select} 
+                        disabled={!model || !model.speakers || Object.keys(model.speakers).length === 0} 
+                        value={model?.slotIndex ?? 0}
+                        onChange={() => {}}
+                      >
+                        {speakerOptions}
+                      </select>
+                    </div>
+                  )
+                }
               </div>
+
             )
           }
         </>
       )}
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={handleSaveSettings}
+          className={CSS_CLASSES.modalSecondaryButton}
+        >
+          Save Settings
+        </button>
+      </div>
     </div>
   );
 }
