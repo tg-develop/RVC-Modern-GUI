@@ -5,6 +5,7 @@ import { ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, Cartesian
 import DragHandle from './Helpers/DragHandle';
 import { useThemeContext } from '../context/ThemeContext';
 import { useAppState } from '../context/AppContext';
+import CustomTooltip from './Helpers/Tooltip';
 
 // Define types for the performance data
 interface PerformanceMetrics {
@@ -18,80 +19,6 @@ interface ServerSettings {
   crossFadeOverlapSize: number;
 }
 
-interface AppPerformanceContextType {
-  performance: PerformanceMetrics;
-  serverSetting: { serverSetting: ServerSettings };
-}
-
-// Custom hook to get performance data from app state
-const usePerformanceData = (): AppPerformanceContextType => {
-  const appState = useAppState();
-  
-  // Get the latest performance data from app state
-  const getLatestPerformanceData = useCallback((): PerformanceMetrics => {
-    // Default values
-    const defaultMetrics: PerformanceMetrics = {
-      vol: 0.01, // Default to very low volume to avoid log(0)
-      responseTime: 0,
-      mainprocessTime: 0
-    };
-
-    if (!appState) return defaultMetrics;
-
-    // Extract performance data from app state
-    // Note: Adjust these property names based on your actual app state structure
-    const serverSetting = appState.serverSetting?.serverSetting;
-    
-    return {
-      // Get volume from audio input or use default
-      vol: (appState as any).inputVolume || defaultMetrics.vol,
-      // Get response time from server settings or use default
-      responseTime: (serverSetting as any)?.responseTime || defaultMetrics.responseTime,
-      // Get process time from server settings or use default
-      mainprocessTime: (serverSetting as any)?.processTime || defaultMetrics.mainprocessTime
-    };
-  }, [appState]);
-
-  // Get the latest server settings
-  const getServerSettings = useCallback((): { serverSetting: ServerSettings } => {
-    if (!appState?.serverSetting?.serverSetting) {
-      return {
-        serverSetting: {
-          serverReadChunkSize: 64, // Default chunk size
-          crossFadeOverlapSize: 0.020 // Default crossfade
-        }
-      };
-    }
-
-    
-    return {
-      serverSetting: {
-        serverReadChunkSize: appState.serverSetting.serverSetting.serverReadChunkSize || 64,
-        crossFadeOverlapSize: appState.serverSetting.serverSetting.crossFadeOverlapSize || 0.020
-      }
-    };
-  }, [appState]);
-
-  // State to hold the latest performance data
-  const [performanceData, setPerformanceData] = useState<PerformanceMetrics>(getLatestPerformanceData());
-  const [serverSettings, setServerSettings] = useState<{ serverSetting: ServerSettings }>(getServerSettings());
-
-  // Update performance data periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPerformanceData(getLatestPerformanceData());
-      setServerSettings(getServerSettings());
-    }, 200); // Update every 200ms
-    
-    return () => clearInterval(interval);
-  }, [getLatestPerformanceData, getServerSettings]);
-
-  return { 
-    performance: performanceData, 
-    serverSetting: serverSettings 
-  };
-};
-
 interface PerformanceStatsCardProps {
   dndAttributes?: Record<string, any>;
   dndListeners?: Record<string, any>;
@@ -101,7 +28,7 @@ const DEFAULT_MAX_CHART_DATA_POINTS = 50;
 
 interface ChartDataPoint {
   timestamp: number;
-  mainprocessTime: number; // Rounded value
+  perfTimeValue: number; // Stores mainprocessTime (perfTime) for the chart's Y-axis
   greenTime?: number;
   yellowTime?: number;
   redTime?: number;
@@ -129,7 +56,7 @@ const PERF_TEXT_CLASSES: Record<PerfStatus, string> = {
   critical: 'text-red-600 dark:text-red-400',
 };
 
-const PERF_FILL_HEX: Record<PerfStatus, string> = {
+const LATENCY_STATUS_FILL_HEX: Record<PerfStatus, string> = {
   good: '#10B981',     // emerald-500
   warning: '#F59E0B',  // amber-500
   critical: '#EF4444', // red-500
@@ -138,84 +65,98 @@ const PERF_FILL_HEX: Record<PerfStatus, string> = {
 const CHART_LINE_COLOR_LIGHT_HEX = '#475569'; // slate-600
 const CHART_LINE_COLOR_DARK_HEX = '#cbd5e1'; // slate-300
 
+const DEFAULT_PERFORMANCE_METRICS: PerformanceMetrics = {
+  vol: 0.01, // Default to very low volume to avoid log(0)
+  responseTime: 0,
+  mainprocessTime: 0
+};
+
 function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsCardProps): JSX.Element {
   const theme = useThemeContext();
+  const appState = useAppState();
   
   const [isCollapsed, setIsCollapsed] = useState(false);
   const performanceMetricKeys: string[] = ["Vol", "Ping", "Total", "Perf"];
   const iconButtonClass = "p-1 text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200";
 
-  const { performance, serverSetting } = usePerformanceData();
+  // Memoize performance data from appState, providing defaults
+  const currentPerformance = useMemo((): PerformanceMetrics => {
+    // Assuming these are direct properties on appState based on previous hook's access patterns
+    // and user's mention of appState.performance (which might mean stats *within* appState)
+    return {
+      vol: (appState as any).inputVolume ?? DEFAULT_PERFORMANCE_METRICS.vol,
+      responseTime: (appState as any).responseTime ?? DEFAULT_PERFORMANCE_METRICS.responseTime,
+      mainprocessTime: (appState as any).mainprocessTime ?? DEFAULT_PERFORMANCE_METRICS.mainprocessTime,
+    };
+  }, [appState]);
+
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [maxDataPoints, setMaxDataPoints] = useState(DEFAULT_MAX_CHART_DATA_POINTS);
-
   const [isRecording, setIsRecording] = useState(false);
   const [recordedData, setRecordedData] = useState<RecordedDataEntry[]>([]);
 
+  //Calculate the next DataPoint
   const calculatedMetrics = useMemo((): CalculatedMetricValues => {
-    if (!performance || !serverSetting?.serverSetting) {
-      return {
-        volumeDb: -90, ping: 0, totalLatencyTime: 0, perfTime: 0, chunkTime: 0, perfStatus: 'good',
-      };
-    }
+    const volumeDb = Math.max(Math.round(20 * Math.log10(appState.performance.vol || 0.00001)), -90);
+    const chunkTime = ((appState.serverSetting.serverSetting.serverReadChunkSize * 128 * 1000) / 48000); // Assuming 48kHz sample rate, 128 samples per frame for chunk size unit
+    const totalLatencyTime = Math.ceil(chunkTime + appState.performance.responseTime + appState.serverSetting.serverSetting.crossFadeOverlapSize * 1000);
 
-    const volumeDb = Math.max(Math.round(20 * Math.log10(performance.vol || 0.00001)), -90);
-    const chunkTime = ((serverSetting.serverSetting.serverReadChunkSize * 128 * 1000) / 48000);
-    const totalLatencyTime = Math.ceil(chunkTime + performance.responseTime + serverSetting.serverSetting.crossFadeOverlapSize * 1000);
-    
     let perfStatus: PerfStatus = 'good';
-    if (performance.mainprocessTime > chunkTime) {
+    const eightyPercentChunkTime = 0.8 * chunkTime;
+    if (appState.performance.mainprocessTime > chunkTime) {
         perfStatus = 'critical';
-    } else if (performance.mainprocessTime * 1.2 > chunkTime) {
+    } else if (appState.performance.mainprocessTime > eightyPercentChunkTime) { // totalLatencyTime <= chunkTime is implicit
         perfStatus = 'warning';
     }
 
     return {
       volumeDb,
-      ping: performance.responseTime,
+      ping: appState.performance.responseTime,
       totalLatencyTime,
-      perfTime: performance.mainprocessTime,
+      perfTime: appState.performance.mainprocessTime, // This is the original mainprocessTime
       chunkTime,
       perfStatus,
     };
-  }, [performance, serverSetting]);
+  }, [currentPerformance, appState.serverSetting.serverSetting]);
 
+  //Format DataPoint into ChartDataPoint
   useEffect(() => {
-    if (!performance || !serverSetting?.serverSetting) return;
+    const { perfStatus, perfTime } = calculatedMetrics;
 
-    const { perfStatus, perfTime, chunkTime } = calculatedMetrics;
-    const roundedMainProcessTime = Math.round(perfTime);
+    const roundedPerfTime = Math.round(perfTime);
     let gt = 0, yt = 0, rt = 0;
 
-    if (perfStatus === 'good') gt = roundedMainProcessTime;
-    else if (perfStatus === 'warning') yt = roundedMainProcessTime;
-    else if (perfStatus === 'critical') rt = roundedMainProcessTime;
+    if (perfStatus === 'good') gt = roundedPerfTime;
+    else if (perfStatus === 'warning') yt = roundedPerfTime;
+    else if (perfStatus === 'critical') rt = roundedPerfTime;
 
     const newDataPoint: ChartDataPoint = {
       timestamp: Date.now(),
-      mainprocessTime: roundedMainProcessTime,
+      perfTimeValue: roundedPerfTime, // Use the rounded perfTime for the chart line
       greenTime: gt, yellowTime: yt, redTime: rt,
     };
 
+    //Add DataPoint to ChartData
     setChartData(prevData => {
       const newChartData = [...prevData, newDataPoint];
       return newChartData.length > maxDataPoints ? newChartData.slice(newChartData.length - maxDataPoints) : newChartData;
     });
 
+    //Add DataPoint to RecordedData
     if (isRecording) {
       setRecordedData(prev => [...prev, {
         timestamp: newDataPoint.timestamp,
         ...calculatedMetrics,
-        perfValueString: `${Math.round(perfTime)}ms of ${Math.round(chunkTime)}ms`
+        perfValueString: `${Math.round(calculatedMetrics.totalLatencyTime)}ms of ${Math.round(calculatedMetrics.chunkTime)}ms`
       }]);
     }
-  }, [performance, serverSetting, calculatedMetrics, maxDataPoints, isRecording]);
+  }, [calculatedMetrics, maxDataPoints, isRecording]);
 
   const displayValues: Record<string, { value: string | number; unit?: string; className?: string }> = {
     Vol: { value: calculatedMetrics.volumeDb, unit: 'dB' },
     Ping: { value: Math.round(calculatedMetrics.ping), unit: 'ms' },
     Total: { value: Math.round(calculatedMetrics.totalLatencyTime), unit: 'ms' },
-    Perf: { 
+    Perf: { // Display mainprocessTime (perfTime) vs chunkTime, colored by perfStatus
       value: `${Math.round(calculatedMetrics.perfTime)}ms of ${Math.round(calculatedMetrics.chunkTime)}ms`, 
       className: PERF_TEXT_CLASSES[calculatedMetrics.perfStatus]
     },
@@ -317,26 +258,50 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
                   tick={{ fontSize: 10 }}
                   tickFormatter={(value: number) => String(Math.round(value))}
                 />
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', borderColor: '#475569', borderRadius: '0.375rem' }}
-                  labelStyle={{ color: '#e2e8f0', marginBottom: '4px' }}
-                  itemStyle={{ color: '#cbd5e1', paddingTop: '2px', paddingBottom: '2px' }}
-                  formatter={(value: number | string, name: string) => {
-                    if (name === 'Main Process Time' && typeof value === 'number') {
-                        return [Math.round(value) + ' ms', name];
-                    }
-                    if (name.startsWith('Perf (')) return null; 
-                    return [value, name];
-                  }}
-                  labelFormatter={(label: number) => `Time: ${new Date(label).toLocaleTimeString()}`}
-                />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{fontSize: "12px", paddingTop: "10px"}} />
                 
-                <Area type="monotone" dataKey="greenTime" stroke="none" fill={PERF_FILL_HEX.good} stackId="perfArea" fillOpacity={0.4} name="Perf (Good)" legendType="none" />
-                <Area type="monotone" dataKey="yellowTime" stroke="none" fill={PERF_FILL_HEX.warning} stackId="perfArea" fillOpacity={0.4} name="Perf (Warning)" legendType="none" />
-                <Area type="monotone" dataKey="redTime" stroke="none" fill={PERF_FILL_HEX.critical} stackId="perfArea" fillOpacity={0.4} name="Perf (Critical)" legendType="none" />
+                {/* Area Charts für Hintergrund-Farbcodierung (ohne Tooltip-Anzeige) */}
+                <Area 
+                  type="monotone" 
+                  dataKey="greenTime" 
+                  stroke="none" 
+                  fill={LATENCY_STATUS_FILL_HEX.good} 
+                  stackId="perfArea" 
+                  fillOpacity={0.4} 
+                  name="" 
+                  legendType="none" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="yellowTime" 
+                  stroke="none" 
+                  fill={LATENCY_STATUS_FILL_HEX.warning} 
+                  stackId="perfArea" 
+                  fillOpacity={0.4} 
+                  name="" 
+                  legendType="none" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="redTime" 
+                  stroke="none" 
+                  fill={LATENCY_STATUS_FILL_HEX.critical} 
+                  stackId="perfArea" 
+                  fillOpacity={0.4} 
+                  name="" 
+                  legendType="none" 
+                />
                 
-                <Line type="monotone" dataKey="mainprocessTime" stroke={theme.theme === 'dark' ? CHART_LINE_COLOR_DARK_HEX : CHART_LINE_COLOR_LIGHT_HEX} strokeWidth={1} dot={false} name="Main Process Time" />
+                {/* Hauptlinie für MainProcessTime */}
+                <Line 
+                  type="monotone" 
+                  dataKey="perfTimeValue" 
+                  stroke={theme.theme === 'dark' ? CHART_LINE_COLOR_DARK_HEX : CHART_LINE_COLOR_LIGHT_HEX} 
+                  strokeWidth={2} 
+                  dot={false} 
+                  name="Main Process Time" 
+                />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -346,4 +311,4 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
   );
 }
 
-export default PerformanceStatsCard; 
+export default PerformanceStatsCard;
