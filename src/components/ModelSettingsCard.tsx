@@ -28,40 +28,27 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
   
   useEffect(() => {
     setModel(appState.serverSetting.serverSetting.modelSlots[appState.serverSetting.serverSetting.modelSlotIndex]);
-  }, [appState.serverSetting?.serverSetting.modelSlotIndex, appState.serverSetting?.serverSetting.modelSlots]);
+  }, [appState.serverSetting?.serverSetting.modelSlotIndex]);
 
   const handlePitchChange = (val: number) => {
-    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
-    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
-    updatedSlots[modelSlotIndex] = {
-      ...updatedSlots[modelSlotIndex],
-      defaultTune: val
-    };
-    updateModels(updatedSlots)
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      tran: val  
+    });
   };
 
   const handleFormatShiftChange = (val: number) => {
-    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
-    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
-    if(modelSlotIndex) {
-      updatedSlots[modelSlotIndex] = {
-        ...updatedSlots[modelSlotIndex],
-        defaultFormantShift: val
-      };
-    }
-    updateModels(updatedSlots)
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      formantShift: val  
+    });
   };
 
   const handleIndexRatioChange = (val: number) => {
-    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
-    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
-    if(modelSlotIndex) {
-      updatedSlots[modelSlotIndex] = {
-        ...updatedSlots[modelSlotIndex],
-        defaultIndexRatio: val
-      };
-    }
-    updateModels(updatedSlots)
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      indexRatio: val  
+    });
   };
 
   const handleSpeakerChange = (val: number) => {
@@ -73,15 +60,12 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
         slotIndex: val
       };
     }
-    updateModels(updatedSlots)
-  };
-
-  const updateModels = (models: RVCModelSlot[]) => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
-      modelSlots: models
+      modelSlots: updatedSlots
     });
-  }
+  };
+
 
   // Use model for these properties, reflecting user's preference for direct access
   const isONNX = model?.isONNX ?? false;
