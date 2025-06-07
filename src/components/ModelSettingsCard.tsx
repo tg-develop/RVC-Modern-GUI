@@ -1,10 +1,12 @@
 import React, { JSX, useState, useMemo, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faPen, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { RVCModelSlot, ModelSlotUnion, VoiceChangerType } from '@dannadori/voice-changer-client-js';
+import { RVCModelSlot, ModelSlotUnion, VoiceChangerType, ClientState } from '@dannadori/voice-changer-client-js';
 import { useAppState } from '../context/AppContext';
-import DragHandle from './DragHandle';
+import DragHandle from './Helpers/DragHandle';
 import { CSS_CLASSES } from '../styles/constants';
+import DebouncedSlider from './Helpers/DebouncedSlider';
+import { useInitialPlaceholder } from '../scripts/usePlaceholder';
 
 interface ModelSettingsCardProps {
   openModal: (type: string, props?: { model?: RVCModelSlot }) => void;
@@ -19,72 +21,67 @@ const ModelInfoItem: React.FC<{ label: string; value: React.ReactNode }> = ({ la
   </div>
 );
 
-// Temporary interface to help with appState typing issues until AppContext is fully aligned
-interface AppStateForCard {
-    serverSetting?: { serverSetting: any }; // From App.tsx temporary interface
-    initialized?: boolean; // From App.tsx temporary interface
-    clientSetting?: { setting: any }; 
-    updateClientSetting?: (setting: any) => void; 
-    // Add other properties from AppStateValue if needed by other parts of this component
-}
-
-// This type is for the server-side client settings structure
-interface ClientSettingStructure {
-    tran?: number;
-    f0Factor?: number;
-    indexRatio?: number;
-    speakerId?: number;
-    // Add other client setting properties here if they exist
-}
-
 function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSettingsCardProps): JSX.Element {
-  const appState = useAppState() as AppStateForCard; 
+  const appState = useAppState() as ClientState; 
   const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // Renamed from selectedModel to avoid confusion with the local state
+  const [model, setModel] = useState<RVCModelSlot>();
+  
   useEffect(() => {
-    const serverSettings = appState.serverSetting?.serverSetting as any; 
-    if (serverSettings && typeof serverSettings.modelSlotIndex === 'number' && serverSettings.modelSlots) {
-      const model = serverSettings.modelSlots.find(
-        (slot: ModelSlotUnion): slot is RVCModelSlot => 
-            slot.slotIndex === serverSettings.modelSlotIndex && 
-            slot.voiceChangerType === VoiceChangerType.RVC
-      );
-      setModel(model || null);
-    }
-  }, [appState.serverSetting?.serverSetting]);
-
-  const [model, setModel] = useState<RVCModelSlot | null>(null);
-
-  const handleClientSettingUpdate = (newSetting: Partial<ClientSettingStructure>) => {
-    if (appState.updateClientSetting) {
-      const currentClientSettings = appState.clientSetting?.setting || {};
-      appState.updateClientSetting({ 
-        ...currentClientSettings, 
-        ...newSetting 
-      });
-    }
-  };
+    setModel(appState.serverSetting.serverSetting.modelSlots[appState.serverSetting.serverSetting.modelSlotIndex]);
+  }, [appState.serverSetting?.serverSetting.modelSlotIndex, appState.serverSetting?.serverSetting.modelSlots]);
 
   const handlePitchChange = (val: number) => {
-    //setmodel(prev => prev ? { ...prev, uiTune: val } : null);
-    handleClientSettingUpdate({ tran: val });
+    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
+    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
+    updatedSlots[modelSlotIndex] = {
+      ...updatedSlots[modelSlotIndex],
+      defaultTune: val
+    };
+    updateModels(updatedSlots)
   };
 
   const handleFormatShiftChange = (val: number) => {
-    //setmodel(prev => prev ? { ...prev, uiF0Factor: val } : null);
-    handleClientSettingUpdate({ f0Factor: val });
+    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
+    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
+    if(modelSlotIndex) {
+      updatedSlots[modelSlotIndex] = {
+        ...updatedSlots[modelSlotIndex],
+        defaultFormantShift: val
+      };
+    }
+    updateModels(updatedSlots)
   };
 
   const handleIndexRatioChange = (val: number) => {
-    //setmodel(prev => prev ? { ...prev, uiIndexRatio: val } : null);
-    handleClientSettingUpdate({ indexRatio: val });
+    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
+    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
+    if(modelSlotIndex) {
+      updatedSlots[modelSlotIndex] = {
+        ...updatedSlots[modelSlotIndex],
+        defaultIndexRatio: val
+      };
+    }
+    updateModels(updatedSlots)
   };
 
   const handleSpeakerChange = (val: number) => {
-    //setmodel(prev => prev ? { ...prev, uiSpeakerId: val } : null);
-    handleClientSettingUpdate({ speakerId: val });
+    const updatedSlots = [...appState.serverSetting.serverSetting.modelSlots];
+    const modelSlotIndex = appState.serverSetting.serverSetting.modelSlotIndex;
+    if(modelSlotIndex) {
+      updatedSlots[modelSlotIndex] = {
+        ...updatedSlots[modelSlotIndex],
+        slotIndex: val
+      };
+    }
+    updateModels(updatedSlots)
   };
+
+  const updateModels = (models: RVCModelSlot[]) => {
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      modelSlots: models
+    });
+  }
 
   // Use model for these properties, reflecting user's preference for direct access
   const isONNX = model?.isONNX ?? false;
@@ -92,7 +89,10 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
     ? model?.modelTypeOnnx || model?.modelType 
     : model?.modelType;
   
-  const modelIcon = 'https://placehold.co/128x128.png?text=Model'; // User's preference
+  const modelDir = appState.serverSetting.serverSetting.voiceChangerParams.model_dir;
+  const icon = (model?.iconFile && model?.iconFile.length > 0) ? "http://127.0.0.1:18888/" + modelDir  + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
+  const placeholder = useInitialPlaceholder(model?.name || "");
+  
 
   // Prepare speaker options outside of JSX return for clarity
   let speakerOptions: JSX.Element[] = [];
@@ -121,7 +121,7 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
             <div className="flex flex-col items-center text-center mb-6 p-4 bg-slate-50 dark:bg-gray-700/30 rounded-lg">
               <div className="flex w-full items-start">
                 <img 
-                  src={modelIcon}
+                  src={icon || placeholder}
                   alt={model.name} 
                   className="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-white dark:border-gray-600 shadow-lg mb-3 mr-4 flex-shrink-0"
                 />
@@ -152,38 +152,75 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
               <p className="text-slate-500 dark:text-gray-400 italic text-center">Select a model from the list <br/> to see its settings.</p>
             </div>
           )}
-          <div className={`space-y-4 ${!model ? 'opacity-50 pointer-events-none' : ''}`}>
-            <div className="flex items-center space-x-2">
-              <label htmlFor="pitch" className={CSS_CLASSES.label}>Pitch:</label>
-              <input type="range" id="pitch" name="pitch" min="-50" max="50" step="1" value={model?.defaultTune ?? 0} onChange={(e) => handlePitchChange(parseInt(e.target.value))} className={CSS_CLASSES.range} disabled={!model} />
-              <span className={CSS_CLASSES.sliderValue}>{model?.defaultTune ?? 0}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <label htmlFor="formatShift" className={CSS_CLASSES.label}>Formant Shift:</label>
-              <input type="range" id="formatShift" name="formatShift" min="-5" max="5" step="0.1" value={model?.defaultFormantShift ?? 0} onChange={(e) => handleFormatShiftChange(parseFloat(e.target.value))} className={CSS_CLASSES.range} disabled={!model}/>
-              <span className={CSS_CLASSES.sliderValue}>{(model?.defaultFormantShift ?? 0).toFixed(1)}</span>
-            </div>
-            {model && model.indexFile !== "" && (
-                <div className="flex items-center space-x-2">
-                    <label htmlFor="indexRatio" className={CSS_CLASSES.label}>Index Ratio:</label>
-                    <input type="range" id="indexRatio" name="indexRatio" min="0" max="1" step="0.01" value={model?.defaultIndexRatio ?? 0.5} onChange={(e) => handleIndexRatioChange(parseFloat(e.target.value))} className={CSS_CLASSES.range} disabled={!model}/>
-                    <span className={CSS_CLASSES.sliderValue}>{(model?.defaultIndexRatio ?? 0.5).toFixed(2)}</span>
+          {
+            model && (
+              <div className={`space-y-4 ${!model ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div>
+                  <label htmlFor="pitch" className={CSS_CLASSES.label}>Pitch:</label>
+                  <DebouncedSlider 
+                    id="pitch" 
+                    name="pitch" 
+                    min={-50}
+                    max={50} 
+                    step={1} 
+                    value={model?.defaultTune || 0} 
+                    onChange={handlePitchChange} 
+                    onImmediateChange={(val) => setModel({ ...model, defaultTune: val })}
+                    className={CSS_CLASSES.range} 
+                    disabled={!model}
+                  />
+                  <p className={CSS_CLASSES.sliderValue}>{model?.defaultTune || 0}</p>
                 </div>
-            )}
-            <div className="flex items-center space-x-2">
-              <label htmlFor="speaker" className={CSS_CLASSES.label}>Speaker:</label>
-              <select 
-                id="speaker" 
-                name="speaker" 
-                className={CSS_CLASSES.select} 
-                disabled={!model || !model.speakers || Object.keys(model.speakers).length === 0} 
-                value={model?.slotIndex ?? 0}
-                onChange={(e) => handleSpeakerChange(parseInt(e.target.value))}
-              >
-                {speakerOptions}
-              </select>
-            </div>
-          </div>
+                <div>
+                  <label htmlFor="formatShift" className={CSS_CLASSES.label}>Formant Shift:</label>
+                  <DebouncedSlider 
+                    id="formatShift" 
+                    name="formatShift" 
+                    min={-5} 
+                    max={5} 
+                    step={0.1} 
+                    value={model?.defaultFormantShift ?? 0} 
+                    onChange={handleFormatShiftChange} 
+                    onImmediateChange={(val) => setModel({ ...model, defaultFormantShift: val })}
+                    className={CSS_CLASSES.range} 
+                    disabled={!model}
+                  />
+                  <p className={CSS_CLASSES.sliderValue}>{(model?.defaultFormantShift ?? 0).toFixed(1)}</p>
+                </div>
+                {model.indexFile !== "" && (
+                  <div>
+                    <label htmlFor="indexRatio" className={CSS_CLASSES.label}>Index Ratio:</label>
+                    <DebouncedSlider 
+                      id="indexRatio" 
+                      name="indexRatio" 
+                      min={0} 
+                      max={1} 
+                      step={0.01} 
+                      value={model?.defaultIndexRatio ?? 0.5} 
+                      onChange={handleIndexRatioChange} 
+                      onImmediateChange={(val) => setModel({ ...model, defaultIndexRatio: val })}
+                      className={CSS_CLASSES.range} 
+                      disabled={!model}
+                    />
+                    <p className={CSS_CLASSES.sliderValue}>{(model?.defaultIndexRatio ?? 0.5).toFixed(2)}</p>
+                  </div>
+                )}
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="speaker" className={CSS_CLASSES.label}>Speaker:</label>
+                  <select 
+                    id="speaker" 
+                    name="speaker" 
+                    className={CSS_CLASSES.select} 
+                    disabled={!model || !model.speakers || Object.keys(model.speakers).length === 0} 
+                    value={model?.slotIndex ?? 0}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleSpeakerChange(parseInt(e.target.value))}
+                  >
+                    {speakerOptions}
+                  </select>
+                </div>
+              </div>
+            )
+          }
         </>
       )}
     </div>

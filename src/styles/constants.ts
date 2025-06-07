@@ -7,7 +7,7 @@ export const CSS_CLASSES = {
     radioButton: "mr-2 accent-blue-500 dark:accent-blue-400",
     
     // Typography
-    label: "block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1",
+    label: "block text-sm font-medium text-slate-600 dark:text-gray-400 mt-1 mb-1",
     heading: "text-lg font-semibold text-slate-700 dark:text-gray-200",
     sliderValue: "text-xs text-slate-600 dark:text-gray-400 text-right",
     checkboxLabel: "flex items-center text-sm text-slate-700 dark:text-gray-300",

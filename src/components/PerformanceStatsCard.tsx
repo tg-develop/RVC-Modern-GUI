@@ -2,7 +2,7 @@ import React, { JSX, useState, useEffect, useMemo, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faPlayCircle, faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import DragHandle from './DragHandle';
+import DragHandle from './Helpers/DragHandle';
 import { useThemeContext } from '../context/ThemeContext';
 import { useAppState } from '../context/AppContext';
 

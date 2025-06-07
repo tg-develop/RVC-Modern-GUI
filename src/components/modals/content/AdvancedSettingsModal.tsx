@@ -1,7 +1,7 @@
 import React, { JSX, useState, useEffect } from 'react';
 import { useAppState } from '../../../context/AppContext';
 import { useUIContext } from '../../../context/UIContext';
-import DebouncedSlider from '../../DebouncedSlider';
+import DebouncedSlider from '../../Helpers/DebouncedSlider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { Protocol } from '@dannadori/voice-changer-client-js';

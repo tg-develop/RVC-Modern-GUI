@@ -1,7 +1,7 @@
 import { JSX, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import DragHandle from '../DragHandle';
+import DragHandle from '../Helpers/DragHandle';
 import { CSS_CLASSES } from '../../styles/constants';
 import AudioMode from './AudioMode';
 import AudioDevicesServer from './AudioDevicesServer';

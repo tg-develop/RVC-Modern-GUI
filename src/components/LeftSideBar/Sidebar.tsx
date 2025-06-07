@@ -10,7 +10,6 @@ interface LeftSidebarProps {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
   openModal: (type: string, props?: { modelId?: string; modelName?: string; model?: RVCModelSlot }) => void;
-  onSelectModel: (slotIndex: number) => void;
 }
 
 // Define Sort and Filter types
@@ -28,8 +27,7 @@ const sortOptions: { value: SortOption, label: string }[] = [
 function LeftSidebar({
   isSidebarOpen,
   toggleSidebar,
-  openModal,
-  onSelectModel 
+  openModal
 }: LeftSidebarProps): JSX.Element | null {
   const appState = useAppState();
   const guiState = useUIContext();

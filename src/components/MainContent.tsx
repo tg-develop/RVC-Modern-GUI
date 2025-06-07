@@ -14,7 +14,7 @@ import {
     // sortableKeyboardCoordinates, // Re-add if KeyboardSensor is used
 } from '@dnd-kit/sortable';
 
-import SortableCardItem from './SortableCardItem';
+import SortableCardItem from './Helpers/SortableCardItem';
 import ModelSettingsCard from './ModelSettingsCard';
 import PerformanceStatsCard from './PerformanceStatsCard';
 import AiSettingsCard from './AiSettingsCard';

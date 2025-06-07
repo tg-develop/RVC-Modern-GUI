@@ -1,15 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, InputHTMLAttributes } from 'react';
 
-interface DebouncedSliderProps {
-  id: string;
-  name?: string;
-  min: number;
-  max: number;
-  step: number;
-  value: number;
-  onChange: (value: number) => void;
-  onImmediateChange?: (value: number) => void;
-  className?: string;
+interface DebouncedSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
+  value: number; // Controlled component value
+  onChange: (value: number) => void; // Debounced change callback
+  onImmediateChange?: (value: number) => void; // Optional: Callback for immediate value change
+  // id, name, min, max, step, className, disabled, etc., will be inherited from InputHTMLAttributes
 }
 
 export const useDebouncedCallback = <T extends (...args: any[]) => void>(
@@ -36,15 +31,10 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
 };
 
 const DebouncedSlider: React.FC<DebouncedSliderProps> = ({
-  id,
-  name,
-  min,
-  max,
-  step,
   value,
   onChange,
   onImmediateChange,
-  className,
+  ...rest
 }) => {
   const [internalValue, setInternalValue] = useState<number>(value);
   useEffect(() => {
@@ -65,14 +55,9 @@ const DebouncedSlider: React.FC<DebouncedSliderProps> = ({
   return (
     <input
       type="range"
-      id={id}
-      name={name}
-      min={min}
-      max={max}
-      step={step}
-      value={internalValue}
-      className={className}
-      onChange={handleChange}
+      {...rest} // Spread all other native input attributes
+      value={internalValue} // Controlled internal value
+      onChange={handleChange} // Internal handler
     />
   );
 };

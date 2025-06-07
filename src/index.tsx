@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { AppRootProvider } from './context/AppRootProvider';
 import { ThemeProvider } from './context/ThemeContext';
-import { AppContextProvider } from './context/AppContext';
-import App from './App';
+import { AppWrapper } from './AppWrapper';
 import { UIContextProvider } from './context/UIContext';
 
 const rootElement = document.getElementById('root');
@@ -17,9 +16,7 @@ root.render(
     <ThemeProvider>
       <UIContextProvider>
         <AppRootProvider>
-          <AppContextProvider>
-            <App />
-          </AppContextProvider>
+          <AppWrapper />
         </AppRootProvider>
       </UIContextProvider>
     </ThemeProvider>

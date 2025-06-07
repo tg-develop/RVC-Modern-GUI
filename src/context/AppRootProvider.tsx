@@ -23,8 +23,8 @@ export const useAppRoot = (): AppRootValue => {
 };
 
 export const AppRootProvider = ({ children }: AppRootProviderProps) => {
-    const audioContextState = useAudioConfig(); // This hook provides { audioContext: AudioContext | null }
-    const appGuiSettingState = useAppGuiSetting(); // This hook provides appGuiSetting, guiSettingLoaded, version, edition, getAppGuiSetting, clearAppGuiSetting
+    const audioContextState = useAudioConfig(); 
+    const appGuiSettingState = useAppGuiSetting();
 
     const getGUISetting = async () => {
         await appGuiSettingState.getAppGuiSetting(`/assets/gui_settings/GUI.json`);

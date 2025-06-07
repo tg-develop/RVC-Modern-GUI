@@ -1,8 +1,8 @@
 import React, { JSX, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import DragHandle from './DragHandle';
-import DebouncedSlider from './DebouncedSlider';
+import DragHandle from './Helpers/DragHandle';
+import DebouncedSlider from './Helpers/DebouncedSlider';
 import { useAppState } from '../context/AppContext';
 import { useUIContext } from '../context/UIContext';
 import { F0Detector } from '@dannadori/voice-changer-client-js';

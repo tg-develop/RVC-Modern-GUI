@@ -25,15 +25,12 @@ export const useAppState = (): AppContextValue => {
 export const AppContextProvider = ({ children }: Props) => {
     const appRoot = useAppRoot();
     const clientState = useVCClient({ audioContext: appRoot.audioContextState.audioContext });
-    console.log(clientState);
+
     const initializedRef = useRef<boolean>(false);
     useEffect(() => {
         if (clientState.clientState.initialized) {
             initializedRef.current = true;
             clientState.clientState.getInfo();
-            // clientState.clientState.setVoiceChangerClientSetting({
-            //     ...clientState.clientState.setting.voiceChangerClientSetting
-            // })
         }
     }, [clientState.clientState.initialized]);
     

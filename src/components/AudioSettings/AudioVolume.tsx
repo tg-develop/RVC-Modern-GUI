@@ -1,7 +1,7 @@
 import React, { JSX, useState } from 'react';
 import { useAppState } from '../../context/AppContext';
 import { CSS_CLASSES } from '../../styles/constants';
-import DebouncedSlider from '../DebouncedSlider';
+import DebouncedSlider from '../Helpers/DebouncedSlider';
 
 // CSS Class Constants (can be moved to a shared file or passed as props if preferred)
 
