@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { CSS_CLASSES } from '../../styles/constants';
 import { useAppState } from '../../context/AppContext';
 import { useState } from 'react';
-import { ServerAudioDevice } from '@dannadori/voice-changer-client-js';
+import { ServerAudioDevice } from '@dannadori/voice-changer-client-js/dist/const';
 
 function AudioDevicesServer() {
   const appState = useAppState();
@@ -71,6 +71,13 @@ function AudioDevicesServer() {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
       asioInputChannel: parseInt(event.target.value)
+    });
+  };
+
+  const handleOutputChannelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      asioOutputChannel: parseInt(event.target.value)
     });
   };
 
@@ -225,41 +232,70 @@ function AudioDevicesServer() {
         </div>
       </div>
       
-      {/* Output Device */}
-      <div>
-        <label htmlFor="outputCh" className={CSS_CLASSES.label}>
-          Output Device
-        </label>
-        <select 
-          id="outputCh" 
-          className={CSS_CLASSES.select}
-          value={appState.serverSetting.serverSetting.serverOutputDeviceId}
-          onChange={handleOutputDeviceChange}
-        >              
-          {
-            serverOutputDevices.length === 0 ? (
-              <option value={-1}>No output devices found</option>
-            ) : (
-              <>
+      <div className="space-y-2">
+        <div className="flex items-end gap-2">
+          {/* Output Device - 70% width */}
+          <div className={selectedAudioDriver === 'ASIO' ? 'w-[70%]' : 'w-full'}>
+            <label htmlFor="outputCh" className={CSS_CLASSES.label}>
+              Output Device
+            </label>
+            <select 
+              id="outputCh" 
+              className={`${CSS_CLASSES.select} w-full`}
+              value={appState.serverSetting.serverSetting.serverOutputDeviceId}
+              onChange={handleOutputDeviceChange}
+            >
               {
-                !serverOutputDevices.find(device => device.index === appState.serverSetting.serverSetting.serverOutputDeviceId) && (
-                  <option value={-1}>No device selected</option>
+                serverOutputDevices.length === 0 ? (
+                  <option value={-1}>No output devices found</option>
+                ) : (
+                  <>
+                  {
+                    !serverOutputDevices.find(device => device.index === appState.serverSetting.serverSetting.serverOutputDeviceId) && (
+                      <option value={-1}>No device selected</option>
+                    )
+                  }
+                  {
+                  serverOutputDevices.map((device) => (
+                    <option 
+                      key={device.index} 
+                      value={device.index}
+                    >
+                      {`[${device.hostAPI}] ${device.name}`}
+                    </option>
+                  ))
+                }
+                </>
                 )
               }
+            </select>
+          </div>
+
+          {/* Output Channel (only visible when ASIO is selected) - 30% width */}
+          {selectedAudioDriver === 'ASIO' && serverOutputDevices.find(device => device.index === appState.serverSetting.serverSetting.serverOutputDeviceId) && (
+            <div className="w-[30%]">
+              <label htmlFor="outputChannel" className={CSS_CLASSES.label}>
+                Channel
+              </label>
+              <select 
+                id="outputChannel" 
+                className={`${CSS_CLASSES.select} w-full`}
+                value={appState.serverSetting.serverSetting.asioOutputChannel}
+                onChange={handleOutputChannelChange}
+              >
+                <option value={-1}>Default</option>
                 {
-                serverOutputDevices.map((device) => (
-                  <option 
-                    key={device.index} 
-                    value={device.index}
-                  >
-                    {`[${device.hostAPI}] ${device.name}`}
-                  </option>
-                ))
-              }
-              </>
-            )
-          }
-        </select>
+                  Array.from({ 
+                    length: serverOutputDevices.find(device => device.index === appState.serverSetting.serverSetting.serverOutputDeviceId)?.maxOutputChannels || 0 }, 
+                    (_, index) => (
+                      <option key={index} value={index}>{index}</option>
+                    )
+                  )
+                }
+              </select>
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Monitor Device & Driver */}

@@ -43,11 +43,11 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
           uiContext.showError('Select an audio input device.', "Warning")
           return
       }
-      // TODO: Refactor
-      //if (guiState.audioOutputForGUI == 'none') {
-      //    uiContext.showError('Select an audio output device.', "Warning")
-      //    return
-      //}
+
+      if (uiContext.audioOutputForGUI == 'none') {
+          uiContext.showError('Select an audio output device.', "Warning")
+          return
+      }
 
       if (!appState.initializedRef.current) {
           while (true) {

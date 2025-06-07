@@ -7,6 +7,7 @@ import DragHandle from './Helpers/DragHandle';
 import { CSS_CLASSES } from '../styles/constants';
 import DebouncedSlider from './Helpers/DebouncedSlider';
 import { useInitialPlaceholder } from '../scripts/usePlaceholder';
+import { useAppRoot } from '../context/AppRootProvider';
 
 interface ModelSettingsCardProps {
   openModal: (type: string, props?: { model?: RVCModelSlot }) => void;
@@ -51,10 +52,16 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
     });
   };
 
+  const handleSpeakerChange = (val: number) => {
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      dstId: val  
+    });
+  };
+
   const handleSaveSettings = () => {
     appState.serverSetting.updateModelDefault();
   };
-
 
   // Use model for these properties, reflecting user's preference for direct access
   const isONNX = model?.isONNX ?? false;
@@ -189,7 +196,7 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
                         className={CSS_CLASSES.select} 
                         disabled={!model || !model.speakers || Object.keys(model.speakers).length === 0} 
                         value={model?.slotIndex ?? 0}
-                        onChange={() => {}}
+                        onChange={(e) => handleSpeakerChange(Number(e.target.value))}
                       >
                         {speakerOptions}
                       </select>

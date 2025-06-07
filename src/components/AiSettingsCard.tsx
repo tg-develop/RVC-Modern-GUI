@@ -7,6 +7,7 @@ import { useAppState } from '../context/AppContext';
 import { useUIContext } from '../context/UIContext';
 import { F0Detector, useIndexedDB } from '@dannadori/voice-changer-client-js';
 import { CSS_CLASSES, INDEXEDDB_KEYS } from '../styles/constants';
+import { useAppRoot } from '../context/AppRootProvider';
 
 // Props for icons
 interface AiSettingsCardProps {
@@ -22,9 +23,17 @@ interface GpuInfo {
   memory?: number;
 }
 
+const f0Detectors = [
+  'crepe_full_onnx', 'crepe_tiny_onnx', 'crepe_full', 'crepe_tiny',
+  'rmvpe', 'rmvpe_onnx', 'fcpe', 'fcpe_onnx'
+]
+
 function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): JSX.Element {
   const appState = useAppState();
   const uiState = useUIContext();
+  const { appGuiSettingState } = useAppRoot();
+  const edition = appGuiSettingState.edition;
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { getItem, setItem } = useIndexedDB({ clientType: null });
 
@@ -141,6 +150,37 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
     setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_ECHO, value);
   };
 
+  const generateF0DetOptions = () => {
+    // DirectML can only use ONNX models
+    if (edition.indexOf("DirectML") >= 0) {
+        const recommended = f0Detectors.filter(extractor => extractor.includes('_onnx'));
+        return Object.values(appState.serverSetting.serverSetting.voiceChangerParams).map((x) => {
+            if (recommended.includes(x)) {
+                return (
+                    <option key={x} value={x}>
+                        {x}
+                    </option>
+                );
+            } else {
+                return (
+                    <option key={x} value={x} disabled>
+                        {x}(N/A)
+                    </option>
+                );
+            }
+        });
+    } else {
+        return Object.values(f0Detectors).map((x) => {
+            return (
+                <option key={x} value={x}>
+                    {x}
+                </option>
+            );
+        });
+    }
+  };
+
+
   return (
     <div className={`p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300 flex-1 min-h-0 flex flex-col ${isCollapsed ? 'h-auto' : 'overflow-y-auto'}`}>
       <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-gray-700">
@@ -251,7 +291,10 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 }}
               >
                 {appState.serverSetting?.serverSetting?.gpus?.length && appState.serverSetting?.serverSetting?.gpus?.length > 0 ? (
-                  appState.serverSetting?.serverSetting?.gpus?.map((gpu: GpuInfo) => <option key={gpu.id} value={gpu.id}>{gpu.name}</option>)
+                  appState.serverSetting?.serverSetting?.gpus?.map((gpu: GpuInfo) => 
+                  <option key={gpu.id} value={gpu.id}>
+                    {`${gpu.name} ${gpu.memory ? `(${(gpu.memory / 1024 / 1024 / 1024).toFixed(0)} GB)` : ""}`}
+                  </option>)
                 ) : (
                   <option value="-1" disabled>No GPUs available</option>
                 )}
@@ -272,12 +315,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                   uiState.stopLoading();
                 }}
               >
-                {[
-                  'crepe_full_onnx', 'crepe_tiny_onnx', 'crepe_full', 'crepe_tiny',
-                  'rmvpe', 'rmvpe_onnx', 'fcpe', 'fcpe_onnx'
-                ].map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
+                {generateF0DetOptions()}
               </select>
             </div>
           </div>
