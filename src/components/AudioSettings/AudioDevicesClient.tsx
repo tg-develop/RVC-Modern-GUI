@@ -18,6 +18,7 @@ function AudioDevicesClient(): JSX.Element {
 
   const handleInputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.setting.voiceChangerClientSetting.audioInput = event.target.value;
+    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_INPUT, event.target.value);
     uiState.setAudioInputForGUI(event.target.value);
   };
 
@@ -27,7 +28,7 @@ function AudioDevicesClient(): JSX.Element {
   };
 
   const handleMonitorDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITR, event.target.value);
+    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITOR, event.target.value);
     uiState.setAudioMonitorForGUI(event.target.value);
   };
 
@@ -38,26 +39,17 @@ function AudioDevicesClient(): JSX.Element {
         if (output) {
             uiState.setAudioOutputForGUI(output as string);
         }
-        const monitor = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITR);
+        const monitor = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITOR);
         if (monitor) {
             uiState.setAudioMonitorForGUI(monitor as string);
+        }
+        const input = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_INPUT);
+        if (input) {
+            uiState.setAudioInputForGUI(input as string);
         }
     };
     loadCache();
   }, []);
-
-  // Load Input from Cache
-  useEffect(() => {
-    if (typeof appState.setting.voiceChangerClientSetting.audioInput == "string") {
-        if (
-            uiState.inputAudioDeviceInfo.find((x) => {
-                return x.deviceId == appState.setting.voiceChangerClientSetting.audioInput;
-            })
-        ) {
-            uiState.setAudioInputForGUI(appState.setting.voiceChangerClientSetting.audioInput);
-        }
-    }
-  }, [uiState.inputAudioDeviceInfo, appState.setting.voiceChangerClientSetting.audioInput]);
 
   return (
     <>

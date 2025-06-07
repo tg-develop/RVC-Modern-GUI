@@ -5,8 +5,8 @@ import DragHandle from './Helpers/DragHandle';
 import DebouncedSlider from './Helpers/DebouncedSlider';
 import { useAppState } from '../context/AppContext';
 import { useUIContext } from '../context/UIContext';
-import { F0Detector } from '@dannadori/voice-changer-client-js';
-import { CSS_CLASSES } from '../styles/constants';
+import { F0Detector, useIndexedDB } from '@dannadori/voice-changer-client-js';
+import { CSS_CLASSES, INDEXEDDB_KEYS } from '../styles/constants';
 
 // Props for icons
 interface AiSettingsCardProps {
@@ -26,6 +26,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
   const appState = useAppState();
   const uiState = useUIContext();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { getItem, setItem } = useIndexedDB({ clientType: null });
 
   // Local state for immediate slider labels
   const [localSilentThreshold, setLocalSilentThreshold] = useState<number>(
@@ -42,16 +43,103 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
 
   useEffect(() => {
     const st = appState.serverSetting?.serverSetting?.silentThreshold;
-    if (st != null) setLocalSilentThreshold(st);
+    setLocalSilentThreshold(st);
   }, [appState.serverSetting?.serverSetting?.silentThreshold]);
+
   useEffect(() => {
     const cs = appState.serverSetting?.serverSetting?.serverReadChunkSize;
-    if (cs != null) setLocalChunkSize(cs);
+    setLocalChunkSize(cs);
   }, [appState.serverSetting?.serverSetting?.serverReadChunkSize]);
+
   useEffect(() => {
     const ex = appState.serverSetting?.serverSetting?.extraConvertSize;
-    if (ex != null) setLocalExtraSize(ex);
+    setLocalExtraSize(ex);
   }, [appState.serverSetting?.serverSetting?.extraConvertSize]);
+
+  // Load Output and Monitor from Cache
+  useEffect(() => {
+    const loadCache = async () => {
+        const echo = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_ECHO);
+        if (echo) {
+          appState.setVoiceChangerClientSetting({
+            ...appState.setting.voiceChangerClientSetting,
+            echoCancel: echo as boolean
+          });
+        }
+        const noise1 = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_NOISE1);
+        if (noise1) {
+          appState.setVoiceChangerClientSetting({
+            ...appState.setting.voiceChangerClientSetting,
+            noiseSuppression: noise1 as boolean
+          });
+        }
+        const noise2 = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_NOISE2);
+        if (noise2) {
+          appState.setVoiceChangerClientSetting({
+            ...appState.setting.voiceChangerClientSetting,
+            noiseSuppression2: noise2 as boolean
+          });
+        }
+    };
+    loadCache();
+  }, []);
+
+  const handleChangeSilentThreshold = (value: number) => {
+    setLocalSilentThreshold(value);
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting?.serverSetting,
+      silentThreshold: value
+    });
+  };
+
+  const handleChangeChunkSize = (value: number) => {
+    setLocalChunkSize(value);
+    appState.setWorkletNodeSetting({ ...appState.setting.workletNodeSetting, inputChunkNum: Number(value) });
+    appState.trancateBuffer();
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting?.serverSetting,
+      serverReadChunkSize: value
+    });
+  };
+
+  const handleChangeExtraSize = (value: number) => {
+    setLocalExtraSize(value);
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting?.serverSetting,
+      extraConvertSize: value
+    });
+  };  
+
+  const handleChangeGpu = async (value: number) => {
+    await appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting?.serverSetting,
+      gpu: value
+    });
+  };
+
+  const handleChangeNoiseSuppression = (value: boolean) => {
+    appState.setVoiceChangerClientSetting({
+      ...appState.setting.voiceChangerClientSetting,
+      noiseSuppression: value
+    });
+    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_NOISE1, value);
+  };
+
+  const handleChangeNoiseSuppression2 = (value: boolean) => {
+    appState.setVoiceChangerClientSetting({
+      ...appState.setting.voiceChangerClientSetting,
+      noiseSuppression2: value
+    });
+    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_NOISE2, value);
+  };
+
+  const handleChangeEchoCancel = (value: boolean) => {
+    appState.setVoiceChangerClientSetting({
+      ...appState.setting.voiceChangerClientSetting,
+      echoCancel: value
+    });
+    setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_ECHO, value);
+  };
 
   return (
     <div className={`p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300 flex-1 min-h-0 flex flex-col ${isCollapsed ? 'h-auto' : 'overflow-y-auto'}`}>
@@ -76,10 +164,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     name="echoCancel" 
                     className={CSS_CLASSES.checkbox} 
                     checked={appState.setting.voiceChangerClientSetting.echoCancel ?? false}
-                    onChange={(e) => appState.setVoiceChangerClientSetting({
-                        ...appState.setting.voiceChangerClientSetting,
-                        echoCancel: e.target.checked
-                    })}
+                    onChange={(e) => handleChangeEchoCancel(e.target.checked)}
                     disabled={appState.serverSetting.serverSetting.enableServerAudio === 1}
                   /> Echo Cancellation
                 </label>
@@ -89,10 +174,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     name="noiseSuppression" 
                     className={CSS_CLASSES.checkbox} 
                     checked={appState.setting.voiceChangerClientSetting.noiseSuppression ?? false}
-                    onChange={(e) => appState.setVoiceChangerClientSetting({
-                        ...appState.setting.voiceChangerClientSetting,
-                        noiseSuppression: e.target.checked
-                    })}
+                    onChange={(e) => handleChangeNoiseSuppression(e.target.checked)}
                     disabled={appState.serverSetting.serverSetting.enableServerAudio === 1}
                   /> Noise Suppression
                 </label>
@@ -102,10 +184,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                     name="noiseSuppression2" 
                     className={CSS_CLASSES.checkbox} 
                     checked={appState.setting.voiceChangerClientSetting.noiseSuppression2 ?? false}
-                    onChange={(e) => appState.setVoiceChangerClientSetting({
-                        ...appState.setting.voiceChangerClientSetting,
-                        noiseSuppression2: e.target.checked
-                    })}
+                    onChange={(e) => handleChangeNoiseSuppression2(e.target.checked)}
                     disabled={appState.serverSetting.serverSetting.enableServerAudio === 1}
                   /> Noise Suppression 2
                 </label>
@@ -122,10 +201,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 value={localSilentThreshold}
                 className={CSS_CLASSES.range}
                 onImmediateChange={setLocalSilentThreshold}
-                onChange={(val) => appState.serverSetting.updateServerSettings({
-                  ...appState.serverSetting?.serverSetting,
-                  silentThreshold: val
-                })}
+                onChange={handleChangeSilentThreshold}
               />
               <p className={CSS_CLASSES.sliderValue}>{localSilentThreshold} dB</p>
             </div>
@@ -142,10 +218,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 value={localChunkSize}
                 className={CSS_CLASSES.range}
                 onImmediateChange={setLocalChunkSize}
-                onChange={(val) => appState.serverSetting.updateServerSettings({
-                  ...appState.serverSetting?.serverSetting,
-                  serverReadChunkSize: val
-                })}
+                onChange={handleChangeChunkSize}
               />
               <p className={CSS_CLASSES.sliderValue}>{((localChunkSize * 128 * 1000) / 48000).toFixed(1)}ms</p>
             </div>
@@ -160,10 +233,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 value={localExtraSize}
                 className={CSS_CLASSES.range}
                 onImmediateChange={setLocalExtraSize}
-                onChange={(val) => appState.serverSetting.updateServerSettings({
-                  ...appState.serverSetting?.serverSetting,
-                  extraConvertSize: val
-                })}
+                onChange={handleChangeExtraSize}
               />
               <p className={CSS_CLASSES.sliderValue}>{localExtraSize} s</p>
             </div>
@@ -176,10 +246,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 value={appState.serverSetting?.serverSetting?.gpu ?? -1}
                 onChange={async (e) => {
                   uiState.startLoading(`Changing to Processing Unit: ${appState.serverSetting?.serverSetting?.gpus?.find(gpu => gpu.id === parseInt(e.target.value))?.name}`);
-                  await appState.serverSetting.updateServerSettings({
-                     ...appState.serverSetting?.serverSetting,
-                     gpu: parseInt(e.target.value)
-                  })
+                  await handleChangeGpu(parseInt(e.target.value));
                   uiState.stopLoading();
                 }}
               >
