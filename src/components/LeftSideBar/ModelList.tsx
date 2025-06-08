@@ -14,17 +14,6 @@ interface ModelListProps {
 function ModelList({ filteredAndSortedModels, openModal, handleSelectModel, confirmedSelectedSlotIndex, appState }: ModelListProps) {  
     return (
         <>
-        <div className="flex justify-between items-center mb-2">
-            <span className={`text-sm font-medium text-slate-600 dark:text-gray-400`}>Available Models ({filteredAndSortedModels.length})</span>
-            <button 
-                onClick={() => openModal('uploadModel')} 
-                className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" 
-                title="Upload New Model"
-            >
-            <FontAwesomeIcon icon={faPlus} size="lg" />
-            </button>
-        </div>
-
         <ul className="space-y-2 flex-grow overflow-y-auto min-h-[100px]">
             {filteredAndSortedModels.length > 0 ? (
                 filteredAndSortedModels.map(model => (

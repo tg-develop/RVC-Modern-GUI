@@ -10,7 +10,7 @@ interface UIError {
   type: ErrorType;
 }
 
-interface UIContextType {
+export interface UIContextType {
   startLoading: (message?: string) => void;
   stopLoading: () => void;
   showError: (message: string, type?: ErrorType) => void;

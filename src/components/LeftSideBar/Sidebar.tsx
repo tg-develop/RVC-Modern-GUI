@@ -1,12 +1,14 @@
-import React, { JSX, useState, useMemo, useEffect } from 'react';
+import { JSX, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faPen, faTrash, faTimes, faSort, faFilter } from '@fortawesome/free-solid-svg-icons';
-import { RVCModelSlot, VoiceChangerType, ModelSlotUnion } from '@dannadori/voice-changer-client-js';
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { RVCModelSlot, ModelUploadSetting, ModelSlot, ModelFileKind } from '@dannadori/voice-changer-client-js';
 import { useAppState } from '../../context/AppContext';
 import { useUIContext } from '../../context/UIContext';
-import ModelSlot from './ModelSlot';
 import ModelList from './ModelList';
 import ModelFilter from './ModelFilter';
+import UploadModelModal, { UploadFinalForm } from './Modals/UploadModelModal';
+import GenericModal from '../Modals/GenericModal';
+import { CSS_CLASSES } from '../../styles/constants';
 
 interface LeftSidebarProps {
   isSidebarOpen: boolean;
@@ -22,6 +24,7 @@ function LeftSidebar({
   const appState = useAppState();
   const guiState = useUIContext();
 
+  const [showUpload, setShowUpload] = useState<boolean>(false);  
   const [filteredAndSortedModels, setFilteredAndSortedModels] = useState<RVCModelSlot[]>([]);
 
   const handleSelectModel = async (slot: RVCModelSlot) => {
@@ -51,8 +54,6 @@ function LeftSidebar({
   } else {
     finalSidebarClasses += 'fixed -left-full w-full transform -translate-x-full md:static md:w-0 md:p-0 md:overflow-hidden md:border-r-0'; // Remove border when closed on desktop
   }
-
-  const commonSelectClass = "w-full p-1.5 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-700 text-xs placeholder-slate-400 dark:placeholder-gray-500 text-slate-700 dark:text-slate-100";
 
   return (
     // Use finalSidebarClasses which correctly handles fixed/static and open/closed states
@@ -86,6 +87,24 @@ function LeftSidebar({
       {/* Render search and list only if sidebar is open to prevent layout shifts/errors when collapsed to w-0 */}
       {isSidebarOpen && (
         <>
+          <UploadModelModal 
+            appState={appState} 
+            guiState={guiState} 
+            showUpload={showUpload} 
+            setShowUpload={setShowUpload} 
+          />
+
+          <div className="flex justify-between items-center mb-2">
+              <span className={`text-sm font-medium text-slate-600 dark:text-gray-400`}>Available Models ({filteredAndSortedModels.length})</span>
+              <button 
+                  onClick={() => setShowUpload(true)} 
+                  className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" 
+                  title="Upload New Model"
+              >
+              <FontAwesomeIcon icon={faPlus} size="lg" />
+              </button>
+          </div>
+
           <ModelFilter 
             appState={appState}
             setFilteredAndSortedModels={setFilteredAndSortedModels}

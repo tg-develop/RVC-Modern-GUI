@@ -1,4 +1,5 @@
 import React, { JSX, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { CSS_CLASSES } from '../../styles/constants';
@@ -32,10 +33,15 @@ function GenericModal({
     return null;
   }
 
-  return (
-    <div className={`fixed inset-0 ${transparent === false ? 'bg-black bg-opacity-50 backdrop-blur-sm' : 'opacity-100'}  flex justify-center items-center z-40 p-4 transition-opacity duration-300 ease-in-out`} onClick={onClose}>
+  const modalRoot = document.getElementById('modal-root');
+  if (!modalRoot) {
+    return null;
+  }
+
+  return createPortal(
+    <div className={`fixed inset-0 ${transparent === false ? 'bg-black bg-opacity-50 backdrop-blur-sm' : 'opacity-100'}  flex justify-center items-center z-50 p-4 transition-opacity duration-300 ease-in-out`} onClick={onClose}>
       <div 
-        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalFadeInScaleUp" 
+        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalFadeInScaleUp overflow-hidden" 
         onClick={(e) => e.stopPropagation()} // Prevent click inside modal from closing it
       >
         {/* Modal Header */}
@@ -77,7 +83,8 @@ function GenericModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    modalRoot
   );
 }
 

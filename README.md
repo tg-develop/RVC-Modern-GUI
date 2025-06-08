@@ -1,5 +1,8 @@
 # Voice Changer - Modern GUI Client
 
+> [!WARNING]
+> **Work In Progress**: This project is currently under active development and is not yet ready for production use. Features may be incomplete, unstable, or subject to significant changes.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -13,6 +16,7 @@
 - [Project structure](#project-structure)
 - [Technologies used](#technologies-used)
 - [Known issues](#known-issues)
+- [Releases](#releases)
 - [Contribution](#contribution)
 
 ## Overview
@@ -152,6 +156,10 @@ src/
 
 > [!TIP]
 > For backend-related issues or Voice Changer functionality problems, refer to the main project documentation.
+
+## Releases
+
+No releases are available yet. This project is still in development.
 
 ## Contribution
 

@@ -10,7 +10,6 @@ import MergeLabModal from './components/BottomBar/Modals/MergeLabModal';
 import AdvancedSettingsModal from './components/BottomBar/Modals/AdvancedSettingsModal';
 import ServerInfoModal from './components/BottomBar/Modals/ServerInfoModal';
 import ClientInfoModal from './components/BottomBar/Modals/ClientInfoModal';
-import UploadModelModal from './components/LeftSideBar/Modals/UploadModelModal';
 import EditModelModal from './components/LeftSideBar/Modals/EditModelModal';
 import DeleteModelModal from './components/LeftSideBar/Modals/DeleteModelModal';
 import PassthroughConfirmModal, { PassthroughConfirmModalProps } from './components/BottomBar/Modals/PassthroughConfirmModal';
@@ -84,10 +83,6 @@ function App(): JSX.Element {
         modalDetails = { title: 'Client Info', content: <ClientInfoModal />,
           secondaryButton: { text: 'Close', onClick: () => { closeModal(); } } };
         break;
-      case 'uploadModel':
-        modalDetails = { title: 'Upload New Model', content: <UploadModelModal />,
-          primaryButton: { text: 'Upload', onClick: () => { alert('Uploading...'); closeModal(); } } };
-        break;
       case 'editModel':
         const editProps = modalProps as ModelRelatedProps;
         if (editProps?.model) {
@@ -149,7 +144,7 @@ function App(): JSX.Element {
         <LeftSidebar 
           isSidebarOpen={isSidebarOpen} 
           toggleSidebar={toggleSidebar} 
-          openModal={openModal} 
+          openModal={openModal}
         />
         
         <main className="flex-grow p-4 overflow-y-auto">
