@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useContext, useState, useRef, useCallback, useEffect } from 'react';
-import LoadingScreen from '../components/modals/LoadingScreen';
-import ErrorNotifications from '../components/modals/ErrorNotifications';
+import LoadingScreen from '../components/Modals/LoadingScreen';
+import ErrorNotifications from '../components/Modals/ErrorNotifications';
 
 type ErrorType = 'Error' | 'Warning' | 'Confirm';
 

@@ -16,8 +16,8 @@ import {
 
 import SortableCardItem from './Helpers/SortableCardItem';
 import ModelSettingsCard from './ModelSettings/ModelSettingsCard';
-import PerformanceStatsCard from './PerformanceStatsCard';
-import AiSettingsCard from './AiSettingsCard';
+import PerformanceStatsCard from './PerformanceStats/PerformanceStatsCard';
+import AiSettingsCard from './AiSettings/AiSettingsCard';
 import AudioSettingsCard from './AudioSettings/AudioSettingsCard';
 import { RVCModelSlot } from '@dannadori/voice-changer-client-js'; // For openModal prop
 

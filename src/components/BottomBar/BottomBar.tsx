@@ -1,9 +1,9 @@
 import { JSX, useState, useEffect } from 'react';
-import { useThemeContext } from '../context/ThemeContext';
+import { useThemeContext } from '../../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faPlay, faStop, faTriangleExclamation, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
-import { AppContextValue, useAppState } from '../context/AppContext';
-import { useUIContext } from '../context/UIContext';
+import { AppContextValue, useAppState } from '../../context/AppContext';
+import { useUIContext } from '../../context/UIContext';
 
 
 interface BottomBarProps {

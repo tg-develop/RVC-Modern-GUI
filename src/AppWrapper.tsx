@@ -2,8 +2,8 @@ import React from 'react';
 import { AppContextProvider } from './context/AppContext';
 import App from './App';
 import ParticleBackground from './components/Helpers/ParticleBackground';
-import GenericModal from './components/modals/GenericModal';
-import WelcomeModal from './components/modals/content/WelcomeModal';
+import GenericModal from './components/Modals/GenericModal';
+import WelcomeModal from './components/Modals/WelcomeModal';
 
 export const AppWrapper: React.FC = () => {
   const [showWelcome, setShowWelcome] = React.useState<boolean>(true);
