@@ -10,12 +10,11 @@ import ModelInfo from './ModelInfo';
 import ModelSettings from './ModelSettings';
 
 interface ModelSettingsCardProps {
-  openModal: (type: string, props?: { model?: RVCModelSlot }) => void;
   dndAttributes?: Record<string, any>;
   dndListeners?: Record<string, any>;
 }
 
-function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSettingsCardProps): JSX.Element {
+function ModelSettingsCard({ dndAttributes, dndListeners }: ModelSettingsCardProps): JSX.Element {
   const appState = useAppState() as ClientState; 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [model, setModel] = useState<RVCModelSlot>();
@@ -75,8 +74,7 @@ function ModelSettingsCard({ openModal, dndAttributes, dndListeners }: ModelSett
         <>
           {model ? (
             <ModelInfo 
-              model={model} 
-              openModal={openModal} 
+              model={model}
               icon={icon || placeholder} 
             />
           ) : (

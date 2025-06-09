@@ -1,66 +1,73 @@
 import { JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import GenericModal from '../../Modals/GenericModal';
+import { CSS_CLASSES } from '../../../styles/constants';
+import { ClientState } from '@dannadori/voice-changer-client-js';
 
 export interface PassthroughConfirmModalProps {
-  title?: string;
-  message?: string;
-  icon?: IconDefinition;
-  iconClassName?: string;
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-  closeModal: () => void; // Standard prop to close the modal
+  appState: ClientState,
+  showPassthrough: boolean,
+  setShowPassthrough: (show: boolean) => void
 }
 
 const PassthroughConfirmModal: React.FC<PassthroughConfirmModalProps> = ({
-  title = "Confirm Action",
-  message = "Are you sure you want to proceed?",
-  icon,
-  iconClassName = "text-yellow-500 w-12 h-12 mx-auto mb-4",
-  confirmText = "Confirm",
-  onConfirm,
-  onCancel,
-  closeModal,
+  appState,
+  showPassthrough,
+  setShowPassthrough,
 }): JSX.Element => {
 
   const handleConfirm = () => {
-    if (onConfirm) {
-      onConfirm();
-    }
-    closeModal();
+    appState.serverSetting.updateServerSettings({
+      ...appState.serverSetting.serverSetting,
+      passThrough: true,
+    });
+    setShowPassthrough(false);
   };
 
   const handleCancel = () => {
-    if (onCancel) {
-      onCancel();
-    }
-    closeModal();
+    setShowPassthrough(false);
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md mx-auto">
-      {icon && (
-        <div className="flex justify-center mb-4">
-          <FontAwesomeIcon icon={icon} className={`${iconClassName} text-4xl`} />
+    <GenericModal
+      isOpen={showPassthrough}
+      onClose={handleCancel}
+      title="Activate Passthrough"
+      size="small"
+      primaryButton={{
+        text: "Yes, Activate Passthrough",
+        onClick: handleConfirm,
+        className: CSS_CLASSES.modalPrimaryButton + " !bg-red-600 hover:!bg-red-700 focus:!ring-red-500"
+      }}
+      secondaryButton={{
+        text: "Cancel",
+        onClick: handleCancel,
+        className: CSS_CLASSES.modalSecondaryButton
+      }}
+    >
+      <div className="text-center space-y-4">
+        {/* Warning Icon */}
+        <div className="flex justify-center">
+          <div className="flex items-center justify-center w-16 h-16 border-2 border-yellow-400 dark:border-yellow-500 rounded-full">
+            <FontAwesomeIcon 
+              icon={faExclamationTriangle} 
+              className="h-8 w-8 text-yellow-600 dark:text-yellow-400" 
+            />
+          </div>
         </div>
-      )}
-      <h3 className="text-xl font-semibold text-center text-gray-900 dark:text-white mb-3">
-        {title}
-      </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-6">
-        {message}
-      </p>
-      <div className="flex justify-center space-x-3">
-        <button
-          onClick={handleConfirm}
-          className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-900 transition-colors duration-150"
-        >
-          {confirmText}
-        </button>
+
+        {/* Warning Message */}
+        <div className="space-y-3">
+          <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Are you sure you want to activate Passthrough?
+          </h4>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Activating Passthrough will allow you to pass audio through the server without any processing.
+          </p>
+        </div>
       </div>
-    </div>
+    </GenericModal>
   );
 };
 

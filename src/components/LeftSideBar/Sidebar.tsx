@@ -11,13 +11,11 @@ import UploadModelModal from './Modals/UploadModelModal';
 interface LeftSidebarProps {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
-  openModal: (type: string, props?: { modelId?: string; modelName?: string; model?: RVCModelSlot }) => void;
 }
 
 function LeftSidebar({
   isSidebarOpen,
   toggleSidebar,
-  openModal
 }: LeftSidebarProps): JSX.Element | null {
   const appState = useAppState();
   const guiState = useUIContext();
@@ -112,7 +110,6 @@ function LeftSidebar({
 
           <ModelList  
             filteredAndSortedModels={filteredAndSortedModels}
-            openModal={openModal}
             handleSelectModel={handleSelectModel}
             confirmedSelectedSlotIndex={confirmedSelectedSlotIndex}
             appState={appState}

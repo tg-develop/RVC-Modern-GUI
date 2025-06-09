@@ -59,71 +59,6 @@ function App(): JSX.Element {
     setCurrentModal(null);
   };
 
-  const openModal = (type: string, modalProps?: OpenModalProps) => {
-    let modalDetails: Partial<CurrentModalState> = { content: null, title: '' };
-    let finalPropsForContent: any = modalProps || {}; // Pass all modalProps to content by default
-
-    switch (type) {
-      case 'advancedSettings':
-        modalDetails = { title: 'Advanced Settings', content: <AdvancedSettingsModal />,
-          primaryButton: { text: 'Save', onClick: () => { alert('Saving...'); closeModal(); } },
-          secondaryButton: { text: 'Close', onClick: () => { closeModal(); } } };
-        break;
-      case 'serverInfo':
-        modalDetails = { title: 'Server Info', content: <ServerInfoModal />,
-          secondaryButton: { text: 'Close', onClick: () => { closeModal(); } } };
-        break;
-      case 'clientInfo':
-        modalDetails = { title: 'Client Info', content: <ClientInfoModal />,
-          secondaryButton: { text: 'Close', onClick: () => { closeModal(); } } };
-        break;
-      case 'editModel':
-        const editProps = modalProps as ModelRelatedProps;
-        if (editProps?.model) {
-          modalDetails = { title: `Edit Model: ${editProps.model.name}`, content: <EditModelModal modelId={editProps.model.slotIndex.toString()} modelName={editProps.model.name} />,
-            primaryButton: { text: 'Save Changes', onClick: () => { alert(`Saving ${editProps.model?.name}...`); closeModal(); } } };
-        } else if (editProps?.modelId && editProps?.modelName) {
-            modalDetails = { title: `Edit Model: ${editProps.modelName}`, content: <EditModelModal modelId={editProps.modelId} modelName={editProps.modelName} />,
-            primaryButton: { text: 'Save Changes', onClick: () => { alert(`Saving ${editProps.modelName}...`); closeModal(); } } };
-        }
-        finalPropsForContent = editProps; // Ensure modelId, modelName are passed to CurrentModalState.props
-        break;
-      case 'deleteModel':
-        const deleteProps = modalProps as ModelRelatedProps;
-        if (deleteProps?.model) {
-            modalDetails = { title: `Delete Model: ${deleteProps.model.name}`, content: <DeleteModelModal modelId={deleteProps.model.slotIndex.toString()} modelName={deleteProps.model.name} />,
-            primaryButton: { text: 'Delete', onClick: () => { alert(`Deleting ${deleteProps.model?.name}...`); closeModal(); }, className: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white' },
-            secondaryButton: { text: 'Cancel', onClick: closeModal }};
-        } else if (deleteProps?.modelId && deleteProps?.modelName) {
-            modalDetails = { title: `Delete Model: ${deleteProps.modelName}`, content: <DeleteModelModal modelId={deleteProps.modelId} modelName={deleteProps.modelName} />,
-            primaryButton: { text: 'Delete', onClick: () => { alert(`Deleting ${deleteProps.modelName}...`); closeModal(); }, className: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white' },
-            secondaryButton: { text: 'Cancel', onClick: closeModal }};
-        }
-        finalPropsForContent = deleteProps;
-        break;
-      case 'passThrough':
-        const passThroughProps = modalProps as Omit<PassthroughConfirmModalProps, 'closeModal'>;
-        modalDetails = {
-          title: passThroughProps.title || 'Confirm',
-          content: <PassthroughConfirmModal {...passThroughProps} closeModal={closeModal} />
-        };
-        finalPropsForContent = passThroughProps;
-        break;
-      default:
-        console.warn('Unknown modal type:', type);
-        return;
-    }
-    
-    setCurrentModal({ 
-      title: modalDetails.title || 'Modal',
-      content: modalDetails.content,
-      props: finalPropsForContent,
-      primaryButton: modalDetails.primaryButton,
-      secondaryButton: modalDetails.secondaryButton,
-      transparent: false
-    });
-  };
-
   return (
     <div className="flex flex-col h-screen font-sans bg-slate-50 dark:bg-gray-900 transition-colors duration-300">
       <button
@@ -138,14 +73,13 @@ function App(): JSX.Element {
         <LeftSidebar 
           isSidebarOpen={isSidebarOpen} 
           toggleSidebar={toggleSidebar} 
-          openModal={openModal}
         />
         
         <main className="flex-grow p-4 overflow-y-auto">
-          <MainContent openModal={openModal} />
+          <MainContent />
         </main>
       </div>
-      <BottomBar openModal={openModal} />
+      <BottomBar />
 
       { currentModal && currentModal.content &&
         <GenericModal

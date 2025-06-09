@@ -1,13 +1,16 @@
 import { RVCModelSlot } from "@dannadori/voice-changer-client-js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";  
+import { useState } from "react";
+import EditModelModal from "../LeftSideBar/Modals/EditModelModal";
 
 interface ModelInfoProps {
     model: RVCModelSlot;
-    openModal: (type: string, props?: { model?: RVCModelSlot }) => void;
     icon: string;
 }
-function ModelInfo({ model, openModal, icon }: ModelInfoProps) {
+function ModelInfo({ model, icon }: ModelInfoProps) {
+    const [showEdit, setShowEdit] = useState<boolean>(false);
+
     const isONNX = model?.isONNX ?? false;
     const modelTypeDisplay = isONNX 
         ? model?.modelTypeOnnx || model?.modelType 
@@ -16,6 +19,12 @@ function ModelInfo({ model, openModal, icon }: ModelInfoProps) {
     return (
         <>
           {model ? (
+            <>
+            <EditModelModal 
+              model={model}
+              showModal={showEdit}
+              setShowEdit={setShowEdit}
+            />
             <div className="flex flex-col items-center text-center mb-6 p-4 bg-slate-50 dark:bg-gray-700/30 rounded-lg">
               <div className="flex w-full items-start">
                 <img 
@@ -27,7 +36,7 @@ function ModelInfo({ model, openModal, icon }: ModelInfoProps) {
                   <div className="flex items-center mb-1">
                     <h3 className="text-xl lg:text-2xl font-bold text-slate-800 dark:text-gray-100 break-words mr-2">{model.name}</h3>
                     <button 
-                      onClick={() => openModal('editModel', { model: model })}
+                      onClick={() => setShowEdit(true)}
                       className="p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
                       title="Edit Model"
                     >
@@ -48,6 +57,7 @@ function ModelInfo({ model, openModal, icon }: ModelInfoProps) {
                 </div>
               </div>
             </div>
+            </>
           ) : (
             <div className="flex items-center justify-center mb-6 p-8 bg-slate-100 dark:bg-gray-700/50 rounded-lg min-h-[160px]">
               <p className="text-slate-500 dark:text-gray-400 italic text-center">Select a model from the list <br/> to see its settings.</p>

@@ -29,11 +29,7 @@ const CARD_IDS = {
     AUDIO_SETTINGS: 'audioSettings',
 };
 
-interface MainContentProps {
-  openModal: (type: string, props?: { modelId?: string; modelName?: string; model?: RVCModelSlot }) => void;
-}
-
-function MainContent({ openModal }: MainContentProps) {
+function MainContent() {
   const [cardOrder, setCardOrder] = useState<string[]>([
     CARD_IDS.MODEL_SETTINGS,
     CARD_IDS.PERFORMANCE,
@@ -74,7 +70,7 @@ function MainContent({ openModal }: MainContentProps) {
                 cardComponent = (
                   <SortableCardItem key={cardId} id={cardId}>
                     {(attributes, listeners) => (
-                      <ModelSettingsCard openModal={openModal} dndAttributes={attributes} dndListeners={listeners} />
+                      <ModelSettingsCard dndAttributes={attributes} dndListeners={listeners} />
                     )}
                   </SortableCardItem>
                 );
