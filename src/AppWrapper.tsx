@@ -5,13 +5,32 @@ import ParticleBackground from './components/Helpers/ParticleBackground';
 import GenericModal from './components/Modals/GenericModal';
 import WelcomeModal from './components/Modals/WelcomeModal';
 import { UIContextProvider } from './context/UIContext';
+import { ThemeProvider, useThemeContext } from './context/ThemeContext';
 
-export const AppWrapper: React.FC = () => {
+const AppContent: React.FC = () => {
   const [showWelcome, setShowWelcome] = React.useState<boolean>(true);
+  const { theme } = useThemeContext();
 
   const handleWelcomeComplete = async () => {
     setShowWelcome(false);
   };
+
+  // Theme-based particle configuration
+  const getParticleConfig = () => {
+    if (theme === 'dark') {
+      return {
+        particleColor: "rgba(147, 197, 253, 0.6)", // Light blue particles for dark theme
+        backgroundColor: "rgb(17, 24, 39)" // Dark background
+      };
+    } else {
+      return {
+        particleColor: "rgba(59, 130, 246, 0.4)", // Darker blue particles for light theme
+        backgroundColor: "rgb(241, 241, 241)" // Light background
+      };
+    }
+  };
+
+  const particleConfig = getParticleConfig();
 
   if (showWelcome) {
     return (
@@ -19,8 +38,8 @@ export const AppWrapper: React.FC = () => {
         <ParticleBackground 
           zIndex={1} 
           particleCount={100} 
-          particleColor="rgba(51, 51, 243, 0.7)" 
-          backgroundColor="rgb(24, 24, 24)" 
+          particleColor={particleConfig.particleColor}
+          backgroundColor={particleConfig.backgroundColor}
         />
           <GenericModal
             isOpen={true}
@@ -47,5 +66,13 @@ export const AppWrapper: React.FC = () => {
         </UIContextProvider>
       </AppContextProvider>
     </>
+  );
+};
+
+export const AppWrapper: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 };

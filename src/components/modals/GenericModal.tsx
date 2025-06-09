@@ -60,7 +60,7 @@ function GenericModal({
   };
 
   return createPortal(
-    <div className={`fixed inset-0 ${transparent === false ? 'bg-black bg-opacity-50 backdrop-blur-sm' : 'opacity-100'}  flex justify-center items-center z-50 p-4 transition-opacity duration-300 ease-in-out`} onClick={closeOnOutsideClick ? onClose : undefined}>
+    <div className={`fixed inset-0 ${transparent === false ? 'bg-black bg-opacity-50 backdrop-blur-sm' : 'opacity-100'}  flex justify-center items-center z-40 p-4 transition-opacity duration-300 ease-in-out`} onClick={closeOnOutsideClick ? onClose : undefined}>
       <div 
         className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full ${getModalWidth(size)} max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalFadeInScaleUp overflow-hidden`}
         onClick={(e) => e.stopPropagation()} // Prevent click inside modal from closing it
