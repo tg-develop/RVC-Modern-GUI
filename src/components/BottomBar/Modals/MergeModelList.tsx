@@ -44,6 +44,13 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
     `)}`;
   };
 
+  const handleModelCardClick = (model: RVCModelSlot) => {
+    const isSelected = isModelSelected(model);
+    if (!isSelected) {
+      onModelToggle(model);
+    }
+  };
+
   return (
     <div className="space-y-3">
       <h4 className="text-md font-medium text-slate-700 dark:text-gray-200">Available Models</h4>
@@ -66,15 +73,19 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
                 className={`p-3 rounded-lg border transition-all duration-150 ${
                   isSelected
                     ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'
-                    : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50'
+                    : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50 cursor-pointer'
                 }`}
+                onClick={() => handleModelCardClick(model)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() => onModelToggle(model)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onModelToggle(model);
+                      }}
                       className={CSS_CLASSES.checkbox}
                     />
                     <img 

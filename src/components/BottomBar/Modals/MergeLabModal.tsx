@@ -67,7 +67,7 @@ function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps
   const handleClose = () => {
     setShowMerge(false);
     setSelectedModels([]);
-    setSampleRate(48000);
+    setSampleRate(40000);
     setEmbedder('hubert_base');
     setSearchText('');
   };
