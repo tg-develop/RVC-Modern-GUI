@@ -1,11 +1,10 @@
-import React, { JSX, useState, useEffect } from 'react';
+import { JSX, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faPen } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { RVCModelSlot,  ClientState } from '@dannadori/voice-changer-client-js';
 import { useAppState } from '../../context/AppContext';
 import DragHandle from '../Helpers/DragHandle';
 import { CSS_CLASSES } from '../../styles/constants';
-import DebouncedSlider from '../Helpers/DebouncedSlider';
 import { useInitialPlaceholder } from '../../scripts/usePlaceholder';
 import ModelInfo from './ModelInfo';
 import ModelSettings from './ModelSettings';

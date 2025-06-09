@@ -1,4 +1,4 @@
-import React, { JSX } from 'react';
+import { JSX } from 'react';
 import { useAppState } from '../../../context/AppContext';
 
 function ClientInfoModal(): JSX.Element {

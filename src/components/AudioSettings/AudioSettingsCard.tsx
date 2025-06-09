@@ -49,7 +49,7 @@ function AudioSettingsCard({ dndAttributes, dndListeners }: AudioSettingsCardPro
         <>
           <AudioMode audioState={audioState} setAudioState={setAudioState}/>
           {audioState === "client" ? <AudioDevicesClient /> : <AudioDevicesServer />}
-          <AudioVolume audioState={audioState} />
+          <AudioVolume />
         </>
       )}
     </div>

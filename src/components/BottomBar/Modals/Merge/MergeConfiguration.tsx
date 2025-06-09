@@ -2,7 +2,7 @@ import { JSX } from 'react';
 import { RVCModelSlot } from '@dannadori/voice-changer-client-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
-import { CSS_CLASSES } from '../../../styles/constants';
+import { CSS_CLASSES } from '../../../../styles/constants';
 
 interface MergeConfigurationProps {
   downloadModel: boolean;

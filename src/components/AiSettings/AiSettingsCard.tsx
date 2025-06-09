@@ -1,4 +1,4 @@
-import React, { JSX, useState, useEffect } from 'react';
+import { JSX, useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import DragHandle from '../Helpers/DragHandle';

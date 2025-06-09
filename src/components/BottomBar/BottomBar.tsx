@@ -4,8 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faPlay, faStop, faTriangleExclamation, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
 import { AppContextValue, useAppState } from '../../context/AppContext';
 import { useUIContext } from '../../context/UIContext';
-import MergeLabModal from './Modals/MergeLabModal';
-
+import MergeLabModal from './Modals/Merge/MergeLabModal';
 
 interface BottomBarProps {
   openModal: (type: string, props?: any) => void; // Added openModal prop

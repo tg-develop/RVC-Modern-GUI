@@ -1,12 +1,12 @@
 import { useState, JSX } from 'react';
-import { ClientState, ModelFileKind, ModelUploadSetting, RVCModelSlot, VoiceChangerType } from '@dannadori/voice-changer-client-js';
-import { CSS_CLASSES } from '../../../styles/constants';
-import GenericModal from '../../Modals/GenericModal';
-import { UIContextType } from '../../../context/UIContext';
+import { ModelFileKind, ModelUploadSetting, RVCModelSlot, VoiceChangerType } from '@dannadori/voice-changer-client-js';
+import { CSS_CLASSES } from '../../../../styles/constants';
+import GenericModal from '../../../Modals/GenericModal';
+import { UIContextType } from '../../../../context/UIContext';
 import MergeFilter from './MergeFilter';
 import MergeModelList from './MergeModelList';
 import MergeConfiguration from './MergeConfiguration';
-import { useAppState } from '../../../context/AppContext';
+import { useAppState } from '../../../../context/AppContext';
 
 interface ModelMergeInfo {
   slot: RVCModelSlot;

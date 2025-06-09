@@ -1,4 +1,4 @@
-import React, { JSX, useState, useEffect } from 'react';
+import { JSX, useState, useEffect } from 'react';
 import { useAppState } from '../../../context/AppContext';
 import { useUIContext } from '../../../context/UIContext';
 import DebouncedSlider from '../../Helpers/DebouncedSlider';

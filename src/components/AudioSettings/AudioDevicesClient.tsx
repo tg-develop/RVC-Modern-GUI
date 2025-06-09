@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { CSS_CLASSES, INDEXEDDB_KEYS } from '../../styles/constants';
 import { useAppState } from '../../context/AppContext';
 import { useIndexedDB } from '@dannadori/voice-changer-client-js';

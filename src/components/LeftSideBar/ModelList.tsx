@@ -1,6 +1,4 @@
 import ModelSlot from "./ModelSlot";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { ClientState, RVCModelSlot } from "@dannadori/voice-changer-client-js";
 
 interface ModelListProps {

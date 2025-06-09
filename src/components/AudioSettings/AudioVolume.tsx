@@ -1,15 +1,11 @@
-import React, { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { useAppState } from '../../context/AppContext';
 import { CSS_CLASSES } from '../../styles/constants';
 import DebouncedSlider from '../Helpers/DebouncedSlider';
 
 // CSS Class Constants (can be moved to a shared file or passed as props if preferred)
 
-interface AudioVolumeProps {
-  audioState: "client" | "server";
-} 
-
-function AudioVolume({ audioState }: AudioVolumeProps): JSX.Element {
+function AudioVolume(): JSX.Element {
   const appState = useAppState();
 
   const [inputGain, setInputGain] = useState(1);

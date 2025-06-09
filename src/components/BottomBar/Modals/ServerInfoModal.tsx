@@ -1,4 +1,4 @@
-import React, { JSX } from 'react';
+import { JSX } from 'react';
 import { useAppState } from '../../../context/AppContext';
 
 function ServerInfoModal(): JSX.Element {
@@ -11,7 +11,6 @@ function ServerInfoModal(): JSX.Element {
         </pre>
     </div>
   );
-
 }
 
 export default ServerInfoModal;

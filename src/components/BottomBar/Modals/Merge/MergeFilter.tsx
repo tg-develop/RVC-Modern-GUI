@@ -1,7 +1,7 @@
 import { JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
-import { CSS_CLASSES } from '../../../styles/constants';
+import { CSS_CLASSES } from '../../../../styles/constants';
 
 interface MergeFilterProps {
   sampleRate: number;

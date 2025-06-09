@@ -1,12 +1,10 @@
 import './App.css';
 import LeftSidebar from './components/LeftSideBar/Sidebar';
 import BottomBar from './components/BottomBar/BottomBar';
-import React, { useContext, JSX, useState, useEffect, ReactNode } from 'react';
-import { ThemeContext } from './context/ThemeContext';
+import { JSX, useState, useEffect, ReactNode } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import GenericModal from './components/Modals/GenericModal';
-import MergeLabModal from './components/BottomBar/Modals/MergeLabModal';
 import AdvancedSettingsModal from './components/BottomBar/Modals/AdvancedSettingsModal';
 import ServerInfoModal from './components/BottomBar/Modals/ServerInfoModal';
 import ClientInfoModal from './components/BottomBar/Modals/ClientInfoModal';
@@ -66,10 +64,6 @@ function App(): JSX.Element {
     let finalPropsForContent: any = modalProps || {}; // Pass all modalProps to content by default
 
     switch (type) {
-      case 'mergeLab':
-        modalDetails = { title: 'Merge Lab', content: <MergeLabModal />,
-          primaryButton: { text: 'Start Merge', onClick: () => { alert('Merging...'); closeModal(); } } };
-        break;
       case 'advancedSettings':
         modalDetails = { title: 'Advanced Settings', content: <AdvancedSettingsModal />,
           primaryButton: { text: 'Save', onClick: () => { alert('Saving...'); closeModal(); } },

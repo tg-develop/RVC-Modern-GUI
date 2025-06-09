@@ -1,6 +1,6 @@
 import { JSX } from 'react';
 import { RVCModelSlot } from '@dannadori/voice-changer-client-js';
-import { CSS_CLASSES } from '../../../styles/constants';
+import { CSS_CLASSES } from '../../../../styles/constants';
 
 interface ModelMergeInfo {
   slot: RVCModelSlot;

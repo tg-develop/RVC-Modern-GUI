@@ -1,4 +1,3 @@
-import React, { JSX, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { AppRootProvider } from './context/AppRootProvider';
