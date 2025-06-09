@@ -4,6 +4,7 @@ import App from './App';
 import ParticleBackground from './components/Helpers/ParticleBackground';
 import GenericModal from './components/Modals/GenericModal';
 import WelcomeModal from './components/Modals/WelcomeModal';
+import { UIContextProvider } from './context/UIContext';
 
 export const AppWrapper: React.FC = () => {
   const [showWelcome, setShowWelcome] = React.useState<boolean>(true);
@@ -41,7 +42,9 @@ export const AppWrapper: React.FC = () => {
   return (
     <>
       <AppContextProvider>
-        <App />
+        <UIContextProvider>
+          <App />
+        </UIContextProvider>
       </AppContextProvider>
     </>
   );

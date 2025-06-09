@@ -101,17 +101,17 @@ function AudioMode({ audioState, setAudioState }: { audioState: "client" | "serv
                   className={CSS_CLASSES.radioButton}
                   checked={audioState === "client"}
                   onChange={handleClientRadioChange}
-                  disabled={!isClientAudioAvailable}
+                  disabled={!isClientAudioAvailable || uiContext.isConverting}
                 />
                 Client
               </label>
               <label className={`${CSS_CLASSES.radioLabel} ${!isServerAudioAvailable ? "opacity-50 cursor-not-allowed" : ""}`}>
                 <input
                   type="radio"
-                  className={CSS_CLASSES.radioButton}
+                  className={CSS_CLASSES.radioButton }
                   checked={audioState === "server"}
                   onChange={handleServerRadioChange}
-                  disabled={!isServerAudioAvailable}
+                  disabled={!isServerAudioAvailable || uiContext.isConverting}
                 />
                 Server
               </label>

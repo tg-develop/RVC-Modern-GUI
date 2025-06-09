@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useContext, useState, useRef, useCallback, useEffect } from 'react';
 import LoadingScreen from '../components/Modals/LoadingScreen';
 import ErrorNotifications from '../components/Modals/ErrorNotifications';
+import { useAppState } from './AppContext';
 
 type ErrorType = 'Error' | 'Warning' | 'Confirm';
 
@@ -31,6 +32,8 @@ export interface UIContextType {
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const appState = useAppState();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isConverting, setIsConverting] = useState<boolean>(false);
   const [inputAudioDeviceInfo, setInputAudioDeviceInfo] = useState<MediaDeviceInfo[]>([]);
@@ -99,6 +102,12 @@ export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children 
     setInputAudioDeviceInfo(audioInfo[0]);
     setOutputAudioDeviceInfo(audioInfo[1]);
   };
+
+  useEffect(() => {
+    if(appState.serverSetting.serverSetting.serverAudioStated == 1) {
+      setIsConverting(true);
+    }
+  }, [appState.serverSetting.serverSetting.serverAudioStated]);
 
   useEffect(() => {
     let isMounted = true;

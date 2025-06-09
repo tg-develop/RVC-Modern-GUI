@@ -3,6 +3,7 @@ export const CSS_CLASSES = {
     select: "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm transition-colors duration-150",
     input: "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm",
     range: "w-full h-2 bg-slate-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:accent-blue-400 transition-colors duration-150",
+    rangeDisabled: "w-full h-2 bg-slate-100 dark:bg-gray-700 rounded-lg appearance-none cursor-not-allowed accent-slate-300 dark:accent-gray-500 opacity-50 transition-colors duration-150",
     checkbox: "mr-2 accent-blue-500 dark:accent-blue-400",
     radioButton: "mr-2 accent-blue-500 dark:accent-blue-400",
     

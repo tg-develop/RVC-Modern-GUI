@@ -11,6 +11,8 @@ interface ModalButton {
   disabled?: boolean;
 }
 
+type ModalSize = 'small' | 'medium' | 'large';
+
 interface GenericModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,6 +22,7 @@ interface GenericModalProps {
   secondaryButton?: ModalButton;
   transparent?: boolean;
   closeOnOutsideClick?: boolean;
+  size?: ModalSize;
 }
 
 function GenericModal({
@@ -30,7 +33,8 @@ function GenericModal({
   primaryButton,
   secondaryButton,
   transparent = false,
-  closeOnOutsideClick = true
+  closeOnOutsideClick = true,
+  size = 'medium'
 }: GenericModalProps): JSX.Element | null {
   if (!isOpen) {
     return null;
@@ -41,10 +45,24 @@ function GenericModal({
     return null;
   }
 
+  // Define modal widths based on size
+  const getModalWidth = (size: ModalSize): string => {
+    switch (size) {
+      case 'small':
+        return 'max-w-md';
+      case 'medium':
+        return 'max-w-4xl';
+      case 'large':
+        return 'max-w-7xl';
+      default:
+        return 'max-w-4xl';
+    }
+  };
+
   return createPortal(
     <div className={`fixed inset-0 ${transparent === false ? 'bg-black bg-opacity-50 backdrop-blur-sm' : 'opacity-100'}  flex justify-center items-center z-50 p-4 transition-opacity duration-300 ease-in-out`} onClick={closeOnOutsideClick ? onClose : undefined}>
       <div 
-        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalFadeInScaleUp overflow-hidden" 
+        className={`bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full ${getModalWidth(size)} max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalFadeInScaleUp overflow-hidden`}
         onClick={(e) => e.stopPropagation()} // Prevent click inside modal from closing it
       >
         {/* Modal Header */}

@@ -4,7 +4,6 @@ import './index.css';
 import { AppRootProvider } from './context/AppRootProvider';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppWrapper } from './AppWrapper';
-import { UIContextProvider } from './context/UIContext';
 
 const rootElement = document.getElementById('root');
 
@@ -14,10 +13,8 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
     <ThemeProvider>
-      <UIContextProvider>
         <AppRootProvider>
           <AppWrapper />
         </AppRootProvider>
-      </UIContextProvider>
     </ThemeProvider>
 );

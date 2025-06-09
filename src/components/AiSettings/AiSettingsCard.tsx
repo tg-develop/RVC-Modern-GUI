@@ -256,9 +256,10 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 max={1024}
                 step={1}
                 value={localChunkSize}
-                className={CSS_CLASSES.range}
+                className={`${CSS_CLASSES.range} ${uiState.isConverting ? CSS_CLASSES.rangeDisabled : ""}`}
                 onImmediateChange={setLocalChunkSize}
                 onChange={handleChangeChunkSize}
+                disabled={uiState.isConverting}
               />
               <p className={CSS_CLASSES.sliderValue}>{((localChunkSize * 128 * 1000) / 48000).toFixed(1)}ms</p>
             </div>
@@ -271,9 +272,10 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 max={5}
                 step={0.1}
                 value={localExtraSize}
-                className={CSS_CLASSES.range}
+                className={`${CSS_CLASSES.range} ${uiState.isConverting ? CSS_CLASSES.rangeDisabled : ""}`}
                 onImmediateChange={setLocalExtraSize}
                 onChange={handleChangeExtraSize}
+                disabled={uiState.isConverting}
               />
               <p className={CSS_CLASSES.sliderValue}>{localExtraSize} s</p>
             </div>
@@ -306,6 +308,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
                 id="f0Detector"
                 className={CSS_CLASSES.select}
                 value={appState.serverSetting?.serverSetting?.f0Detector ?? ''}
+                disabled={uiState.isConverting}
                 onChange={async (e) => {
                   uiState.startLoading(`Changing F0 Detector to ${e.target.value}`);
                   await appState.serverSetting.updateServerSettings({
