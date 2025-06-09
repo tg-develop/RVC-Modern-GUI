@@ -1,4 +1,4 @@
-import React, { JSX, useState, useEffect, useMemo, useCallback } from 'react';
+import { JSX, useState, useEffect, useMemo, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faPlayCircle, faStopCircle } from '@fortawesome/free-solid-svg-icons';
 import { ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
@@ -14,11 +14,6 @@ interface PerformanceMetrics {
   mainprocessTime: number;
 }
 
-interface ServerSettings {
-  serverReadChunkSize: number;
-  crossFadeOverlapSize: number;
-}
-
 interface PerformanceStatsCardProps {
   dndAttributes?: Record<string, any>;
   dndListeners?: Record<string, any>;
@@ -29,6 +24,7 @@ const DEFAULT_MAX_CHART_DATA_POINTS = 50;
 interface ChartDataPoint {
   timestamp: number;
   perfTimeValue: number; // Stores mainprocessTime (perfTime) for the chart's Y-axis
+  chunkTime: number; // Stores chunkTime for the reference line
   greenTime?: number;
   yellowTime?: number;
   redTime?: number;
@@ -133,6 +129,7 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
     const newDataPoint: ChartDataPoint = {
       timestamp: Date.now(),
       perfTimeValue: roundedPerfTime, // Use the rounded perfTime for the chart line
+      chunkTime: Math.round(calculatedMetrics.chunkTime), // Add chunkTime for reference line
       greenTime: gt, yellowTime: yt, redTime: rt,
     };
 
@@ -291,6 +288,17 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
                   fillOpacity={0.4} 
                   name="" 
                   legendType="none" 
+                />
+                
+                {/* Chunk Time Reference Line */}
+                <Line 
+                  type="monotone" 
+                  dataKey="chunkTime" 
+                  stroke="#8B5CF6" 
+                  strokeWidth={2} 
+                  strokeDasharray="5 5" 
+                  dot={false} 
+                  name="Chunk Size" 
                 />
                 
                 {/* Hauptlinie für MainProcessTime */}
