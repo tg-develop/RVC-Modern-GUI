@@ -185,13 +185,15 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
       primaryButton={{
         text: `${appState.serverSetting.isUploading ? `Uploading... (${appState.serverSetting.uploadProgress.toFixed(1)}%)` : 'Upload'}`,
         onClick: handleUploadModal,
-        className: CSS_CLASSES.modalPrimaryButton
+        className: CSS_CLASSES.modalPrimaryButton,
+        disabled: appState.serverSetting.isUploading
       }}
       secondaryButton={
         {
           text: "Cancel",
           onClick: handleUploadCloseModal,
-          className: CSS_CLASSES.modalSecondaryButton
+          className: CSS_CLASSES.modalSecondaryButton,
+          disabled: appState.serverSetting.isUploading
         }
       }
     >

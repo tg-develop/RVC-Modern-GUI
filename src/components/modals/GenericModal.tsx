@@ -8,6 +8,7 @@ interface ModalButton {
   text: string;
   onClick: () => void;
   className?: string; // e.g., 'bg-blue-500 hover:bg-blue-600 text-white'
+  disabled?: boolean;
 }
 
 interface GenericModalProps {
@@ -69,7 +70,8 @@ function GenericModal({
             {secondaryButton && (
               <button
                 onClick={secondaryButton.onClick}
-                className={`${CSS_CLASSES.modalSecondaryButton} ${secondaryButton.className || ''}`}
+                className={`${CSS_CLASSES.modalSecondaryButton} ${secondaryButton.className || ''} ${secondaryButton.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={secondaryButton.disabled}
               >
                 {secondaryButton.text}
               </button>
@@ -77,7 +79,8 @@ function GenericModal({
             {primaryButton && (
               <button
                 onClick={primaryButton.onClick}
-                className={`${CSS_CLASSES.modalPrimaryButton} ${primaryButton.className || ''}`}
+                className={`${CSS_CLASSES.modalPrimaryButton} ${primaryButton.className || ''} ${primaryButton.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={primaryButton.disabled}
               >
                 {primaryButton.text}
               </button>
