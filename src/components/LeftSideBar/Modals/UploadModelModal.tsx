@@ -181,6 +181,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
       isOpen={showUpload} 
       onClose={handleUploadCloseModal} 
       title="Upload Model"
+      closeOnOutsideClick={false}
       primaryButton={{
         text: `${appState.serverSetting.isUploading ? `Uploading... (${appState.serverSetting.uploadProgress.toFixed(1)}%)` : 'Upload'}`,
         onClick: handleUploadModal,

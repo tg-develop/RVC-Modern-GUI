@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon, faPlay, faStop, faTriangleExclamation, faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
 import { AppContextValue, useAppState } from '../../context/AppContext';
 import { useUIContext } from '../../context/UIContext';
+import MergeLabModal from './Modals/MergeLabModal';
 
 
 interface BottomBarProps {
@@ -15,7 +16,9 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
   const appState = useAppState() as AppContextValue; // Cast via unknown for broader compatibility if types are complex
   const uiContext = useUIContext();
 
+  const [showMerge, setShowMerge] = useState<boolean>(false);
   const [startWithAudioContextCreate, setStartWithAudioContextCreate] = useState<boolean>(false);
+
   useEffect(() => {
       if (!startWithAudioContextCreate) {
           return;
@@ -126,9 +129,15 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
   const lightButtonClass = "px-3 py-2 text-slate-700 bg-slate-200 hover:bg-slate-300 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-blue-500";
   
   return (
+    <>  
+    <MergeLabModal 
+      guiState={uiContext}
+      showMerge={showMerge}
+      setShowMerge={setShowMerge}
+    />
     <div className="h-20 min-h-[60px] bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-gray-700 flex items-center justify-between px-4 py-2 flex-shrink-0 transition-colors duration-300">
       <div className="flex space-x-2">
-        <button onClick={() => openModal('mergeLab')} className={`${buttonBaseClass} ${lightButtonClass}`}>Merge Lab</button>
+        <button onClick={() => setShowMerge(true)} className={`${buttonBaseClass} ${lightButtonClass}`}>Merge Lab</button>
         <button onClick={() => openModal('advancedSettings')} className={`${buttonBaseClass} ${lightButtonClass}`}>Advanced Settings</button>
       </div>
 
@@ -171,6 +180,7 @@ function BottomBar({ openModal }: BottomBarProps): JSX.Element {
         </button>
       </div>
     </div>
+    </>
   );
 }
 

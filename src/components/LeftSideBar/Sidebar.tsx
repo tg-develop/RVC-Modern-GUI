@@ -1,14 +1,12 @@
 import { JSX, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { RVCModelSlot, ModelUploadSetting, ModelSlot, ModelFileKind } from '@dannadori/voice-changer-client-js';
+import { RVCModelSlot } from '@dannadori/voice-changer-client-js';
 import { useAppState } from '../../context/AppContext';
 import { useUIContext } from '../../context/UIContext';
 import ModelList from './ModelList';
 import ModelFilter from './ModelFilter';
-import UploadModelModal, { UploadFinalForm } from './Modals/UploadModelModal';
-import GenericModal from '../Modals/GenericModal';
-import { CSS_CLASSES } from '../../styles/constants';
+import UploadModelModal from './Modals/UploadModelModal';
 
 interface LeftSidebarProps {
   isSidebarOpen: boolean;
