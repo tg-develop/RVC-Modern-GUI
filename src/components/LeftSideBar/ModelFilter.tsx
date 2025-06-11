@@ -1,5 +1,5 @@
 import { ClientState, ModelSlotUnion, RVCModelSlot, VoiceChangerType } from "@dannadori/voice-changer-client-js";
-import { faFilter, faSearch, faSort, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faFilter, faSearch, faSort, faTimes, faArrowUpAZ, faArrowDownAZ } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useMemo, useState } from "react";
 import { CSS_CLASSES } from "../../styles/constants";
@@ -159,7 +159,7 @@ function ModelFilter({
                         className="p-1.5 border border-slate-300 dark:border-gray-600 rounded-md hover:bg-slate-50 dark:hover:bg-gray-600 text-slate-600 dark:text-gray-300"
                         title={sortDirection === 'asc' ? "Sort Descending" : "Sort Ascending"}
                     >
-                        {sortDirection === 'asc' ? <span className="text-xs">ASC</span> : <span className="text-xs">DESC</span>} {/* Placeholder for actual icons if preferred */}
+                        <FontAwesomeIcon icon={sortDirection === 'asc' ? faArrowUpAZ : faArrowDownAZ} className="text-xs" />
                     </button>
                 </div>
               </div>
@@ -179,7 +179,7 @@ function ModelFilter({
                         {sampleRateOptions.map(opt => <option key={opt} value={opt}>{opt === 'All' ? 'All' : `${opt/1000}kHz`}</option>)}
                     </select>
                 </div>
-                <div className="grid grid-cols-2 gap-2 items-center"> {/* Added Embedder Filter */}
+                <div className="grid grid-cols-2 gap-2 items-center">
                     <label htmlFor="embedderFilter" className="text-xs font-medium text-slate-500 dark:text-gray-400">Embedder:</label>
                     <select id="embedderFilter" value={embedderFilter} onChange={(e) => setEmbedderFilter(e.target.value as EmbedderFilter)} className={CSS_CLASSES.select}>
                         {embedderOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
