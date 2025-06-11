@@ -1,5 +1,5 @@
 import { ClientState } from "@dannadori/voice-changer-client-js";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import { ReactNode } from "react";
 import { useVCClient } from "../scripts/useVCClient";
 import { useAppRoot } from "./AppRootProvider";
@@ -25,13 +25,12 @@ export const useAppState = (): AppContextValue => {
 export const AppContextProvider = ({ children }: Props) => {
     const appRoot = useAppRoot();
     const clientState = useVCClient({ audioContext: appRoot.audioContextState.audioContext });
-    console.log(clientState);
     const initializedRef = useRef<boolean>(false);
+
     useEffect(() => {
         if (clientState.clientState.initialized) {
             initializedRef.current = true;
             clientState.clientState.getInfo();
-            clientState.clientState.setServerUrl("http://localhost:18888");
         }
     }, [clientState.clientState.initialized]);
     

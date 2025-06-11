@@ -6,6 +6,7 @@ import GenericModal from './components/Modals/GenericModal';
 import WelcomeModal from './components/Modals/WelcomeModal';
 import { UIContextProvider } from './context/UIContext';
 import { ThemeProvider, useThemeContext } from './context/ThemeContext';
+import { AppRootProvider } from './context/AppRootProvider';
 
 const AppContent: React.FC = () => {
   const [showWelcome, setShowWelcome] = React.useState<boolean>(true);
@@ -25,7 +26,7 @@ const AppContent: React.FC = () => {
     } else {
       return {
         particleColor: "rgba(59, 130, 246, 0.4)", // Darker blue particles for light theme
-        backgroundColor: "rgb(241, 241, 241)" // Light background
+        backgroundColor: "rgb(214, 214, 214)" // Light background
       };
     }
   };
@@ -72,7 +73,9 @@ const AppContent: React.FC = () => {
 export const AppWrapper: React.FC = () => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <AppRootProvider>
+        <AppContent />
+      </AppRootProvider>
     </ThemeProvider>
   );
 };
