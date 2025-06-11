@@ -2,7 +2,7 @@ import { JSX, useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import DragHandle from '../Helpers/DragHandle';
-import { CSS_CLASSES } from '../../styles/constants';
+import { AUDIO_KEYS, CSS_CLASSES } from '../../styles/constants';
 import AudioMode from './AudioMode';
 import AudioDevicesServer from './AudioDevicesServer';
 import AudioVolume from './AudioVolume';
@@ -52,6 +52,8 @@ function AudioSettingsCard({ dndAttributes, dndListeners }: AudioSettingsCardPro
           <AudioVolume />
         </>
       )}
+      <audio hidden id={AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_RESULT}></audio>
+      <audio hidden id={AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_MONITOR}></audio>
     </div>
   );
 }

@@ -21,6 +21,7 @@ function AudioDevicesClient(): JSX.Element {
                 } else if (uiState.audioOutputForGUI == "none") {
                     try {
                         audio.setSinkId("");
+                        audio.volume = 0;
                     } catch (e) {
                         console.error("catch:" + e);
                     }
@@ -34,7 +35,8 @@ function AudioDevicesClient(): JSX.Element {
                     if (found) {
                         try {
                             audio.setSinkId(uiState.audioOutputForGUI);
-                        } catch (e) {
+                            audio.volume = 1;
+                          } catch (e) {
                             console.error("catch:" + e);
                         }
                     } else {
@@ -209,20 +211,23 @@ function AudioDevicesClient(): JSX.Element {
             uiState.outputAudioDeviceInfo.length === 0 ? (
               <option value="">No output devices found</option>
             ) : (
-              uiState.outputAudioDeviceInfo.map((device) => (
-                <option 
-                  key={device.deviceId} 
-                  value={device.deviceId}
-                >
-                  {device.label}
-                </option>
-              ))
+              <>
+                <option value="none">No device selected</option>
+                {
+                  uiState.outputAudioDeviceInfo.map((device) => (
+                    <option 
+                      key={device.deviceId} 
+                      value={device.deviceId}
+                    >
+                      {device.label}
+                    </option>
+                  ))
+                }
+              </>
             )
           }
         </select>
       </div>
-      <audio hidden id={AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_RESULT}></audio>
-      <audio hidden id={AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_MONITOR}></audio>
     </>
   );
 }

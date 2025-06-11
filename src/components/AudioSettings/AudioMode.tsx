@@ -120,8 +120,8 @@ function AudioMode({ audioState, setAudioState }: { audioState: "client" | "serv
               {audioState === "client" && (
                 <button
                   onClick={() => uiContext.reloadDeviceInfo()}
-                  className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
-                  disabled={uiContext.isConverting}
+                  className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:hover:bg-gray-400 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={uiContext.isConverting || appState.serverSetting.serverSetting.serverAudioStated === 1}
                 >
                   Reload Device List
                 </button>
