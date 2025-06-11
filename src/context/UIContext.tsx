@@ -72,7 +72,6 @@ export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children 
   const checkDeviceAvailable = useRef<boolean>(false);
 
   const _reloadDeviceInfo = async () => {
-    // デバイスチェックの空振り
     if (checkDeviceAvailable.current == false) {
         try {
             const ms = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
@@ -102,6 +101,53 @@ export const UIContextProvider: React.FC<{ children: ReactNode }> = ({ children 
     setInputAudioDeviceInfo(audioInfo[0]);
     setOutputAudioDeviceInfo(audioInfo[1]);
   };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // デバイスのポーリングを再帰的に実行する関数
+    const pollDevices = async () => {
+        const checkDeviceDiff = (knownDeviceIds: Set<string>, newDeviceIds: Set<string>) => {
+            const deleted = new Set([...knownDeviceIds].filter((x) => !newDeviceIds.has(x)));
+            const added = new Set([...newDeviceIds].filter((x) => !knownDeviceIds.has(x)));
+            return { deleted, added };
+        };
+        try {
+            const audioInfo = await _reloadDeviceInfo();
+
+            const knownAudioinputIds = new Set(inputAudioDeviceInfo.map((x) => x.deviceId));
+            const newAudioinputIds = new Set(audioInfo[0].map((x) => x.deviceId));
+
+            const knownAudiooutputIds = new Set(outputAudioDeviceInfo.map((x) => x.deviceId));
+            const newAudiooutputIds = new Set(audioInfo[1].map((x) => x.deviceId));
+
+            const audioInputDiff = checkDeviceDiff(knownAudioinputIds, newAudioinputIds);
+            const audioOutputDiff = checkDeviceDiff(knownAudiooutputIds, newAudiooutputIds);
+
+            if (audioInputDiff.deleted.size > 0 || audioInputDiff.added.size > 0) {
+                console.log(`deleted input device: ${[...audioInputDiff.deleted]}`);
+                console.log(`added input device: ${[...audioInputDiff.added]}`);
+                setInputAudioDeviceInfo(audioInfo[0]);
+            }
+            if (audioOutputDiff.deleted.size > 0 || audioOutputDiff.added.size > 0) {
+                console.log(`deleted output device: ${[...audioOutputDiff.deleted]}`);
+                console.log(`added output device: ${[...audioOutputDiff.added]}`);
+                setOutputAudioDeviceInfo(audioInfo[1]);
+            }
+
+            if (isMounted) {
+                setTimeout(pollDevices, 1000 * 3);
+            }
+        } catch (err) {
+            console.error("An error occurred during enumeration of devices:", err);
+        }
+    };
+
+    pollDevices();
+    return () => {
+        isMounted = false;
+    };
+}, [inputAudioDeviceInfo, outputAudioDeviceInfo]);
 
   useEffect(() => {
     if(appState.serverSetting.serverSetting.serverAudioStated == 1) {

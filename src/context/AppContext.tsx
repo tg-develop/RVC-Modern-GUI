@@ -31,10 +31,7 @@ export const AppContextProvider = ({ children }: Props) => {
         if (clientState.clientState.initialized) {
             initializedRef.current = true;
             clientState.clientState.getInfo();
-            clientState.clientState.setWorkletNodeSetting({
-                ...clientState.clientState.setting.workletNodeSetting,
-                serverUrl: "http://localhost:18888",
-            });
+            clientState.clientState.setServerUrl("http://localhost:18888");
         }
     }, [clientState.clientState.initialized]);
     

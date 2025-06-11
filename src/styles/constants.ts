@@ -31,14 +31,17 @@ export const CSS_CLASSES = {
     loading: "text-blue-500 animate-spin"
 };
 
+export const AUDIO_KEYS = {
+    AUDIO_ELEMENT_FOR_PLAY_RESULT: "audio-result",
+    AUDIO_ELEMENT_FOR_PLAY_MONITOR: "audio-monitor",
+    AUDIO_ELEMENT_FOR_TEST_ORIGINAL: "audio-test-original",
+    AUDIO_ELEMENT_FOR_TEST_CONVERTED: "audio-test-converted",
+    AUDIO_ELEMENT_FOR_TEST_CONVERTED_ECHOBACK: "audio-test-converted-echoback",
+    AUDIO_ELEMENT_FOR_SAMPLING_INPUT: "body-wav-container-wav-input",
+    AUDIO_ELEMENT_FOR_SAMPLING_OUTPUT: "body-wav-container-wav-output",
+};
+
 export const INDEXEDDB_KEYS = {
-  AUDIO_ELEMENT_FOR_PLAY_RESULT: "audio-result",
-  AUDIO_ELEMENT_FOR_PLAY_MONITOR: "audio-monitor",
-  AUDIO_ELEMENT_FOR_TEST_ORIGINAL: "audio-test-original",
-  AUDIO_ELEMENT_FOR_TEST_CONVERTED: "audio-test-converted",
-  AUDIO_ELEMENT_FOR_TEST_CONVERTED_ECHOBACK: "audio-test-converted-echoback",
-  AUDIO_ELEMENT_FOR_SAMPLING_INPUT: "body-wav-container-wav-input",
-  AUDIO_ELEMENT_FOR_SAMPLING_OUTPUT: "body-wav-container-wav-output",
   INDEXEDDB_KEY_AUDIO_INPUT: "INDEXEDDB_KEY_AUDIO_INPUT",
   INDEXEDDB_KEY_AUDIO_OUTPUT: "INDEXEDDB_KEY_AUDIO_OUTPUT",
   INDEXEDDB_KEY_AUDIO_MONITOR: "INDEXEDDB_KEY_AUDIO_MONITOR",
@@ -46,7 +49,7 @@ export const INDEXEDDB_KEYS = {
   INDEXEDDB_KEY_NOISE1: "INDEXEDDB_KEY_NOISE1",
   INDEXEDDB_KEY_NOISE2: "INDEXEDDB_KEY_NOISE2",
   INDEXEDDB_KEY_ECHO: "INDEXEDDB_KEY_ECHO",
-}
+};
 
 export const isDesktopApp = () => {
     if (navigator.userAgent.indexOf('Electron') >= 0) {

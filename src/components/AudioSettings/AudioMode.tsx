@@ -94,27 +94,38 @@ function AudioMode({ audioState, setAudioState }: { audioState: "client" | "serv
                     </div>
                 )}
             </div>
-            <div className="flex">
-              <label className={`${CSS_CLASSES.radioLabel} ${!isClientAudioAvailable ? "opacity-50 cursor-not-allowed" : ""}`}>
-                <input
-                  type="radio"
-                  className={CSS_CLASSES.radioButton}
-                  checked={audioState === "client"}
-                  onChange={handleClientRadioChange}
-                  disabled={!isClientAudioAvailable || uiContext.isConverting}
-                />
-                Client
-              </label>
-              <label className={`${CSS_CLASSES.radioLabel} ${!isServerAudioAvailable ? "opacity-50 cursor-not-allowed" : ""}`}>
-                <input
-                  type="radio"
-                  className={CSS_CLASSES.radioButton }
-                  checked={audioState === "server"}
-                  onChange={handleServerRadioChange}
-                  disabled={!isServerAudioAvailable || uiContext.isConverting}
-                />
-                Server
-              </label>
+            <div className="flex items-center justify-between">
+              <div className="flex">
+                <label className={`${CSS_CLASSES.radioLabel} ${!isClientAudioAvailable ? "opacity-50 cursor-not-allowed" : ""}`}>
+                  <input
+                    type="radio"
+                    className={CSS_CLASSES.radioButton}
+                    checked={audioState === "client"}
+                    onChange={handleClientRadioChange}
+                    disabled={!isClientAudioAvailable || uiContext.isConverting}
+                  />
+                  Client
+                </label>
+                <label className={`${CSS_CLASSES.radioLabel} ${!isServerAudioAvailable ? "opacity-50 cursor-not-allowed" : ""}`}>
+                  <input
+                    type="radio"
+                    className={CSS_CLASSES.radioButton }
+                    checked={audioState === "server"}
+                    onChange={handleServerRadioChange}
+                    disabled={!isServerAudioAvailable || uiContext.isConverting}
+                  />
+                  Server
+                </label>
+              </div>
+              {audioState === "client" && (
+                <button
+                  onClick={() => uiContext.reloadDeviceInfo()}
+                  className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                  disabled={uiContext.isConverting}
+                >
+                  Reload Device List
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,20 +1,101 @@
 import React, { JSX, useEffect } from 'react';
-import { CSS_CLASSES, INDEXEDDB_KEYS } from '../../styles/constants';
+import { AUDIO_KEYS, CSS_CLASSES, INDEXEDDB_KEYS } from '../../styles/constants';
 import { useAppState } from '../../context/AppContext';
 import { useIndexedDB } from '@dannadori/voice-changer-client-js';
 import { useUIContext } from '../../context/UIContext';
-
-interface ClientAudioDevice {
-  deviceId: string;
-  kind: string;
-  label: string;
-  groupId?: string;
-}
 
 function AudioDevicesClient(): JSX.Element {
   const appState = useAppState();
   const uiState = useUIContext();
   const { getItem, setItem } = useIndexedDB({ clientType: null });
+
+  useEffect(() => {
+    const setAudioOutput = async () => {
+        const mediaDeviceInfos = await navigator.mediaDevices.enumerateDevices();
+
+        [AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_RESULT, AUDIO_KEYS.AUDIO_ELEMENT_FOR_TEST_CONVERTED_ECHOBACK].forEach((x) => {
+            const audio = document.getElementById(x) as HTMLAudioElement;
+            if (audio) {
+                if (appState.serverSetting.serverSetting.enableServerAudio == 1) {
+                    audio.volume = 0;
+                } else if (uiState.audioOutputForGUI == "none") {
+                    try {
+                        audio.setSinkId("");
+                    } catch (e) {
+                        console.error("catch:" + e);
+                    }
+                } else {
+                    const audioOutputs = mediaDeviceInfos.filter((x) => {
+                        return x.kind == "audiooutput";
+                    });
+                    const found = audioOutputs.some((x) => {
+                        return x.deviceId == uiState.audioOutputForGUI;
+                    });
+                    if (found) {
+                        try {
+                            audio.setSinkId(uiState.audioOutputForGUI);
+                        } catch (e) {
+                            console.error("catch:" + e);
+                        }
+                    } else {
+                        console.warn("No audio output device. use default");
+                    }
+                }
+            }
+        });
+    };
+    setAudioOutput();
+  }, [uiState.audioOutputForGUI, appState.serverSetting.serverSetting.enableServerAudio]);
+
+  useEffect(() => {
+    const setAudioMonitor = async () => {
+        const mediaDeviceInfos = await navigator.mediaDevices.enumerateDevices();
+
+        [AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_MONITOR].forEach((x) => {
+            const audio = document.getElementById(x) as HTMLAudioElement;
+            if (audio) {
+                if (appState.serverSetting.serverSetting.enableServerAudio == 1) {
+                    audio.volume = 0;
+                } else if (uiState.audioMonitorForGUI == "none") {
+                    try {
+                        audio.setSinkId("");
+                        audio.volume = 0;
+                    } catch (e) {
+                        console.error("catch:" + e);
+                    }
+                } else {
+                    const audioOutputs = mediaDeviceInfos.filter((x) => {
+                        return x.kind == "audiooutput";
+                    });
+                    const found = audioOutputs.some((x) => {
+                        return x.deviceId == uiState.audioMonitorForGUI;
+                    });
+                    if (found) {
+                        try {
+                            audio.setSinkId(uiState.audioMonitorForGUI);
+                            audio.volume = 1;
+                        } catch (e) {
+                            console.error("catch:" + e);
+                        }
+                    } else {
+                        console.warn("No audio output device. use default");
+                    }
+                }
+            }
+        });
+    };
+    setAudioMonitor();
+  }, [uiState.audioMonitorForGUI, appState.serverSetting.serverSetting.enableServerAudio]);
+
+  useEffect(() => {
+    console.log("initializedRef.current", appState.initializedRef.current);
+    appState.setAudioOutputElementId(AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_RESULT);
+  }, [appState.initializedRef.current]);
+
+  useEffect(() => {
+    console.log("initializedRef.current", appState.initializedRef.current);
+    appState.setAudioMonitorElementId(AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_MONITOR);
+  }, [appState.initializedRef.current]);
 
   const handleInputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.setting.voiceChangerClientSetting.audioInput = event.target.value;
@@ -140,6 +221,8 @@ function AudioDevicesClient(): JSX.Element {
           }
         </select>
       </div>
+      <audio hidden id={AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_RESULT}></audio>
+      <audio hidden id={AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_MONITOR}></audio>
     </>
   );
 }

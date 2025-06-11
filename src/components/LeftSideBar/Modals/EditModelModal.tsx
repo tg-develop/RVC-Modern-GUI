@@ -1,7 +1,9 @@
 import { JSX } from 'react';
 import GenericModal from '../../Modals/GenericModal';
 import { CSS_CLASSES } from '../../../styles/constants';
-import { RVCModelSlot } from '@dannadori/voice-changer-client-js';
+import { ModelUploadSetting, RVCModelSlot } from '@dannadori/voice-changer-client-js';
+import { useAppState } from '../../../context/AppContext';
+import { useUIContext } from '../../../context/UIContext';
 
 interface EditModelModalProps {
   model: RVCModelSlot;
@@ -10,7 +12,24 @@ interface EditModelModalProps {
 }
 
 function EditModelModal({ model, showModal, setShowEdit }: EditModelModalProps): JSX.Element {
+  const appState = useAppState();
+  const guiState = useUIContext();
   const handleCancel = () => {
+    setShowEdit(false);
+  };
+
+  const handleSave = () => {
+    const settings: ModelUploadSetting & { embedder: string } = {
+      voiceChangerType: "RVC",
+      slot: model.slotIndex,
+      files: [],
+      isSampleMode: false,
+      sampleId: null,
+      params: {},
+      embedder: "hubert_base"
+    };
+    appState.serverSetting.uploadModel(settings);
+    guiState.showError('Edit model successfully.', "Confirm");
     setShowEdit(false);
   };
 
@@ -22,7 +41,7 @@ function EditModelModal({ model, showModal, setShowEdit }: EditModelModalProps):
       size="small"
       primaryButton={{
         text: "Save",
-        onClick: handleCancel,
+        onClick: handleSave,
         className: CSS_CLASSES.modalPrimaryButton,
       }}
       secondaryButton={{

@@ -59,7 +59,7 @@ function LeftSidebar({
         {/* Logo - Conditionally apply mx-auto for centering only when sidebar is open and on small screens (mobile overlay) */}
         {isSidebarOpen && (
           <img 
-            src={process.env.PUBLIC_URL + '/logo.png'} 
+            src={'logo.png'} 
             alt="Logo" 
             className={`h-10 md:h-12 ${isSidebarOpen ? 'mx-auto md:mx-0' : 'mx-auto'}`} 
           />

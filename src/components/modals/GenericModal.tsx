@@ -49,7 +49,7 @@ function GenericModal({
   const getModalWidth = (size: ModalSize): string => {
     switch (size) {
       case 'small':
-        return 'max-w-md';
+        return 'max-w-lg';
       case 'medium':
         return 'max-w-4xl';
       case 'large':

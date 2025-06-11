@@ -1,16 +1,10 @@
-import './App.css';
 import LeftSidebar from './components/LeftSideBar/Sidebar';
 import BottomBar from './components/BottomBar/BottomBar';
 import { JSX, useState, useEffect, ReactNode } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import GenericModal from './components/Modals/GenericModal';
-import AdvancedSettingsModal from './components/BottomBar/Modals/AdvancedSettingsModal';
-import ServerInfoModal from './components/BottomBar/Modals/ServerInfoModal';
-import ClientInfoModal from './components/BottomBar/Modals/ClientInfoModal';
-import EditModelModal from './components/LeftSideBar/Modals/EditModelModal';
-import DeleteModelModal from './components/LeftSideBar/Modals/DeleteModelModal';
-import PassthroughConfirmModal, { PassthroughConfirmModalProps } from './components/BottomBar/Modals/PassthroughConfirmModal';
+import { PassthroughConfirmModalProps } from './components/BottomBar/Modals/PassthroughConfirmModal';
 import { RVCModelSlot } from '@dannadori/voice-changer-client-js';
 import MainContent from './components/MainContent';
 

@@ -32,6 +32,7 @@ function ModelSlot(props: ModelSlotProps) {
         model={props.model}
         showModal={showDelete}
         setShowDelete={setShowDelete}
+        modelDir={props.modelDir}
       />
       <li 
         className={`p-2.5 text-sm rounded-md cursor-pointer flex items-center group text-slate-700 dark:text-slate-300 
