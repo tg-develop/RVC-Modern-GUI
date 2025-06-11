@@ -1,15 +1,8 @@
 {
-    "type": "demo",
-    "id": "RVC",
+    "version": "0.1.0",
+    "edition": "web-application",
     "front": {
         "modelSlotControl": [
-            {
-                "name": "headerArea",
-                "options": {
-                    "mainTitle": "Realtime Voice Changer Client",
-                    "subTitle": ""
-                }
-            },
             {
                 "name": "modelSlotArea",
                 "options": {}

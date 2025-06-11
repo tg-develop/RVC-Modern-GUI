@@ -13,7 +13,7 @@ import PassthroughConfirmModal from './Modals/PassthroughConfirmModal';
 
 function BottomBar(): JSX.Element {
   const { theme, toggleTheme } = useThemeContext();
-  const appState = useAppState() as AppContextValue; // Cast via unknown for broader compatibility if types are complex
+  const appState = useAppState() as AppContextValue;
   const uiContext = useUIContext();
 
   const [showMerge, setShowMerge] = useState<boolean>(false);

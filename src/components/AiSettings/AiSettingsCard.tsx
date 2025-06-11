@@ -32,7 +32,6 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
   const appState = useAppState();
   const uiState = useUIContext();
   const { appGuiSettingState } = useAppRoot();
-  const edition = appGuiSettingState.edition;
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { getItem, setItem } = useIndexedDB({ clientType: null });
@@ -152,7 +151,7 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
 
   const generateF0DetOptions = () => {
     // DirectML can only use ONNX models
-    if (edition.indexOf("DirectML") >= 0) {
+    if (appGuiSettingState.serverInfo.edition.indexOf("DirectML") >= 0) {
         const recommended = f0Detectors.filter(extractor => extractor.includes('_onnx'));
         return Object.values(appState.serverSetting.serverSetting.voiceChangerParams).map((x) => {
             if (recommended.includes(x)) {
