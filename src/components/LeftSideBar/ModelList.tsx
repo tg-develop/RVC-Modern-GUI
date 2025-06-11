@@ -3,13 +3,12 @@ import { ClientState, RVCModelSlot } from "@dannadori/voice-changer-client-js";
 
 interface ModelListProps {
     filteredAndSortedModels: RVCModelSlot[];
-    openModal: (type: string, props?: { modelId?: string; modelName?: string; model?: RVCModelSlot }) => void;
     handleSelectModel: (slot: RVCModelSlot) => Promise<void>;
     confirmedSelectedSlotIndex: number | null;
     appState: ClientState;
 }
 
-function ModelList({ filteredAndSortedModels, openModal, handleSelectModel, confirmedSelectedSlotIndex, appState }: ModelListProps) {  
+function ModelList({ filteredAndSortedModels, handleSelectModel, confirmedSelectedSlotIndex, appState }: ModelListProps) {  
     return (
         <>
         <ul className="space-y-2 flex-grow overflow-y-auto min-h-[100px]">
@@ -18,7 +17,6 @@ function ModelList({ filteredAndSortedModels, openModal, handleSelectModel, conf
                   <ModelSlot 
                     key={model.slotIndex} 
                     model={model} 
-                    openModal={openModal} 
                     handleSelectModel={handleSelectModel} 
                     modelDir={appState.serverSetting.serverSetting.voiceChangerParams.model_dir}
                     selected={model.slotIndex === confirmedSelectedSlotIndex} />
