@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CSS_CLASSES } from "../../styles/constants";
 import DebouncedSlider from "../Helpers/DebouncedSlider";
 import { ClientState } from "@dannadori/voice-changer-client-js";
@@ -18,6 +18,16 @@ function ChunkConfig({ appState, uiState }: ChunkConfigProps) {
     const [localExtraSize, setLocalExtraSize] = useState<number>(
         appState.serverSetting?.serverSetting?.extraConvertSize ?? 1
     );
+
+    useEffect(() => {
+        const cs = appState.serverSetting?.serverSetting?.serverReadChunkSize;
+        setLocalChunkSize(cs);
+    }, [appState.serverSetting?.serverSetting?.serverReadChunkSize]);
+
+    useEffect(() => {
+        const ex = appState.serverSetting?.serverSetting?.extraConvertSize;
+        setLocalExtraSize(ex);
+    }, [appState.serverSetting?.serverSetting?.extraConvertSize]);
 
     const handleChangeChunkSize = (value: number) => {
         setLocalChunkSize(value);
