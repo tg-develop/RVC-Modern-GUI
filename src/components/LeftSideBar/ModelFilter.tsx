@@ -128,7 +128,7 @@ function ModelFilter({
               placeholder="Search Models..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 pr-10 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-sm placeholder-slate-400 dark:placeholder-gray-500 text-slate-700 dark:text-slate-100"
+              className="w-full p-2 pr-10 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-sm placeholder-slate-400 dark:placeholder-gray-500 text-slate-700 dark:text-slate-100 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-cancel-button]:hidden"
             />
             <FontAwesomeIcon icon={faSearch} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-gray-500" />
           </div>

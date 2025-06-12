@@ -56,7 +56,7 @@ function ModelSettingsCard({ dndAttributes, dndListeners }: ModelSettingsCardPro
   };
   
   const modelDir = appState.serverSetting.serverSetting.voiceChangerParams.model_dir;
-  const icon = (model?.iconFile && model?.iconFile.length > 0) ? "http://127.0.0.1:18888/" + modelDir  + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
+  const icon = (model?.iconFile && model?.iconFile.length > 0) ? "/" + modelDir  + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
   const placeholder = useInitialPlaceholder(model?.name || "");
   
   return (
@@ -78,8 +78,8 @@ function ModelSettingsCard({ dndAttributes, dndListeners }: ModelSettingsCardPro
               icon={icon || placeholder} 
             />
           ) : (
-            <div className="flex items-center justify-center mb-6 p-8 bg-slate-100 dark:bg-gray-700/50 rounded-lg min-h-[160px]">
-              <p className="text-slate-500 dark:text-gray-400 italic text-center">Select a model from the list <br/> to see its settings.</p>
+            <div className="flex items-center justify-center mb-6 p-8 bg-slate-200 dark:bg-gray-700/50 rounded-lg min-h-[160px]">
+              <p className="text-slate-600 dark:text-gray-400 italic text-center">Select a model from the list <br/> to see its settings.</p>
             </div>
           )}
           {

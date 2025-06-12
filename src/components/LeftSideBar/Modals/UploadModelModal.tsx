@@ -352,7 +352,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
               disabled={appState.serverSetting.isUploading}
             />
             <label htmlFor="autoSelectModel" className={CSS_CLASSES.checkboxLabel}>
-              Automatisch nach Upload auswählen
+              Auto-select after upload
             </label>
           </div>
         </div>

@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import {
-    DndContext,
-    closestCenter,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
 } from '@dnd-kit/core';
 import {
-    arrayMove,
-    SortableContext,
-    // rectSwappingStrategy, // Consider if needed for 2x2 grid strategy
-    // sortableKeyboardCoordinates, // Re-add if KeyboardSensor is used
+  arrayMove,
+  SortableContext,
 } from '@dnd-kit/sortable';
 
 import SortableCardItem from './Helpers/SortableCardItem';
@@ -19,14 +17,13 @@ import ModelSettingsCard from './ModelSettings/ModelSettingsCard';
 import PerformanceStatsCard from './PerformanceStats/PerformanceStatsCard';
 import AiSettingsCard from './AiSettings/AiSettingsCard';
 import AudioSettingsCard from './AudioSettings/AudioSettingsCard';
-import { RVCModelSlot } from '@dannadori/voice-changer-client-js'; // For openModal prop
 
 // Define Card IDs
 const CARD_IDS = {
-    MODEL_SETTINGS: 'modelSettings',
-    PERFORMANCE: 'performance',
-    AI_SETTINGS: 'aiSettings',
-    AUDIO_SETTINGS: 'audioSettings',
+  MODEL_SETTINGS: 'modelSettings',
+  PERFORMANCE: 'performance',
+  AI_SETTINGS: 'aiSettings',
+  AUDIO_SETTINGS: 'audioSettings',
 };
 
 function MainContent() {
@@ -60,7 +57,7 @@ function MainContent() {
     >
       <SortableContext
         items={cardOrder}
-        // strategy={rectSwappingStrategy} // Default strategy works well with grid
+      // strategy={rectSwappingStrategy} // Default strategy works well with grid
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {cardOrder.map((cardId) => {

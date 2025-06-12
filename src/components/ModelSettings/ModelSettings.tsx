@@ -12,7 +12,6 @@ interface ModelSettingsProps {
 }
 
 function ModelSettings({ model, handlePitchChange, handleFormatShiftChange, handleIndexRatioChange, handleSpeakerChange, setModel }: ModelSettingsProps) {
-    // Prepare speaker options outside of JSX return for clarity
     let speakerOptions: JSX.Element[] = [];
     if (model && model.speakers && Object.keys(model.speakers).length > 0) {
         speakerOptions = Object.entries(model.speakers).map(([id, name]) => (

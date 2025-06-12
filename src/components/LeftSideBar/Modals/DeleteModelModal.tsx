@@ -19,7 +19,7 @@ function DeleteModelModal({ model, showModal, setShowDelete, modelDir }: DeleteM
   const appState = useAppState();
   const guiState = useUIContext();
   
-  const icon = model.iconFile.length > 0 ? "http://127.0.0.1:18888/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
+  const icon = model.iconFile.length > 0 ? "/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
   const placeholder = useInitialPlaceholder(model.name);
 
   const handleConfirm = async () => {

