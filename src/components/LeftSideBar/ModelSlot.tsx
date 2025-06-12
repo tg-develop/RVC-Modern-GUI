@@ -35,10 +35,10 @@ function ModelSlot(props: ModelSlotProps) {
         modelDir={props.modelDir}
       />
       <li 
-        className={`p-2.5 text-sm rounded-md cursor-pointer flex items-center group text-slate-700 dark:text-slate-300 
+        className={`p-3 text-sm cursor-pointer flex items-center group text-slate-700 dark:text-slate-300 transition-colors duration-200 border-b border-slate-200 dark:border-gray-700 last:border-b-0
               ${ props.selected
-                  ? 'bg-sky-100 dark:bg-blue-700/30 border border-blue-500' 
-                  : 'hover:bg-slate-100 dark:hover:bg-gray-700'}`}
+                  ? 'bg-blue-50 dark:bg-blue-700/20 border-l-4 border-l-blue-500 dark:border-l-blue-400 pl-2 rounded-md' 
+                  : 'hover:bg-slate-50 dark:hover:bg-gray-700/50 hover:border-l-2 hover:border-l-slate-300 dark:hover:border-l-gray-500'}`}
         onClick={() => {
             props.handleSelectModel(props.model);
         }}

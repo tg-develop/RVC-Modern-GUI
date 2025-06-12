@@ -11,7 +11,7 @@ interface ModelListProps {
 function ModelList({ filteredAndSortedModels, handleSelectModel, confirmedSelectedSlotIndex, appState }: ModelListProps) {  
     return (
         <>
-        <ul className="space-y-2 flex-grow overflow-y-auto min-h-[100px]">
+        <ul className="space-y-1 flex-grow overflow-y-auto min-h-[100px]">
             {filteredAndSortedModels.length > 0 ? (
                 filteredAndSortedModels.map(model => (
                   <ModelSlot 
