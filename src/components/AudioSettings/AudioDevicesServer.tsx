@@ -3,9 +3,12 @@ import { CSS_CLASSES } from '../../styles/constants';
 import { useAppState } from '../../context/AppContext';
 import { useState } from 'react';
 import { ServerAudioDevice } from '@dannadori/voice-changer-client-js/dist/const';
+import { useUIContext } from '../../context/UIContext';
 
 function AudioDevicesServer() {
   const appState = useAppState();
+  const uiState = useUIContext();
+
   const sampleRates = [16000, 32000, 44100, 48000, 96000, 192000];
 
   const [availableAudioDrivers, setAvailableAudioDrivers] = useState<string[]>([]);
@@ -43,6 +46,14 @@ function AudioDevicesServer() {
   };
 
   const handleAudioDriverChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    if(appState.serverSetting.serverSetting.serverAudioStated === 1) {
+      uiState.setIsConverting(false);
+      appState.serverSetting.updateServerSettings({
+        ...appState.serverSetting.serverSetting,
+        serverAudioStated: 0
+      });
+    }
+
     setSelectedAudioDriver(event.target.value);
   };
 
@@ -120,6 +131,7 @@ function AudioDevicesServer() {
       console.error('Error fetching server devices:', err);
     }
   };
+
   useEffect(() => {
     fetchServerDevices();
   }, [appState.serverSetting.serverSetting.enableServerAudio]);
