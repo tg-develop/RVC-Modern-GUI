@@ -18,7 +18,7 @@ function ModelSlot(props: ModelSlotProps) {
     const [showDelete, setShowDelete] = useState<boolean>(false);
 
 
-    const icon = props.model.iconFile.length > 0 ? "http://127.0.0.1:18888/" + props.modelDir + "/" + props.model.slotIndex + "/" + props.model.iconFile.split(/[\/\\]/).pop() : "";
+    const icon = props.model.iconFile.length > 0 ? "/" + props.modelDir + "/" + props.model.slotIndex + "/" + props.model.iconFile.split(/[\/\\]/).pop() : "";
     const placeholder = useInitialPlaceholder(props.model.name);
 
     return (

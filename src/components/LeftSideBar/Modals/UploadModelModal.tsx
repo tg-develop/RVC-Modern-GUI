@@ -5,8 +5,8 @@ import GenericModal from '../../Modals/GenericModal';
 import { UIContextType } from '../../../context/UIContext';
 
 export interface UploadFinalForm extends ModelUploadSetting {
-  modelName: string 
-  thumbnailFile: File | null  
+  modelName: string
+  thumbnailFile: File | null
   embedder: string
 }
 
@@ -19,6 +19,7 @@ interface UploadModelModalProps {
 
 function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: UploadModelModalProps) {
   const [uploadSettings, setUploadSettings] = useState<UploadFinalForm>({ modelName: '', thumbnailFile: null, voiceChangerType: 'RVC', slot: 0, isSampleMode: false, sampleId: null, files: [], params: {}, embedder: 'hubert_base' });
+  const [autoSelectModel, setAutoSelectModel] = useState<boolean>(false);
 
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [isThumbnailExpanded, setIsThumbnailExpanded] = useState(false);
@@ -33,52 +34,52 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
     }
     // Auto-expand thumbnail preview when a new thumbnail is selected and preview is available
     if (thumbnailPreview) {
-        setIsThumbnailExpanded(true);
+      setIsThumbnailExpanded(true);
     }
 
   }, [uploadSettings.files]); // Dependencies for this effect
- 
+
   const handleModelFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       const newFile = { kind: "rvcModel" as ModelFileKind, file: file, dir: "" };
-      
+
       const updatedFiles = uploadSettings.files.filter(f => f.kind !== "rvcModel");
       updatedFiles.push(newFile);
-      
-      setUploadSettings({ 
-        ...uploadSettings, 
+
+      setUploadSettings({
+        ...uploadSettings,
         files: updatedFiles,
-        modelName: file.name.replace(/\.[^/.]+$/, '') 
+        modelName: file.name.replace(/\.[^/.]+$/, '')
       });
     } else {
       const updatedFiles = uploadSettings.files.filter(f => f.kind !== "rvcModel");
-      
-      setUploadSettings({ 
-        ...uploadSettings, 
+
+      setUploadSettings({
+        ...uploadSettings,
         files: updatedFiles,
-        modelName: '' 
+        modelName: ''
       });
     }
   };
-  
+
   const handleIndexFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const newFile = { kind: "rvcIndex" as ModelFileKind, file: event.target.files[0], dir: "" };
-      
+
       const updatedFiles = uploadSettings.files.filter(f => f.kind !== "rvcIndex");
       updatedFiles.push(newFile);
-      
-      setUploadSettings({ 
-        ...uploadSettings, 
-        files: updatedFiles 
+
+      setUploadSettings({
+        ...uploadSettings,
+        files: updatedFiles
       });
     } else {
       const updatedFiles = uploadSettings.files.filter(f => f.kind !== "rvcIndex");
-      
-      setUploadSettings({ 
-        ...uploadSettings, 
-        files: updatedFiles 
+
+      setUploadSettings({
+        ...uploadSettings,
+        files: updatedFiles
       });
     }
   };
@@ -99,7 +100,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
   };
 
   const handleUploadCloseModal = () => {
-    if(!appState.serverSetting.isUploading) {
+    if (!appState.serverSetting.isUploading) {
       setShowUpload(false);
       setUploadSettings({ modelName: '', thumbnailFile: null, voiceChangerType: 'RVC', slot: 0, isSampleMode: false, sampleId: null, files: [], params: {}, embedder: 'hubert_base' });
     }
@@ -116,8 +117,6 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
       guiState.showError('Please enter a model name.', "Error");
       return;
     }
-
-    //appState.serverSetting.isUploading setIsUploading(true);
 
     try {
       let emptySlotIndex = -1;
@@ -164,6 +163,16 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
 
       guiState.showError("Model uploaded successfully!", "Confirm");
       await appState.serverSetting.reloadServerInfo();
+
+      if (autoSelectModel) {
+        guiState.startLoading("Swapping to model: " + uploadSettings.modelName);
+        await appState.serverSetting.updateServerSettings({
+          ...appState.serverSetting.serverSetting,
+          modelSlotIndex: emptySlotIndex
+        });
+        guiState.stopLoading();
+      }
+
       handleUploadCloseModal();
     } catch (error) {
       console.error('Error uploading model:', error);
@@ -177,9 +186,9 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
   const commonFileInputClass = `${commonInputClass} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-gray-600 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-gray-500`;
 
   return (
-    <GenericModal 
-      isOpen={showUpload} 
-      onClose={handleUploadCloseModal} 
+    <GenericModal
+      isOpen={showUpload}
+      onClose={handleUploadCloseModal}
       title="Upload Model"
       closeOnOutsideClick={false}
       primaryButton={{
@@ -274,23 +283,23 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
 
         {thumbnailPreview && (
           <div className="space-y-3">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setIsThumbnailExpanded(!isThumbnailExpanded)}
               className="flex items-center justify-between w-full text-sm font-medium text-slate-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors disabled:opacity-50"
               disabled={appState.serverSetting.isUploading}
             >
               <span>Preview Thumbnail</span>
-              <svg 
-                className={`ml-2 h-4 w-4 transition-transform duration-200 ${isThumbnailExpanded ? 'rotate-180' : ''}`} 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                className={`ml-2 h-4 w-4 transition-transform duration-200 ${isThumbnailExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            
+
             {isThumbnailExpanded && (
               <div className="space-y-4 p-3 bg-slate-50 dark:bg-gray-800/30 rounded-lg border border-slate-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
@@ -314,19 +323,17 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-center p-4">
-                  <div className={`transition-all duration-200 ${
-                    previewMode === 'settings' 
-                      ? 'w-32 h-32 rounded-full p-1.5 border-2 border-slate-300 dark:border-gray-500' 
+                  <div className={`transition-all duration-200 ${previewMode === 'settings'
+                      ? 'w-32 h-32 rounded-full p-1.5 border-2 border-slate-300 dark:border-gray-500'
                       : 'w-36 h-36 rounded-xl p-1.5 border border-slate-300 dark:border-gray-500'
-                  } bg-white dark:bg-gray-800 shadow-md overflow-hidden`}>
-                    <img 
-                      src={thumbnailPreview} 
-                      alt="Thumbnail preview" 
-                      className={`w-full h-full object-cover ${
-                        previewMode === 'settings' ? 'rounded-full' : 'rounded-lg'
-                      }`}
+                    } bg-white dark:bg-gray-800 shadow-md overflow-hidden`}>
+                    <img
+                      src={thumbnailPreview}
+                      alt="Thumbnail preview"
+                      className={`w-full h-full object-cover ${previewMode === 'settings' ? 'rounded-full' : 'rounded-lg'
+                        }`}
                     />
                   </div>
                 </div>
@@ -334,6 +341,21 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
             )}
           </div>
         )}
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="autoSelectModel"
+              checked={autoSelectModel}
+              onChange={(e) => setAutoSelectModel(e.target.checked)}
+              className={CSS_CLASSES.checkbox}
+              disabled={appState.serverSetting.isUploading}
+            />
+            <label htmlFor="autoSelectModel" className={CSS_CLASSES.checkboxLabel}>
+              Automatisch nach Upload auswählen
+            </label>
+          </div>
+        </div>
       </div>
     </GenericModal>
   );
