@@ -1,5 +1,8 @@
 # Voice Changer - Modern GUI Client
 
+> [!IMPORTANT]
+> **Required Base Application**: This modern GUI client requires the [Voice Changer by deiteris](https://github.com/deiteris/voice-changer) as the backend foundation. Please install and set up the base Voice Changer application first before using this modern GUI client.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -39,6 +42,9 @@ Download the latest compiled release from the [GitHub Releases page](https://git
 
 ## Installation
 
+> [!WARNING]
+> **Prerequisites**: Before installing this modern GUI client, ensure you have the [Voice Changer by deiteris](https://github.com/deiteris/voice-changer) installed and working properly. This GUI client is a frontend replacement and requires the Voice Changer backend to function.
+
 To use the modern GUI client as a replacement for the original interface:
 
 1. **Download the latest release:**
@@ -67,13 +73,14 @@ To use the modern GUI client as a replacement for the original interface:
 
 ### Prerequisites
 
+- **[Voice Changer by deiteris](https://github.com/deiteris/voice-changer)** - Base application (required)
 - [Node.js](https://nodejs.org/) (v16.0.0 or later)
 - [npm](https://www.npmjs.com/) (v8.0.0 or later)
 - A code editor (VS Code recommended)
 - **Modern Web Browser**: Chrome 90+, Firefox 88+, Safari 14+, or Edge 90+
 
 > [!NOTE]
-> For development, you also need the Voice Changer backend server running on `http://localhost:18888`.
+> For development, you need the [Voice Changer backend server](https://github.com/deiteris/voice-changer) running on `http://localhost:18888`.
 
 ### Setting up the development environment
 
