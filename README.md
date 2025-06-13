@@ -80,7 +80,7 @@ To use the modern GUI client as a replacement for the original interface:
 - **Modern Web Browser**: Chrome 90+, Firefox 88+, Safari 14+, or Edge 90+
 
 > [!NOTE]
-> For development, you need the [Voice Changer backend server](https://github.com/deiteris/voice-changer) running on `http://localhost:18888`.
+> For development, you need the [Voice Changer backend server](https://github.com/deiteris/voice-changer) running.
 
 ### Setting up the development environment
 
@@ -94,19 +94,26 @@ To use the modern GUI client as a replacement for the original interface:
    npm install
    ```
 
-3. Configure the Voice Changer server to serve the modern GUI:
+3. Compile the middleware (lib directory) in the client directory and copy dependencies into node_modules directory.
+
+   ```bash
+   # For Linux distributions use the `npm run build:mod` script instead 
+   npm run build:mod_dos
+   ```
+
+4. Configure the Voice Changer server to serve the modern GUI:
    
    In your Voice Changer server's `const.py` file, update the `FRONTEND_DIR` path to point to the modern-gui dist directory:
    ```python
    FRONTEND_DIR = "client/modern-gui/dist"
    ```
 
-4. Build the development version:
+5. Build the development version:
    ```bash
    npm run build:dev
    ```
 
-5. Start the Voice Changer server as usual
+6. Start the Voice Changer server as usual
 
 The modern GUI will now be served through the Voice Changer's web server. Rebuild with `npm run build:dev` whenever you make changes to see them reflected.
 
@@ -116,7 +123,7 @@ The modern GUI will now be served through the Voice Changer's web server. Rebuil
 ### Available scripts
 
 **Development:**
-- `npm run start` - Starts the Webpack development server with hot reloading
+- `npm run start` - Starts the Webpack development server with hot reloading. There is no connection to the backend server because of different ports. In this scenario you need to configure CORS server-side and use the React-Proxy.
 
 **Build Scripts:**
 - `npm run clean` - Removes the dist directory

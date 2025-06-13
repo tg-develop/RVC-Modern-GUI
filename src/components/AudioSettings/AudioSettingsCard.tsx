@@ -9,25 +9,30 @@ import AudioVolume from './AudioVolume';
 import AudioDevicesClient from './AudioDevicesClient';
 import { useAppState } from '../../context/AppContext';
 
-// Props for icons
 interface AudioSettingsCardProps {
   dndAttributes?: Record<string, any>;
   dndListeners?: Record<string, any>;
 }
 
 function AudioSettingsCard({ dndAttributes, dndListeners }: AudioSettingsCardProps): JSX.Element {
-  const appState = useAppState  ();
+  // ---------------- States ----------------
+  const appState = useAppState();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [audioState, setAudioState] = useState<"client" | "server">("client")
 
+  // ---------------- Hooks ----------------
+
+  // Set audio state based on server audio setting
   useEffect(() => {
-    if(appState.serverSetting.serverSetting.enableServerAudio == 1){
+    if (appState.serverSetting.serverSetting.enableServerAudio == 1) {
       setAudioState("server")
-    }else{
+    } else {
       setAudioState("client")
     }
   }, [appState.serverSetting.serverSetting.enableServerAudio]);
-  
+
+  // ---------------- Render ----------------
+
   return (
     <div className={`p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300 flex-1 min-h-0 flex flex-col ${isCollapsed ? 'h-auto' : 'overflow-y-auto'}`}>
       <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-gray-700">
@@ -35,9 +40,9 @@ function AudioSettingsCard({ dndAttributes, dndListeners }: AudioSettingsCardPro
           <h4 className={CSS_CLASSES.heading}>Audio Settings</h4>
         </div>
         <div className="flex space-x-1 items-center">
-          <button 
-            onClick={() => setIsCollapsed(!isCollapsed)} 
-            className={CSS_CLASSES.iconButton} 
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={CSS_CLASSES.iconButton}
             title={isCollapsed ? "Expand" : "Collapse"}
           >
             <FontAwesomeIcon icon={isCollapsed ? faChevronDown : faChevronUp} className="h-5 w-5" />
@@ -47,7 +52,7 @@ function AudioSettingsCard({ dndAttributes, dndListeners }: AudioSettingsCardPro
       </div>
       {!isCollapsed && (
         <>
-          <AudioMode audioState={audioState} setAudioState={setAudioState}/>
+          <AudioMode audioState={audioState} setAudioState={setAudioState} />
           {audioState === "client" ? <AudioDevicesClient /> : <AudioDevicesServer />}
           <AudioVolume />
         </>

@@ -6,24 +6,30 @@ import DebouncedSlider from '../Helpers/DebouncedSlider';
 // CSS Class Constants (can be moved to a shared file or passed as props if preferred)
 
 function AudioVolume(): JSX.Element {
+  // ---------------- States ----------------
   const appState = useAppState();
-
   const [inputGain, setInputGain] = useState(1);
   const [outputGain, setOutputGain] = useState(1);
-  const [monitorGain, setMonitorGain] = useState(1); 
+  const [monitorGain, setMonitorGain] = useState(1);
 
-  useEffect(() => { 
+  // ---------------- Hooks ----------------
+
+  // Set Audio Gains
+  useEffect(() => {
     setInputGain(appState.serverSetting.serverSetting.serverInputAudioGain)
     setOutputGain(appState.serverSetting.serverSetting.serverOutputAudioGain)
     setMonitorGain(appState.serverSetting.serverSetting.serverMonitorAudioGain)
   }, [appState.serverSetting.serverSetting.serverInputAudioGain, appState.serverSetting.serverSetting.serverOutputAudioGain, appState.serverSetting.serverSetting.serverMonitorAudioGain])
 
+  // ---------------- Handlers ----------------
+
+  // Handle Input Gain Change
   const handleInputGainChange = (value: number) => {
     const gain = value / 100
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
       serverInputAudioGain: gain
-    })  
+    })
 
     appState.setVoiceChangerClientSetting({
       ...appState.setting.voiceChangerClientSetting,
@@ -31,6 +37,7 @@ function AudioVolume(): JSX.Element {
     })
   }
 
+  // Handle Output Gain Change
   const handleOutputGainChange = (value: number) => {
     const gain = value / 100
     appState.serverSetting.updateServerSettings({
@@ -44,6 +51,7 @@ function AudioVolume(): JSX.Element {
     })
   }
 
+  // Handle Monitor Gain Change
   const handleMonitorGainChange = (value: number) => {
     const gain = value / 100
     appState.serverSetting.updateServerSettings({
@@ -56,6 +64,8 @@ function AudioVolume(): JSX.Element {
       monitorGain: gain
     })
   }
+
+  // ---------------- Render ----------------
 
   return (
     <>

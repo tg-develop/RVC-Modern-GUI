@@ -5,10 +5,14 @@ import { useIndexedDB } from '@dannadori/voice-changer-client-js';
 import { useUIContext } from '../../context/UIContext';
 
 function AudioDevicesClient(): JSX.Element {
+  // ---------------- States ----------------
   const appState = useAppState();
   const uiState = useUIContext();
   const { getItem, setItem } = useIndexedDB({ clientType: null });
 
+  // ---------------- Hooks ----------------
+
+  // Configure Audio Sinks for Output in Client Mode
   useEffect(() => {
     const setAudioOutput = async () => {
         const mediaDeviceInfos = await navigator.mediaDevices.enumerateDevices();
@@ -49,6 +53,7 @@ function AudioDevicesClient(): JSX.Element {
     setAudioOutput();
   }, [uiState.audioOutputForGUI, appState.serverSetting.serverSetting.enableServerAudio]);
 
+  // Configure Audio Sinks for Monitor in Client Mode
   useEffect(() => {
     const setAudioMonitor = async () => {
         const mediaDeviceInfos = await navigator.mediaDevices.enumerateDevices();
@@ -89,55 +94,66 @@ function AudioDevicesClient(): JSX.Element {
     setAudioMonitor();
   }, [uiState.audioMonitorForGUI, appState.serverSetting.serverSetting.enableServerAudio]);
 
+  // Load Default Devices from IndexDB
   useEffect(() => {
-    console.log("initializedRef.current", appState.initializedRef.current);
-    appState.setAudioOutputElementId(AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_RESULT);
-  }, [appState.initializedRef.current]);
+    // Wait for initialization of the client
+    if (!appState.initializedRef.current) {
+      return;
+    }
 
-  useEffect(() => {
-    console.log("initializedRef.current", appState.initializedRef.current);
+    // Set audio output element id
+    getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_INPUT).then((input) => {
+      if (input) {
+        uiState.setAudioInputForGUI(input as string);
+        appState.setVoiceChangerClientSetting({
+          ...appState.setting.voiceChangerClientSetting,
+          audioInput: input as string
+        });
+      }
+    });
+
+    // Set audio monitor element id
     appState.setAudioMonitorElementId(AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_MONITOR);
+    getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_OUTPUT).then((output) => {
+      if (output) {
+        uiState.setAudioOutputForGUI(output as string);
+      }
+    });
+
+    // Set audio monitor element id
+    getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITOR).then((monitor) => {
+      if (monitor) {
+        uiState.setAudioMonitorForGUI(monitor as string);
+      }
+    });
+
   }, [appState.initializedRef.current]);
 
+  // ---------------- Handlers ----------------
+
+  // Handle input device change
   const handleInputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    appState.setting.voiceChangerClientSetting.audioInput = event.target.value;
+    appState.setVoiceChangerClientSetting({
+      ...appState.setting.voiceChangerClientSetting,
+      audioInput: event.target.value
+    });
     setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_INPUT, event.target.value);
     uiState.setAudioInputForGUI(event.target.value);
   };
 
+  // Handle output device change
   const handleOutputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_OUTPUT, event.target.value);
     uiState.setAudioOutputForGUI(event.target.value);
   };
 
+  // Handle monitor device change
   const handleMonitorDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITOR, event.target.value);
     uiState.setAudioMonitorForGUI(event.target.value);
   };
 
-  // Load Output and Monitor from Cache
-  useEffect(() => {
-    const loadCache = async () => {
-        const output = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_OUTPUT);
-        if (output) {
-            uiState.setAudioOutputForGUI(output as string);
-        }
-        const monitor = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_MONITOR);
-        if (monitor) {
-            uiState.setAudioMonitorForGUI(monitor as string);
-        }
-        const input = await getItem(INDEXEDDB_KEYS.INDEXEDDB_KEY_AUDIO_INPUT);
-        if (input) {
-          appState.setVoiceChangerClientSetting({
-            ...appState.setting.voiceChangerClientSetting,
-            audioInput: input as string
-          });
-          uiState.setAudioInputForGUI(input as string);
-        }
-    };
-    loadCache();
-  }, []);
-
+    // ---------------- Render ----------------
   return (
     <>
       {/* Input Device */}

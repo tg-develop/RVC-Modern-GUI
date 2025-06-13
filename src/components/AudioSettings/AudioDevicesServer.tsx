@@ -6,6 +6,7 @@ import { ServerAudioDevice } from '@dannadori/voice-changer-client-js/dist/const
 import { useUIContext } from '../../context/UIContext';
 
 function AudioDevicesServer() {
+  // ---------------- States ----------------
   const appState = useAppState();
   const uiState = useUIContext();
 
@@ -14,28 +15,45 @@ function AudioDevicesServer() {
   const [availableAudioDrivers, setAvailableAudioDrivers] = useState<string[]>([]);
   const [selectedAudioDriver, setSelectedAudioDriver] = useState<string>('');
  
-  const [selectedInputDevice, setSelectedInputDevice] = useState<string>('');
-  const [selectedOutputDevice, setSelectedOutputDevice] = useState<string>('');
-  const [selectedMonitorDevice, setSelectedMonitorDevice] = useState<string>('');
   const [selectedMonitorAudioDriver, setSelectedMonitorAudioDriver] = useState<string>('');
   
+  // ---------------- Hooks ----------------
+  
+  // Get Server Input Devices based on selected Audio Driver
   const serverInputDevices = useMemo(() => {
     return appState.serverSetting?.serverSetting?.serverAudioInputDevices
           .filter(device => device.hostAPI === selectedAudioDriver);
   }, [appState.serverSetting, selectedAudioDriver]);
 
+  // Get Server Output Devices based on selected Audio Driver
   const serverOutputDevices = useMemo(() => {
     return appState.serverSetting?.serverSetting?.serverAudioOutputDevices
           .filter(device => device.hostAPI === selectedAudioDriver);
   }, [appState.serverSetting, selectedAudioDriver]);
 
+  // Get Server Monitor Devices based on selected Monitor Audio Driver
   const serverMonitorDevices = useMemo(() => {
     if (!selectedMonitorAudioDriver) return [];
     return appState.serverSetting?.serverSetting?.serverAudioOutputDevices
           .filter(device => device.hostAPI === selectedMonitorAudioDriver);
   }, [appState.serverSetting, selectedMonitorAudioDriver]);
 
+  // Set selected monitor audio driver based on selected audio driver
+  useEffect(() => {
+    if (availableAudioDrivers.length > 0) {
+      const monitor = appState.serverSetting.serverSetting.serverAudioOutputDevices.find(x => x.index === appState.serverSetting.serverSetting.serverMonitorDeviceId);
+      setSelectedMonitorAudioDriver(availableAudioDrivers.find(x => x === monitor?.hostAPI ) || availableAudioDrivers[0]);
+    }
+  }, [availableAudioDrivers]);
+
+  // Fetch server devices
+  useEffect(() => {
+    fetchServerDevices();
+  }, [appState.serverSetting.serverSetting.enableServerAudio]);
+
+  // ---------------- Handlers ----------------
   
+  // Handle Sample Rate Change
   const handleSampleRateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
@@ -45,6 +63,7 @@ function AudioDevicesServer() {
     });
   };
 
+  // Handle Audio Driver Change
   const handleAudioDriverChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if(appState.serverSetting.serverSetting.serverAudioStated === 1) {
       uiState.setIsConverting(false);
@@ -53,10 +72,10 @@ function AudioDevicesServer() {
         serverAudioStated: 0
       });
     }
-
     setSelectedAudioDriver(event.target.value);
   };
 
+  // Handle Input Device Change
   const handleInputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
@@ -64,6 +83,7 @@ function AudioDevicesServer() {
     });
   };
 
+  // Handle Output Device Change
   const handleOutputDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
@@ -71,6 +91,7 @@ function AudioDevicesServer() {
     });
   };
 
+  // Handle Monitor Device Change
   const handleMonitorDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
@@ -78,6 +99,7 @@ function AudioDevicesServer() {
     });
   };
 
+  // Handle Input Channel Change
   const handleInputChannelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
@@ -85,6 +107,7 @@ function AudioDevicesServer() {
     });
   };
 
+  // Handle Output Channel Change
   const handleOutputChannelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
@@ -92,12 +115,15 @@ function AudioDevicesServer() {
     });
   };
 
+  // Handle Monitor Audio Driver Change
   const handleMonitorAudioDriverChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newDriver = event.target.value;
     setSelectedMonitorAudioDriver(newDriver);
   };
 
-  // Fetch server devices
+  // ---------------- Methods ----------------
+
+  // Method to fetch server devices
   const fetchServerDevices = async () => {
     try {
       const serverSettings = appState.serverSetting.serverSetting;
@@ -111,47 +137,20 @@ function AudioDevicesServer() {
       const uniqueHostApis = Array.from(hostApis);
       setAvailableAudioDrivers(uniqueHostApis);
 
-      // Set default selections for server devices and audio driver
-      if (inputs.length > 0 && (!selectedInputDevice || !selectedInputDevice.startsWith('server-'))) {
-        setSelectedInputDevice(`server-${inputs[0].index}`);
+      // Set selected audio driver based on server input device
+      if (uniqueHostApis.length > 0) {
+        const input = appState.serverSetting.serverSetting.serverAudioInputDevices.find(x => x.index === appState.serverSetting.serverSetting.serverInputDeviceId);
+        setSelectedAudioDriver(uniqueHostApis.find(x => x === input?.hostAPI ) || uniqueHostApis[0]);
       }
-      if (outputs.length > 0) {
-        if (!selectedOutputDevice || !selectedOutputDevice.startsWith('server-')) {
-          setSelectedOutputDevice(`server-${outputs[0].index}`);
-        }
-        if (!selectedMonitorDevice || !selectedMonitorDevice.startsWith('server-')) {
-          setSelectedMonitorDevice(`server-${outputs[0].index}`);
-        }
-      }
-      if (uniqueHostApis.length > 0 && !selectedAudioDriver) {
-        setSelectedAudioDriver(uniqueHostApis[0]);
-      }
-
     } catch (err) {
       console.error('Error fetching server devices:', err);
     }
   };
 
-  useEffect(() => {
-    fetchServerDevices();
-  }, [appState.serverSetting.serverSetting.enableServerAudio]);
-
-  useEffect(() => {
-    // Initialize or sync selectedMonitorAudioDriver with selectedAudioDriver
-    if (selectedAudioDriver && availableAudioDrivers.length > 0) {
-      if (!selectedMonitorAudioDriver || !availableAudioDrivers.includes(selectedMonitorAudioDriver)) {
-        if (availableAudioDrivers.includes(selectedAudioDriver)) {
-          setSelectedMonitorAudioDriver(selectedAudioDriver);
-        } else {
-          setSelectedMonitorAudioDriver(availableAudioDrivers[0]); // Fallback
-        }
-      }
-    }
-  }, [selectedAudioDriver, availableAudioDrivers, selectedMonitorAudioDriver]);
-
+  // ---------------- Render ----------------
+  
   return (
     <>
-      {/* Server-only settings */}
       <div>
         <label htmlFor="sampleRate" className={CSS_CLASSES.label}>Sample Rate</label>
         <select id="sampleRate" className={CSS_CLASSES.select} value={appState.serverSetting?.serverSetting?.serverInputAudioSampleRate} onChange={handleSampleRateChange}>
@@ -180,7 +179,6 @@ function AudioDevicesServer() {
 
       <div className="space-y-2">
         <div className="flex items-end gap-2">
-          {/* Input Device - 70% width */}
           <div className={selectedAudioDriver === 'ASIO' ? 'w-[70%]' : 'w-full'}>
             <label htmlFor="inputCh" className={CSS_CLASSES.label}>
               Input Device
