@@ -16,12 +16,16 @@ interface DeleteModelModalProps {
 }
 
 function DeleteModelModal({ model, showModal, setShowDelete, modelDir }: DeleteModelModalProps): JSX.Element {
+  // ---------------- State ----------------
   const appState = useAppState();
   const guiState = useUIContext();
-  
-  const icon = model.iconFile.length > 0 ? "/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
+
+    const icon = model.iconFile.length > 0 ? "/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
   const placeholder = useInitialPlaceholder(model.name);
 
+  // ---------------- Handlers ----------------
+  
+  // Handle confirm button click
   const handleConfirm = async () => {
     const settings: ModelUploadSetting & { embedder: string } = {
       voiceChangerType: "RVC",
@@ -34,7 +38,7 @@ function DeleteModelModal({ model, showModal, setShowDelete, modelDir }: DeleteM
     };
     appState.serverSetting.uploadModel(settings);
 
-    if(appState.serverSetting.serverSetting.modelSlotIndex === model.slotIndex) {
+    if (appState.serverSetting.serverSetting.modelSlotIndex === model.slotIndex) {
       guiState.startLoading();
       await appState.serverSetting.updateServerSettings({ ...appState.serverSetting.serverSetting, modelSlotIndex: 0 });
       guiState.stopLoading();
@@ -44,9 +48,12 @@ function DeleteModelModal({ model, showModal, setShowDelete, modelDir }: DeleteM
     setShowDelete(false);
   };
 
+  // Handle cancel button click
   const handleCancel = () => {
     setShowDelete(false);
   };
+
+  // ---------------- Render ----------------
 
   return (
     <GenericModal
@@ -82,9 +89,9 @@ function DeleteModelModal({ model, showModal, setShowDelete, modelDir }: DeleteM
 
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
           <div className="flex items-center space-x-3 mb-2">
-            <img 
-              src={icon.length > 0 ? icon : placeholder} 
-              alt={model.name} 
+            <img
+              src={icon.length > 0 ? icon : placeholder}
+              alt={model.name}
               className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
             />
             <div>

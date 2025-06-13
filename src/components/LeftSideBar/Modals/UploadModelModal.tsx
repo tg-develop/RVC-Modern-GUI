@@ -18,6 +18,7 @@ interface UploadModelModalProps {
 }
 
 function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: UploadModelModalProps) {
+  // ---------------- Component State ----------------
   const [uploadSettings, setUploadSettings] = useState<UploadFinalForm>({ modelName: '', thumbnailFile: null, voiceChangerType: 'RVC', slot: 0, isSampleMode: false, sampleId: null, files: [], params: {}, embedder: 'hubert_base' });
   const [autoSelectModel, setAutoSelectModel] = useState<boolean>(false);
 
@@ -25,20 +26,26 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
   const [isThumbnailExpanded, setIsThumbnailExpanded] = useState(false);
   const [previewMode, setPreviewMode] = useState<'settings' | 'list'>('settings');
 
+  // ---------------- Side Effects ----------------
+  
+  // Auto-populate model name from selected file and handle thumbnail preview
   useEffect(() => {
-    // Automatically set model name from file name if modelName is empty and modelFile is selected
+    // Extract base filename (without extension) to auto-populate model name field
     const model = uploadSettings.files.find(x => x.kind === "rvcModel")
     if (model) {
       const baseName = model.file.name.substring(0, model.file.name.lastIndexOf('.'));
       setUploadSettings({ ...uploadSettings, modelName: baseName });
     }
-    // Auto-expand thumbnail preview when a new thumbnail is selected and preview is available
+    // Expand thumbnail preview automatically for better user visibility
     if (thumbnailPreview) {
       setIsThumbnailExpanded(true);
     }
 
-  }, [uploadSettings.files]); // Dependencies for this effect
+  }, [uploadSettings.files, thumbnailPreview]);
 
+  // ---------------- File Upload Handlers ----------------
+  
+  // Process main model file selection (.pth, .safetensors, .onnx)
   const handleModelFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
@@ -63,6 +70,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
     }
   };
 
+  // Process optional index file selection (.index)
   const handleIndexFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const newFile = { kind: "rvcIndex" as ModelFileKind, file: event.target.files[0], dir: "" };
@@ -84,6 +92,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
     }
   };
 
+  // Process optional thumbnail image selection
   const handleThumbnailFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
@@ -99,6 +108,9 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
     }
   };
 
+  // ---------------- Modal Actions ----------------
+  
+  // Close modal and reset form state
   const handleUploadCloseModal = () => {
     if (!appState.serverSetting.isUploading) {
       setShowUpload(false);
@@ -106,8 +118,8 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
     }
   };
 
+  // Execute the complete model upload workflow
   const handleUploadModal = async () => {
-    console.log(uploadSettings);
     if (!uploadSettings.files) {
       guiState.showError('Please select a model file.', "Error");
       return;
@@ -122,12 +134,11 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
       let emptySlotIndex = -1;
       const currentModelSlots = appState.serverSetting.serverSetting.modelSlots;
 
+      // Find first available empty slot for the new model
       if (currentModelSlots && currentModelSlots.length > 0) {
         emptySlotIndex = currentModelSlots.findIndex((slot: ModelSlot) => !slot.name || slot.name.length === 0);
-        if (emptySlotIndex === -1) {
-          console.warn("No slot with an empty name found. Prioritizing slots with no name.");
-        }
       }
+
       if (emptySlotIndex === -1) {
         guiState.showError('No empty model slot available. Please clear a slot or manage existing ones.', "Error");
         return;
@@ -151,19 +162,23 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
         embedder: uploadSettings.embedder
       };
 
+      // Upload main model files (model + optional index file)
       console.log('Uploading model with settings:', uploadSettingsData);
       await appState.serverSetting.uploadModel(uploadSettingsData);
       console.log('Model uploaded successfully.');
 
+      // Upload thumbnail image as separate asset if provided
       if (uploadSettings.thumbnailFile) {
         console.log(`Uploading icon to slot ${emptySlotIndex}...`);
         await appState.serverSetting.uploadAssets(emptySlotIndex, "iconFile", uploadSettings.thumbnailFile);
         console.log('Icon uploaded.');
       }
 
+      // Notify user of successful upload and refresh server state
       guiState.showError("Model uploaded successfully!", "Confirm");
       await appState.serverSetting.reloadServerInfo();
 
+      // Automatically switch to the newly uploaded model if requested
       if (autoSelectModel) {
         guiState.startLoading("Swapping to model: " + uploadSettings.modelName);
         await appState.serverSetting.updateServerSettings({
@@ -180,10 +195,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
     }
   };
 
-  const commonLabelClass = "block text-sm font-medium text-slate-600 dark:text-gray-400 mb-1";
-  const commonSelectClass = "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm transition-colors duration-150";
-  const commonInputClass = "w-full p-2 border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 text-sm transition-colors duration-150";
-  const commonFileInputClass = `${commonInputClass} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-gray-600 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-gray-500`;
+  // ---------------- Component Render ----------------
 
   return (
     <GenericModal
@@ -207,29 +219,32 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
       }
     >
       <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-2">
+        {/* Main model file input - Required for upload */}
         <div>
-          <label htmlFor="modelFile" className={commonLabelClass}>Model File (.pth, .safetensors, .onnx):</label>
+          <label htmlFor="modelFile" className={CSS_CLASSES.label}>Model File (.pth, .safetensors, .onnx):</label>
           <input
             type="file"
             id="modelFile"
             accept=".pth,.safetensors,.onnx"
             onChange={handleModelFileChange}
-            className={commonFileInputClass}
+            className={CSS_CLASSES.input}
             disabled={appState.serverSetting.isUploading}
           />
         </div>
 
+        {/* Model configuration options - Only shown after model file is selected */}
         {uploadSettings.files.find(x => x.kind === "rvcModel") && (
           <div className="space-y-4 ml-2 pl-3 border-l-2 border-slate-200 dark:border-gray-700">
+            {/* Model name input with auto-population from filename */}
             <div className="space-y-2">
-              <label htmlFor="modelName" className={commonLabelClass}>Model Name:</label>
+              <label htmlFor="modelName" className={CSS_CLASSES.label}>Model Name:</label>
               <div className="relative">
                 <input
                   type="text"
                   id="modelName"
                   value={uploadSettings.modelName}
                   onChange={(e) => setUploadSettings({ ...uploadSettings, modelName: e.target.value })}
-                  className={`${commonInputClass} pl-3 pr-10 py-2 bg-white/50 dark:bg-gray-700/50 border-slate-300/70 dark:border-gray-600/70 focus:ring-2 focus:ring-blue-500/50 focus:border-transparent text-sm`}
+                  className={`${CSS_CLASSES.input} pl-3 pr-10 py-2 bg-white/50 dark:bg-gray-700/50 border-slate-300/70 dark:border-gray-600/70 focus:ring-2 focus:ring-blue-500/50 focus:border-transparent text-sm`}
                   placeholder="Enter a descriptive name for your model"
                   disabled={appState.serverSetting.isUploading}
                 />
@@ -241,13 +256,14 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
               </div>
             </div>
 
+            {/* Embedder selection */}
             <div className="space-y-2">
-              <label htmlFor="embedderType" className={commonLabelClass}>Embedder Type:</label>
+              <label htmlFor="embedderType" className={CSS_CLASSES.label}>Embedder Type:</label>
               <select
                 id="embedderType"
                 value={uploadSettings.embedder}
                 onChange={(e) => setUploadSettings({ ...uploadSettings, embedder: e.target.value as 'hubert_base' | 'spin_base' })}
-                className={commonSelectClass}
+                className={CSS_CLASSES.select}
                 disabled={appState.serverSetting.isUploading}
               >
                 <option value="hubert_base">Hubert_Base / Contentvec (Default)</option>
@@ -257,30 +273,33 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
           </div>
         )}
 
+        {/* Optional index file for improved conversion quality */}
         <div>
-          <label htmlFor="indexFile" className={commonLabelClass}>Index File (.index) (Optional):</label>
+          <label htmlFor="indexFile" className={CSS_CLASSES.label}>Index File (.index) (Optional):</label>
           <input
             type="file"
             id="indexFile"
             accept=".index"
             onChange={handleIndexFileChange}
-            className={commonFileInputClass}
+            className={CSS_CLASSES.fileInput}
             disabled={appState.serverSetting.isUploading}
           />
         </div>
 
+        {/* Optional thumbnail image with live preview */}
         <div>
-          <label htmlFor="thumbnailFile" className={commonLabelClass}>Thumbnail Image (Optional):</label>
+          <label htmlFor="thumbnailFile" className={CSS_CLASSES.label}>Thumbnail Image (Optional):</label>
           <input
             type="file"
             id="thumbnailFile"
             accept="image/*"
             onChange={handleThumbnailFileChange}
-            className={commonFileInputClass}
+            className={CSS_CLASSES.fileInput}
             disabled={appState.serverSetting.isUploading}
           />
         </div>
 
+        {/* Thumbnail preview section with expandable interface */}
         {thumbnailPreview && (
           <div className="space-y-3">
             <button
@@ -302,6 +321,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
 
             {isThumbnailExpanded && (
               <div className="space-y-4 p-3 bg-slate-50 dark:bg-gray-800/30 rounded-lg border border-slate-200 dark:border-gray-700">
+                {/* Preview mode toggle - Shows how thumbnail appears in different UI contexts */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600 dark:text-gray-300">Preview Mode:</span>
                   <div className="flex space-x-2">
@@ -326,8 +346,8 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
 
                 <div className="flex items-center justify-center p-4">
                   <div className={`transition-all duration-200 ${previewMode === 'settings'
-                      ? 'w-32 h-32 rounded-full p-1.5 border-2 border-slate-300 dark:border-gray-500'
-                      : 'w-36 h-36 rounded-xl p-1.5 border border-slate-300 dark:border-gray-500'
+                    ? 'w-32 h-32 rounded-full p-1.5 border-2 border-slate-300 dark:border-gray-500'
+                    : 'w-36 h-36 rounded-xl p-1.5 border border-slate-300 dark:border-gray-500'
                     } bg-white dark:bg-gray-800 shadow-md overflow-hidden`}>
                     <img
                       src={thumbnailPreview}
@@ -341,6 +361,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
             )}
           </div>
         )}
+        {/* Auto-select option for immediate model activation after upload */}
         <div className="space-y-2">
           <div className="flex items-center">
             <input

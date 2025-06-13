@@ -12,12 +12,18 @@ interface EditModelModalProps {
 }
 
 function EditModelModal({ model, showModal, setShowEdit }: EditModelModalProps): JSX.Element {
+  // ---------------- State ----------------
   const appState = useAppState();
   const guiState = useUIContext();
+
+  // ---------------- Handlers ----------------
+  
+  // Handle cancel button click
   const handleCancel = () => {
     setShowEdit(false);
   };
 
+  // Handle save button click
   const handleSave = () => {
     const settings: ModelUploadSetting & { embedder: string } = {
       voiceChangerType: "RVC",
@@ -33,8 +39,10 @@ function EditModelModal({ model, showModal, setShowEdit }: EditModelModalProps):
     setShowEdit(false);
   };
 
+  // ---------------- Render ----------------
+
   return (
-    <GenericModal 
+    <GenericModal
       isOpen={showModal}
       onClose={handleCancel}
       title="Edit Model"
