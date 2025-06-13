@@ -20,54 +20,65 @@ interface MergeLabModalProps {
 }
 
 function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps): JSX.Element {
+  // ---------------- States ----------------
+
   const appState = useAppState();
 
   const [sampleRate, setSampleRate] = useState<number>(40000);
   const [embedder, setEmbedder] = useState<string>('hubert_base');
   const [searchText, setSearchText] = useState<string>('');
   const [selectedModels, setSelectedModels] = useState<ModelMergeInfo[]>([]);
-  
+
   // Merge configuration state
   const [downloadModel, setDownloadModel] = useState<boolean>(true);
   const [saveToMergeSlot, setSaveToMergeSlot] = useState<boolean>(false);
   const [saveToEmptySlot, setSaveToEmptySlot] = useState<boolean>(false);
 
+  // ---------------- Functions ----------------
+
+  // Get filtered models
   const getFilteredModels = (): RVCModelSlot[] => {
     if (!appState.serverSetting.serverSetting.modelSlots) return [];
-    
+
     return appState.serverSetting.serverSetting.modelSlots.filter((slot: RVCModelSlot) => {
       if (!slot.name || slot.name.length === 0) return false;
-      
+
       if (slot.samplingRate && slot.samplingRate !== sampleRate) return false;
-      
+
       if (slot.embedder && slot.embedder !== embedder) return false;
-      
+
       if (searchText && !slot.name.toLowerCase().includes(searchText.toLowerCase())) return false;
-      
+
       return true;
     });
   };
 
+  // Get empty slots
   const getEmptySlots = (): RVCModelSlot[] => {
     if (!appState.serverSetting.serverSetting.modelSlots) return [];
-    
+
     return appState.serverSetting.serverSetting.modelSlots.filter((slot: RVCModelSlot) => {
       return !slot.name || slot.name.length === 0;
     });
   };
 
+  // Get first empty slot
   const getFirstEmptySlot = (): RVCModelSlot | null => {
     const emptySlots = getEmptySlots();
     return emptySlots.length > 0 ? emptySlots[0] : null;
   };
 
+  // ---------------- Handlers ----------------
+
+  // Handle filter change
   const handleFilterChange = () => {
     setSelectedModels([]);
   };
 
+  // Handle model toggle
   const handleModelToggle = (slot: RVCModelSlot) => {
     const isSelected = selectedModels.some(m => m.slot.slotIndex === slot.slotIndex);
-    
+
     if (isSelected) {
       setSelectedModels(selectedModels.filter(m => m.slot.slotIndex !== slot.slotIndex));
     } else {
@@ -75,14 +86,16 @@ function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps
     }
   };
 
+  // Handle percentage change
   const handlePercentageChange = (slotIndex: number, percentage: number) => {
-    setSelectedModels(selectedModels.map(m => 
-      m.slot.slotIndex === slotIndex 
+    setSelectedModels(selectedModels.map(m =>
+      m.slot.slotIndex === slotIndex
         ? { ...m, percentage }
         : m
     ));
   };
 
+  // Handle close
   const handleClose = () => {
     setShowMerge(false);
     setSelectedModels([]);
@@ -94,8 +107,9 @@ function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps
     setSaveToEmptySlot(false);
   };
 
+  // Handle merge
   const handleMerge = async () => {
-    try {      
+    try {
       if (downloadModel || saveToEmptySlot || saveToMergeSlot) {
         // Handle file operations efficiently - fetch once if needed
         let mergedModelBlob: Blob | null = null;
@@ -104,23 +118,23 @@ function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps
         const validMergeElements = selectedModels.filter((x) => {
           return x.percentage > 0;
         });
-  
+
         // Start the merge process
         await appState.serverSetting.mergeModel({
-            voiceChangerType: VoiceChangerType.RVC,
-            command: "mix",
-            files: validMergeElements.map(x => ({
-                slotIndex: x.slot.slotIndex,
-                strength: x.percentage / 100
-            })),
+          voiceChangerType: VoiceChangerType.RVC,
+          command: "mix",
+          files: validMergeElements.map(x => ({
+            slotIndex: x.slot.slotIndex,
+            strength: x.percentage / 100
+          })),
         });
-  
+
         guiState.showError('Models merged successfully!', 'Confirm');
-          
+
         // Fetch the merged model file once
-        const response = await fetch("http://127.0.0.1:18888/tmp/merged.pth");
+        const response = await fetch("/tmp/merged.pth");
         mergedModelBlob = await response.blob();
-        
+
         // Download to local drive if requested
         if (downloadModel) {
           const url = URL.createObjectURL(mergedModelBlob);
@@ -133,12 +147,12 @@ function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps
           URL.revokeObjectURL(url); // Clean up
           guiState.showError('Models downloaded successfully!', 'Confirm');
         }
-        
+
         // Upload to slot if requested
         if (saveToEmptySlot || saveToMergeSlot) {
           let slotIndex = saveToEmptySlot ? getFirstEmptySlot() : 499;
 
-          if(saveToEmptySlot && !slotIndex){
+          if (saveToEmptySlot && !slotIndex) {
             guiState.showError('No empty slots available for saving.', 'Error');
             return;
           }
@@ -150,7 +164,7 @@ function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps
           const uploadSettingsData: ModelUploadSetting & { embedder: string } = {
             voiceChangerType: VoiceChangerType.RVC,
             slot: saveToEmptySlot ? getFirstEmptySlot()?.slotIndex! : 499,
-            files: [ { kind: "rvcModel" as ModelFileKind, file: mergedModelFile, dir: "" }],
+            files: [{ kind: "rvcModel" as ModelFileKind, file: mergedModelFile, dir: "" }],
             isSampleMode: false,
             sampleId: null,
             params: {},
@@ -169,6 +183,8 @@ function MergeLabModal({ guiState, showMerge, setShowMerge }: MergeLabModalProps
       guiState.showError(`Error merging models: ${error instanceof Error ? error.message : String(error)}`, 'Error');
     }
   };
+
+  // ---------------- Render ----------------
 
   const filteredModels = getFilteredModels();
   const emptySlots = getEmptySlots();

@@ -10,12 +10,28 @@ interface F0ExtractionProps {
     appGuiSettingState: AppGuiSettingState;
 }
 
+// List of available F0 Detectors
 const f0Detectors = [
-  'crepe_full_onnx', 'crepe_tiny_onnx', 'crepe_full', 'crepe_tiny',
-  'rmvpe', 'rmvpe_onnx', 'fcpe', 'fcpe_onnx'
+    'crepe_full_onnx', 'crepe_tiny_onnx', 'crepe_full', 'crepe_tiny',
+    'rmvpe', 'rmvpe_onnx', 'fcpe', 'fcpe_onnx'
 ]
 
 function F0Extraction({ appState, uiState, appGuiSettingState }: F0ExtractionProps) {
+    // ---------------- Handlers ----------------
+
+    // Handle F0 Detector Change
+    const handleChangeF0Detector = async (value: string) => {
+        uiState.startLoading(`Changing F0 Detector to ${value}`);
+        await appState.serverSetting.updateServerSettings({
+            ...appState.serverSetting?.serverSetting,
+            f0Detector: value as F0Detector
+        });
+        uiState.stopLoading();
+    };
+
+    // ---------------- Functions ----------------
+
+    // Generate F0 Detectors Options for Select
     const generateF0DetOptions = () => {
         // DirectML can only use ONNX models
         if (appGuiSettingState.serverInfo.edition.indexOf("DirectML") >= 0) {
@@ -44,7 +60,9 @@ function F0Extraction({ appState, uiState, appGuiSettingState }: F0ExtractionPro
                 );
             });
         }
-      };
+    };
+
+    // ---------------- Render ----------------
 
     return (
         <div>
@@ -54,17 +72,10 @@ function F0Extraction({ appState, uiState, appGuiSettingState }: F0ExtractionPro
                 className={CSS_CLASSES.select}
                 value={appState.serverSetting?.serverSetting?.f0Detector ?? ''}
                 disabled={uiState.isConverting}
-                onChange={async (e) => {
-                  uiState.startLoading(`Changing F0 Detector to ${e.target.value}`);
-                  await appState.serverSetting.updateServerSettings({
-                    ...appState.serverSetting?.serverSetting,
-                    f0Detector: e.target.value as F0Detector
-                  });
-                  uiState.stopLoading();
-                }}
-              >
+                onChange={async (e) => { handleChangeF0Detector(e.target.value) }}
+            >
                 {generateF0DetOptions()}
-              </select>
+            </select>
         </div>
     );
 }

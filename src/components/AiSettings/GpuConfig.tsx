@@ -4,10 +4,10 @@ import { ClientState } from "@dannadori/voice-changer-client-js";
 import { UIContextType } from "../../context/UIContext";
 
 interface GpuInfo {
-  id: number;
-  name: string;
-  backend?: string;
-  memory?: number;
+    id: number;
+    name: string;
+    backend?: string;
+    memory?: number;
 }
 
 interface GPUConfigProps {
@@ -16,13 +16,19 @@ interface GPUConfigProps {
 }
 
 function GPUConfig({ appState, uiState }: GPUConfigProps) {
+    // ---------------- Handlers ----------------
 
+    // Handle GPU Change
     const handleChangeGpu = async (gpuId: number) => {
-        appState.serverSetting.updateServerSettings({
+        uiState.startLoading(`Changing to Processing Unit: ${appState.serverSetting?.serverSetting?.gpus?.find(gpu => gpu.id === gpuId)?.name}`);
+        await appState.serverSetting.updateServerSettings({
             ...appState.serverSetting?.serverSetting,
             gpu: gpuId
         });
+        uiState.stopLoading();
     };
+
+    // ---------------- Render ----------------
 
     return (
         <div>
@@ -32,11 +38,7 @@ function GPUConfig({ appState, uiState }: GPUConfigProps) {
                 name="gpu"
                 className={CSS_CLASSES.select}
                 value={appState.serverSetting?.serverSetting?.gpu ?? -1}
-                onChange={async (e) => {
-                    uiState.startLoading(`Changing to Processing Unit: ${appState.serverSetting?.serverSetting?.gpus?.find(gpu => gpu.id === parseInt(e.target.value))?.name}`);
-                    await handleChangeGpu(parseInt(e.target.value));
-                    uiState.stopLoading();
-                }}
+                onChange={async (e) => { handleChangeGpu(parseInt(e.target.value)); }}
             >
                 {appState.serverSetting?.serverSetting?.gpus?.length && appState.serverSetting?.serverSetting?.gpus?.length > 0 ? (
                     appState.serverSetting?.serverSetting?.gpus?.map((gpu: GpuInfo) =>

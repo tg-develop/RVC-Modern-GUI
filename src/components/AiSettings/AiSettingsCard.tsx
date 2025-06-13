@@ -13,27 +13,21 @@ import ChunkConfig from './ChunkConfig';
 import SilentThreshold from './SilentThreshold';
 import GPUConfig from './GpuConfig';
 
-// Props for icons
 interface AiSettingsCardProps {
   dndAttributes?: Record<string, any>;
   dndListeners?: Record<string, any>;
 }
 
-// Interface for GPU options from server settings
-interface GpuInfo {
-  id: number;
-  name: string;
-  backend?: string;
-  memory?: number;
-}
-
 function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): JSX.Element {
+  // ---------------- States ----------------
   const appState = useAppState();
   const uiState = useUIContext();
   const { appGuiSettingState } = useAppRoot();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { getItem, setItem } = useIndexedDB({ clientType: null });
+
+  // ---------------- Render ----------------
 
   return (
     <div className={`p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300 flex-1 min-h-0 flex flex-col ${isCollapsed ? 'h-auto' : 'overflow-y-auto'}`}>
@@ -49,10 +43,10 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
       {!isCollapsed && (
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           <div className="space-y-3">
-            <NoiseReduction 
-              appState={appState} 
-              getItem={getItem} 
-              setItem={setItem} 
+            <NoiseReduction
+              appState={appState}
+              getItem={getItem}
+              setItem={setItem}
             />
             <SilentThreshold
               appState={appState}

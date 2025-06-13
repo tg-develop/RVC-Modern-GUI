@@ -10,6 +10,7 @@ interface ChunkConfigProps {
 }
 
 function ChunkConfig({ appState, uiState }: ChunkConfigProps) {
+    // ---------------- States ----------------
     const [localChunkSize, setLocalChunkSize] = useState<number>(
         appState.serverSetting?.serverSetting?.serverReadChunkSize
             ? appState.serverSetting.serverSetting.serverReadChunkSize
@@ -19,16 +20,23 @@ function ChunkConfig({ appState, uiState }: ChunkConfigProps) {
         appState.serverSetting?.serverSetting?.extraConvertSize ?? 1
     );
 
+    // ---------------- Hooks ----------------
+
+    // Set local chunk size
     useEffect(() => {
         const cs = appState.serverSetting?.serverSetting?.serverReadChunkSize;
         setLocalChunkSize(cs);
     }, [appState.serverSetting?.serverSetting?.serverReadChunkSize]);
 
+    // Set local extra size
     useEffect(() => {
         const ex = appState.serverSetting?.serverSetting?.extraConvertSize;
         setLocalExtraSize(ex);
     }, [appState.serverSetting?.serverSetting?.extraConvertSize]);
 
+    // ---------------- Handlers ----------------
+
+    // Handle chunk size change
     const handleChangeChunkSize = (value: number) => {
         setLocalChunkSize(value);
         appState.setWorkletNodeSetting({ ...appState.setting.workletNodeSetting, inputChunkNum: Number(value) });
@@ -39,6 +47,7 @@ function ChunkConfig({ appState, uiState }: ChunkConfigProps) {
         });
     };
 
+    // Handle extra size change
     const handleChangeExtraSize = (value: number) => {
         setLocalExtraSize(value);
         appState.serverSetting.updateServerSettings({
@@ -46,6 +55,8 @@ function ChunkConfig({ appState, uiState }: ChunkConfigProps) {
             extraConvertSize: value
         });
     };
+
+    // ---------------- Render ----------------
 
     return (
         <>

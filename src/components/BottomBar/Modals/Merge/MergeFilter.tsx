@@ -13,37 +13,45 @@ interface MergeFilterProps {
   onFilterChange: () => void;
 }
 
-function MergeFilter({ 
-  sampleRate, 
-  setSampleRate, 
-  embedder, 
-  setEmbedder, 
-  searchText, 
+function MergeFilter({
+  sampleRate,
+  setSampleRate,
+  embedder,
+  setEmbedder,
+  searchText,
   setSearchText,
-  onFilterChange 
+  onFilterChange
 }: MergeFilterProps): JSX.Element {
+  // ---------------- States ----------------
+
   const sampleRates = [32000, 40000, 48000];
 
+  // ---------------- Handlers ----------------
+
+  // Handle sample rate change
   const handleSampleRateChange = (newSampleRate: number) => {
     setSampleRate(newSampleRate);
     onFilterChange();
   };
 
+  // Handle embedder change
   const handleEmbedderChange = (newEmbedder: string) => {
     setEmbedder(newEmbedder);
     onFilterChange();
   };
 
+  // ---------------- Render ----------------
+
   return (
     <div className="space-y-4 p-4 bg-slate-50 dark:bg-gray-800/30 rounded-lg border border-slate-200 dark:border-gray-700">
       <div className="flex justify-between items-center mb-3">
         <h4 className="text-md font-medium text-slate-700 dark:text-gray-200">Filter Settings</h4>
-        <FontAwesomeIcon 
-          icon={faFilter} 
-          className="h-4 w-4 text-slate-500 dark:text-gray-400" 
+        <FontAwesomeIcon
+          icon={faFilter}
+          className="h-4 w-4 text-slate-500 dark:text-gray-400"
         />
       </div>
-      
+
       <div className="space-y-4">
         <div>
           <label className={CSS_CLASSES.label}>Search Models:</label>

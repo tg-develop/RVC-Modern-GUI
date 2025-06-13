@@ -16,7 +16,9 @@ const PassthroughConfirmModal: React.FC<PassthroughConfirmModalProps> = ({
   showPassthrough,
   setShowPassthrough,
 }): JSX.Element => {
+  // ---------------- Handlers ----------------
 
+  // Handle confirm
   const handleConfirm = () => {
     appState.serverSetting.updateServerSettings({
       ...appState.serverSetting.serverSetting,
@@ -25,9 +27,12 @@ const PassthroughConfirmModal: React.FC<PassthroughConfirmModalProps> = ({
     setShowPassthrough(false);
   };
 
+  // Handle cancel
   const handleCancel = () => {
     setShowPassthrough(false);
   };
+
+  // ---------------- Render ----------------
 
   return (
     <GenericModal
@@ -47,17 +52,15 @@ const PassthroughConfirmModal: React.FC<PassthroughConfirmModalProps> = ({
       }}
     >
       <div className="text-center space-y-4">
-        {/* Warning Icon */}
         <div className="flex justify-center">
           <div className="flex items-center justify-center w-16 h-16 border-2 border-yellow-400 dark:border-yellow-500 rounded-full">
-            <FontAwesomeIcon 
-              icon={faExclamationTriangle} 
-              className="h-8 w-8 text-yellow-600 dark:text-yellow-400" 
+            <FontAwesomeIcon
+              icon={faExclamationTriangle}
+              className="h-8 w-8 text-yellow-600 dark:text-yellow-400"
             />
           </div>
         </div>
 
-        {/* Warning Message */}
         <div className="space-y-3">
           <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
             Are you sure you want to activate Passthrough?

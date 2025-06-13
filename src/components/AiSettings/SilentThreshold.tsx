@@ -5,21 +5,27 @@ import { useEffect, useState } from "react";
 import { UIContextType } from "../../context/UIContext";
 
 interface SilenceThresholdProps {
-    appState: ClientState;
-    uiState: UIContextType;
+  appState: ClientState;
+  uiState: UIContextType;
 }
 
 function SilentThreshold({ appState, uiState }: SilenceThresholdProps) {
-  // Local state for immediate slider labels
+  // ---------------- States ----------------
   const [localSilentThreshold, setLocalSilentThreshold] = useState<number>(
     appState.serverSetting?.serverSetting?.silentThreshold ?? -75
   );
 
+  // ---------------- Hooks ----------------
+
+  // Set local silent threshold
   useEffect(() => {
     const st = appState.serverSetting?.serverSetting?.silentThreshold;
     setLocalSilentThreshold(st);
   }, [appState.serverSetting?.serverSetting?.silentThreshold]);
 
+  // ---------------- Handlers ----------------
+
+  // Handle silent threshold change
   const handleChangeSilentThreshold = (value: number) => {
     setLocalSilentThreshold(value);
     appState.serverSetting.updateServerSettings({
@@ -27,6 +33,8 @@ function SilentThreshold({ appState, uiState }: SilenceThresholdProps) {
       silentThreshold: value
     });
   };
+
+  // ---------------- Render ----------------
 
   return (
     <div>

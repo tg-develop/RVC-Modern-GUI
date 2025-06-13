@@ -16,10 +16,15 @@ interface MergeModelListProps {
 }
 
 function MergeModelList({ models, selectedModels, onModelToggle, onPercentageChange, modelDir }: MergeModelListProps): JSX.Element {
+
+  // ---------------- Functions ----------------
+
+  // Check if a model is selected
   const isModelSelected = (slot: RVCModelSlot) => {
     return selectedModels.some(m => m.slot.slotIndex === slot.slotIndex);
   };
 
+  // Get model percentage
   const getModelPercentage = (slot: RVCModelSlot) => {
     const found = selectedModels.find(m => m.slot.slotIndex === slot.slotIndex);
     return found ? found.percentage : 50;
@@ -34,7 +39,7 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
     }, 0);
     const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14'];
     const bgColor = colors[Math.abs(hash) % colors.length];
-    
+
     return `data:image/svg+xml;base64,${btoa(`
       <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="${bgColor}" rx="3.2"/>
@@ -44,6 +49,7 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
     `)}`;
   };
 
+  // Handle model card click
   const handleModelCardClick = (model: RVCModelSlot) => {
     const isSelected = isModelSelected(model);
     if (!isSelected) {
@@ -51,10 +57,12 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
     }
   };
 
+  // ---------------- Render ----------------
+  
   return (
     <div className="space-y-3">
       <h4 className="text-md font-medium text-slate-700 dark:text-gray-200">Available Models</h4>
-      
+
       {models.length === 0 ? (
         <div className="text-center py-8 text-slate-500 dark:text-gray-400">
           <p>No models match the current filter criteria.</p>
@@ -64,17 +72,16 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
           {models.map((model) => {
             const isSelected = isModelSelected(model);
             const percentage = getModelPercentage(model);
-            const icon = model.iconFile.length > 0 ? "http://127.0.0.1:18888/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
+            const icon = model.iconFile.length > 0 ? "/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
             const placeholder = generatePlaceholder(model.name);
-            
+
             return (
               <div
                 key={model.slotIndex}
-                className={`p-3 rounded-lg border transition-all duration-150 ${
-                  isSelected
+                className={`p-3 rounded-lg border transition-all duration-150 ${isSelected
                     ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'
                     : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/50 cursor-pointer'
-                }`}
+                  }`}
                 onClick={() => handleModelCardClick(model)}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -88,9 +95,9 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
                       }}
                       className={CSS_CLASSES.checkbox}
                     />
-                    <img 
-                      src={icon.length > 0 ? icon : placeholder} 
-                      alt={model.name} 
+                    <img
+                      src={icon.length > 0 ? icon : placeholder}
+                      alt={model.name}
                       className="w-8 h-8 rounded-md object-cover flex-shrink-0"
                     />
                     <div>
@@ -102,14 +109,14 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
                       </div>
                     </div>
                   </div>
-                  
+
                   {isSelected && (
                     <div className="text-sm font-medium text-blue-600 dark:text-blue-400 ml-2">
                       {percentage}%
                     </div>
                   )}
                 </div>
-                
+
                 {isSelected && (
                   <div className="mt-3">
                     <input
@@ -132,7 +139,7 @@ function MergeModelList({ models, selectedModels, onModelToggle, onPercentageCha
           })}
         </div>
       )}
-      
+
       {selectedModels.length > 0 && (
         <div className="pt-3 border-t border-slate-200 dark:border-gray-700">
           <div className="text-sm text-slate-600 dark:text-gray-400">

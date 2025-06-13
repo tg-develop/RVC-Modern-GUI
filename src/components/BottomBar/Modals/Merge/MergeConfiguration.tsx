@@ -23,7 +23,9 @@ function MergeConfiguration({
   setSaveToEmptySlot,
   emptySlots
 }: MergeConfigurationProps): JSX.Element {
+  // ---------------- Handlers ----------------
 
+  // Handle merge slot change
   const handleMergeSlotChange = (checked: boolean) => {
     setSaveToMergeSlot(checked);
     if (checked) {
@@ -31,6 +33,7 @@ function MergeConfiguration({
     }
   };
 
+  // Handle empty slot change
   const handleEmptySlotChange = (checked: boolean) => {
     setSaveToEmptySlot(checked);
     if (checked) {
@@ -38,22 +41,24 @@ function MergeConfiguration({
     }
   };
 
+  // Handle download model change
   const handleDownloadModelChange = (checked: boolean) => {
     setDownloadModel(checked);
   };
+
+  // ---------------- Render ----------------
 
   return (
     <div className="space-y-4 p-4 bg-slate-50 dark:bg-gray-800/30 rounded-lg border border-slate-200 dark:border-gray-700">
       <div className="flex justify-between items-center">
         <h4 className="text-md font-medium text-slate-700 dark:text-gray-200">Merge Options</h4>
-        <FontAwesomeIcon 
-          icon={faCog} 
-          className="h-4 w-4 text-slate-500 dark:text-gray-400" 
+        <FontAwesomeIcon
+          icon={faCog}
+          className="h-4 w-4 text-slate-500 dark:text-gray-400"
         />
       </div>
-      
+
       <div className="space-y-3">
-        {/* Download Option */}
         <div className="flex items-center space-x-3">
           <input
             type="checkbox"
@@ -67,7 +72,6 @@ function MergeConfiguration({
           </label>
         </div>
 
-        {/* Save to Merge Slot Option */}
         <div className="flex items-center space-x-3">
           <input
             type="checkbox"
@@ -81,7 +85,6 @@ function MergeConfiguration({
           </label>
         </div>
 
-        {/* Save to Empty Slot Option */}
         <div className="space-y-2">
           <div className="flex items-center space-x-3">
             <input

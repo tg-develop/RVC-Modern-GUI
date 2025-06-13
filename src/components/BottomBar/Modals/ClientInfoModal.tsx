@@ -13,13 +13,19 @@ interface ClientInfoModalProps {
 }
 
 function ClientInfoModal({ showClientInfo, setShowClientInfo }: ClientInfoModalProps): JSX.Element {
+  // ---------------- States ----------------
   const appState = useAppState();
   const { appGuiSettingState } = useAppRoot();
   const clientJson = JSON.stringify(appState.setting, null, 2);
 
+  // ---------------- Handlers ----------------
+
+  // Handle close modal
   const handleClose = () => {
     setShowClientInfo(false);
   };
+
+  // ---------------- Render ----------------
 
   return (
     <GenericModal
@@ -33,7 +39,6 @@ function ClientInfoModal({ showClientInfo, setShowClientInfo }: ClientInfoModalP
       }}
     >
       <div className="space-y-4">
-        {/* Branding Header */}
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -43,7 +48,7 @@ function ClientInfoModal({ showClientInfo, setShowClientInfo }: ClientInfoModalP
                   tg-develop
                 </span>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="bg-white/50 dark:bg-black/20 rounded-md p-2">
                   <div className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-1">Edition</div>
@@ -59,10 +64,10 @@ function ClientInfoModal({ showClientInfo, setShowClientInfo }: ClientInfoModalP
                 </div>
               </div>
             </div>
-            
-            <a 
-              href="https://github.com/tg-develop" 
-              target="_blank" 
+
+            <a
+              href="https://github.com/tg-develop"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center px-3 py-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 bg-white/50 dark:bg-black/20 hover:bg-white/80 dark:hover:bg-black/40 rounded-md transition-all duration-200"
             >
@@ -73,7 +78,6 @@ function ClientInfoModal({ showClientInfo, setShowClientInfo }: ClientInfoModalP
           </div>
         </div>
 
-        {/* JSON Data */}
         <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg shadow-inner">
           <pre className="text-xs text-slate-700 dark:text-gray-300 overflow-auto max-h-[40vh] custom-scrollbar p-2 rounded-md bg-white dark:bg-slate-900">
             <code>{clientJson}</code>
