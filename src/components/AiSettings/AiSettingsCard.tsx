@@ -12,6 +12,7 @@ import F0Extraction from './F0Extraction';
 import ChunkConfig from './ChunkConfig';
 import SilentThreshold from './SilentThreshold';
 import GPUConfig from './GpuConfig';
+import ServerIO from './ServerIO';
 
 interface AiSettingsCardProps {
   dndAttributes?: Record<string, any>;
@@ -73,6 +74,9 @@ function AiSettingsCard({ dndAttributes, dndListeners }: AiSettingsCardProps): J
             </div>
           </div>
         </div>
+      )}
+      {!isCollapsed && (
+        <ServerIO appState={appState} />
       )}
     </div>
   );
