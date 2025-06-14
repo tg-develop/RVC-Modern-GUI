@@ -1,4 +1,6 @@
 import { JSX, useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMicrophone, faVolumeUp, faHeadphones } from '@fortawesome/free-solid-svg-icons';
 import { useAppState } from '../../context/AppContext';
 import { CSS_CLASSES } from '../../styles/constants';
 import DebouncedSlider from '../Helpers/DebouncedSlider';
@@ -70,7 +72,10 @@ function AudioVolume(): JSX.Element {
   return (
     <>
       <div>
-        <label htmlFor="inputGain" className={CSS_CLASSES.label}>Input Volume</label>
+        <label htmlFor="inputGain" className={CSS_CLASSES.label}>
+          <FontAwesomeIcon icon={faMicrophone} className="mr-2" />
+          Input Volume
+        </label>
         <DebouncedSlider
           id="inputGain"
           min={10}
@@ -84,7 +89,10 @@ function AudioVolume(): JSX.Element {
         <p className={CSS_CLASSES.sliderValue}>{Math.round(inputGain * 100)}%</p>
       </div>
       <div>
-        <label htmlFor="outputGain" className={CSS_CLASSES.label}>Output Volume</label>
+        <label htmlFor="outputGain" className={CSS_CLASSES.label}>
+          <FontAwesomeIcon icon={faVolumeUp} className="mr-2" />
+          Output Volume
+        </label>
         <DebouncedSlider
           id="outputGain"
           min={10}
@@ -98,7 +106,10 @@ function AudioVolume(): JSX.Element {
         <p className={CSS_CLASSES.sliderValue}>{Math.round(outputGain * 100)}%</p>
       </div>
       <div>
-        <label htmlFor="monitorGain" className={CSS_CLASSES.label}>Monitor Volume</label>
+        <label htmlFor="monitorGain" className={CSS_CLASSES.label}>
+          <FontAwesomeIcon icon={faHeadphones} className="mr-2" />
+          Monitor Volume
+        </label>
         <DebouncedSlider
           id="monitorGain"
           min={0}

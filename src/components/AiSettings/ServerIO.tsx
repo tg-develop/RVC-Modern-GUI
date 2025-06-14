@@ -1,6 +1,6 @@
 import { JSX, useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faStop, faMicrophone, faVolumeUp } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faStop, faMicrophone, faVolumeUp, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { AUDIO_KEYS, CSS_CLASSES } from '../../styles/constants';
 import { ClientState } from "@dannadori/voice-changer-client-js";
 import AudioPlayer from '../Helpers/AudioPlayer';
@@ -14,6 +14,7 @@ function ServerIO({ appState }: ServerIOProps): JSX.Element {
   // ---------------- States ----------------
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { audioOutputForAnalyzer, setAudioOutputForAnalyzer, outputAudioDeviceInfo, isConverting } = useUIContext();
   const [selectedOutputDevice, setSelectedOutputDevice] = useState<string>('');
   const recordingStartTimeRef = useRef<number | null>(null);
@@ -111,12 +112,22 @@ function ServerIO({ appState }: ServerIOProps): JSX.Element {
 
   return (
     <div className="mt-4 pt-4 border-t border-slate-200 dark:border-gray-700">
-      <h5 className="text-md font-medium text-slate-700 dark:text-gray-200 mb-3">
-        <FontAwesomeIcon icon={faMicrophone} className="mr-2" />
-        ServerIO Analyzer
-      </h5>
+      <div className="flex justify-between items-center mb-3">
+        <h5 className="text-md font-medium text-slate-700 dark:text-gray-200">
+          <FontAwesomeIcon icon={faMicrophone} className="mr-2" />
+          ServerIO Analyzer
+        </h5>
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={CSS_CLASSES.iconButton}
+          title={isCollapsed ? "Expand" : "Collapse"}
+        >
+          <FontAwesomeIcon icon={isCollapsed ? faChevronDown : faChevronUp} className="h-4 w-4" />
+        </button>
+      </div>
 
-      <div className="space-y-4">
+      {!isCollapsed && (
+        <div className="space-y-4">
         {/* Recording Controls */}
         <div className="flex items-center space-x-3">
           <button
@@ -195,7 +206,8 @@ function ServerIO({ appState }: ServerIOProps): JSX.Element {
             />
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

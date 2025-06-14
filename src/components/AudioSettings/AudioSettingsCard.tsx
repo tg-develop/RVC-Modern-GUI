@@ -54,7 +54,9 @@ function AudioSettingsCard({ dndAttributes, dndListeners }: AudioSettingsCardPro
         <>
           <AudioMode audioState={audioState} setAudioState={setAudioState} />
           {audioState === "client" ? <AudioDevicesClient /> : <AudioDevicesServer />}
-          <AudioVolume />
+          <div className="mt-6">
+            <AudioVolume />
+          </div>
         </>
       )}
       <audio hidden id={AUDIO_KEYS.AUDIO_ELEMENT_FOR_PLAY_RESULT}></audio>
