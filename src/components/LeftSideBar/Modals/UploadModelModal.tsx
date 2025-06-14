@@ -227,7 +227,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
             id="modelFile"
             accept=".pth,.safetensors,.onnx"
             onChange={handleModelFileChange}
-            className={CSS_CLASSES.input}
+            className={CSS_CLASSES.fileInput}
             disabled={appState.serverSetting.isUploading}
           />
         </div>
