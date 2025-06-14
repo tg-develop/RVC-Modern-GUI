@@ -17,7 +17,7 @@ function EditModelModal({ model, showModal, setShowEdit }: EditModelModalProps):
   const guiState = useUIContext();
 
   // ---------------- Handlers ----------------
-  
+
   // Handle cancel button click
   const handleCancel = () => {
     setShowEdit(false);

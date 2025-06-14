@@ -20,11 +20,11 @@ function DeleteModelModal({ model, showModal, setShowDelete, modelDir }: DeleteM
   const appState = useAppState();
   const guiState = useUIContext();
 
-    const icon = model.iconFile.length > 0 ? "/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
+  const icon = model.iconFile.length > 0 ? "/" + modelDir + "/" + model.slotIndex + "/" + model.iconFile.split(/[\/\\]/).pop() : "";
   const placeholder = useInitialPlaceholder(model.name);
 
   // ---------------- Handlers ----------------
-  
+
   // Handle confirm button click
   const handleConfirm = async () => {
     const settings: ModelUploadSetting & { embedder: string } = {

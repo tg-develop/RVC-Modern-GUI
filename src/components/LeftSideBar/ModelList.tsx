@@ -9,7 +9,7 @@ interface ModelListProps {
 }
 
 function ModelList({ filteredAndSortedModels, handleSelectModel, confirmedSelectedSlotIndex, appState }: ModelListProps) {
-    
+
     // ---------------- Render ----------------
 
     return (

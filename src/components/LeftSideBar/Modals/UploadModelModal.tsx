@@ -27,7 +27,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
   const [previewMode, setPreviewMode] = useState<'settings' | 'list'>('settings');
 
   // ---------------- Side Effects ----------------
-  
+
   // Auto-populate model name from selected file and handle thumbnail preview
   useEffect(() => {
     // Extract base filename (without extension) to auto-populate model name field
@@ -44,7 +44,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
   }, [uploadSettings.files, thumbnailPreview]);
 
   // ---------------- File Upload Handlers ----------------
-  
+
   // Process main model file selection (.pth, .safetensors, .onnx)
   const handleModelFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -109,7 +109,7 @@ function UploadModelModal({ appState, guiState, showUpload, setShowUpload }: Upl
   };
 
   // ---------------- Modal Actions ----------------
-  
+
   // Close modal and reset form state
   const handleUploadCloseModal = () => {
     if (!appState.serverSetting.isUploading) {

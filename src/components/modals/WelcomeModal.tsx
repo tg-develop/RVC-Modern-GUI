@@ -15,7 +15,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onGetStarted }) => {
           Click on "Continue" to start the application and initialize the audio engine.
         </p>
       </div>
-      
+
       <div className="mb-4 p-4 bg-slate-100 dark:bg-blue-900/20 rounded-lg">
         <p className="text-sm text-slate-700 dark:text-blue-200">
           <strong>Note:</strong> For optimal functionality, this app requires access to your audio system.
