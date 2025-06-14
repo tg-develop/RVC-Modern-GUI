@@ -86,7 +86,7 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
       chunkTime,
       perfStatus,
     };
-  }, [appState.performance]);
+  }, [appState.performance, appState.serverSetting.serverSetting.serverReadChunkSize, appState.serverSetting.serverSetting.crossFadeOverlapSize]);
 
   //Format DataPoint into ChartDataPoint
   useEffect(() => {
