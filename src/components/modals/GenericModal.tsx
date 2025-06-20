@@ -7,7 +7,7 @@ import { CSS_CLASSES } from '../../styles/constants';
 interface ModalButton {
   text: string;
   onClick: () => void;
-  className?: string; // e.g., 'bg-blue-500 hover:bg-blue-600 text-white'
+  className?: string;
   disabled?: boolean;
 }
 

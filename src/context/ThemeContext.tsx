@@ -5,20 +5,23 @@ interface ThemeContextType {
   toggleTheme: () => void;
 }
 
-export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export const useThemeContext = (): ThemeContextType => {
-  const state = useContext(ThemeContext);
-  if (!state) {
-      throw new Error("useAppState must be used within AppContextProvider");
-  }
-  return state;
-};
-
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
+// Create context
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+// Create hook
+export const useThemeContext = (): ThemeContextType => {
+  const state = useContext(ThemeContext);
+  if (!state) {
+    throw new Error("useAppState must be used within AppContextProvider");
+  }
+  return state;
+};
+
+// Create provider
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<string>(() => {
     const storedTheme = localStorage.getItem('theme');

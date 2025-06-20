@@ -2,17 +2,19 @@ import { createContext, useContext, ReactNode } from "react";
 import { AppGuiSettingState, useAppGuiSetting } from "../scripts/useAppGuiSetting";
 import { AudioConfigState, useAudioConfig } from "../scripts/useAudioConfig";
 
-type AppRootProviderProps = {
+interface AppRootProviderProps {
     children: ReactNode;
 };
 
-export type AppRootValue = {
+export interface AppRootValue {
     audioContextState: AudioConfigState;
     appGuiSettingState: AppGuiSettingState;
 };
 
+// Create context
 const AppRootContext = createContext<AppRootValue | null>(null);
 
+// Create hook
 export const useAppRoot = (): AppRootValue => {
     const context = useContext(AppRootContext);
     if (!context) {
@@ -21,8 +23,10 @@ export const useAppRoot = (): AppRootValue => {
     return context;
 };
 
+// Create provider
 export const AppRootProvider = ({ children }: AppRootProviderProps) => {
-    const audioContextState = useAudioConfig(); 
+    // Get audio context and app gui setting
+    const audioContextState = useAudioConfig();
     const appGuiSettingState = useAppGuiSetting();
 
     const providerValue: AppRootValue = {

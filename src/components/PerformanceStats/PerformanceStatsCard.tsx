@@ -21,8 +21,6 @@ interface PerformanceStatsCardProps {
   dndListeners?: Record<string, any>;
 }
 
-const DEFAULT_MAX_CHART_DATA_POINTS = 50;
-
 export interface ChartDataPoint {
   timestamp: number;
   perfTimeValue: number;
@@ -48,13 +46,11 @@ interface RecordedDataEntry extends CalculatedMetricValues {
   perfValueString: string;
 }
 
-const DEFAULT_PERFORMANCE_METRICS: PerformanceMetrics = {
-  vol: 0.01, // Default to very low volume to avoid log(0)
-  responseTime: 0,
-  mainprocessTime: 0
-};
+// Default max data points for the chart
+const DEFAULT_MAX_CHART_DATA_POINTS = 50;
 
 function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsCardProps): JSX.Element {
+  // ---------------- States ----------------
   const appState = useAppState();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -64,7 +60,9 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
   const [isRecording, setIsRecording] = useState(false);
   const [recordedData, setRecordedData] = useState<RecordedDataEntry[]>([]);
 
-  //Calculate the next DataPoint
+  // ---------------- Hooks ----------------
+
+  //Calculate the next DataPoint using appState performance values
   const calculatedMetrics = useMemo((): CalculatedMetricValues => {
     const volumeDb = Math.max(Math.round(20 * Math.log10(appState.performance.vol || 0.00001)), -90);
     const chunkTime = ((appState.serverSetting.serverSetting.serverReadChunkSize * 128 * 1000) / 48000); // Assuming 48kHz sample rate, 128 samples per frame for chunk size unit
@@ -88,7 +86,7 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
     };
   }, [appState.performance, appState.serverSetting.serverSetting.serverReadChunkSize, appState.serverSetting.serverSetting.crossFadeOverlapSize]);
 
-  //Format DataPoint into ChartDataPoint
+  //Format DataPoint into ChartDataPoint and add to ChartData
   useEffect(() => {
     const { perfStatus, perfTime } = calculatedMetrics;
 
@@ -122,6 +120,8 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
     }
   }, [calculatedMetrics, maxDataPoints, isRecording]);
 
+  // ---------------- Render ----------------
+
   return (
     <div className={`p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300 flex-1 min-h-0 flex flex-col ${isCollapsed ? 'h-auto' : ''}`}>
       <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-gray-700">
@@ -135,7 +135,7 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
       </div>
       {!isCollapsed && (
         <div className="flex-grow flex flex-col items-center">
-          <PerformanceStats 
+          <PerformanceStats
             calculatedMetrics={calculatedMetrics}
           />
 
@@ -147,14 +147,14 @@ function PerformanceStatsCard({ dndAttributes, dndListeners }: PerformanceStatsC
               setRecordedData={setRecordedData}
             />
 
-            <PerformanceHistory 
-              maxDataPoints={maxDataPoints} 
-              setMaxDataPoints={setMaxDataPoints} 
+            <PerformanceHistory
+              maxDataPoints={maxDataPoints}
+              setMaxDataPoints={setMaxDataPoints}
             />
           </div>
 
           <div className="w-full h-48 bg-slate-100 dark:bg-gray-700 border border-slate-300 dark:border-gray-500 rounded-md flex-grow">
-            <PerformanceGraph 
+            <PerformanceGraph
               chartData={chartData}
             />
           </div>

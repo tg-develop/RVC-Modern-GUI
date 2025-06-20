@@ -26,7 +26,6 @@ export const useAppGuiSetting = (): AppGuiSettingState => {
         const appSetting = await res.json() as AppGuiSetting
         
         setAppGuiSetting(appSetting)
-        console.log(appGuiSetting)
     }
 
     useEffect(() => {
@@ -47,7 +46,6 @@ export const useAppGuiSetting = (): AppGuiSettingState => {
             const res = await fetch('/edition')
             const edition = await res.text()
             setServerInfo({ ...serverInfo, edition: edition })
-            console.log(serverInfo)
         }
         getVersionInfo()
     }, [])

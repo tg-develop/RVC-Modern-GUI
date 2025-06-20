@@ -21,7 +21,7 @@ function ModelSlot(props: ModelSlotProps) {
   // Generate icon URL from model directory and icon file path (or placeholder if not existing)
   const icon = props.model.iconFile.length > 0 ? "/" + props.modelDir + "/" + props.model.slotIndex + "/" + props.model.iconFile.split(/[\/\\]/).pop() : "";
   const placeholder = useInitialPlaceholder(props.model.name);
-  
+
   // ---------------- Render ----------------
 
   return (

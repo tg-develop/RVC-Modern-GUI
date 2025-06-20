@@ -30,16 +30,16 @@ function LeftSidebar({
   // Sidebar Class
   let finalSidebarClasses = `bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-200 border-r border-slate-200 dark:border-gray-700 p-4 space-y-4 transition-all duration-300 ease-in-out flex flex-col z-20 `;
 
-  if (isSidebarOpen) { 
+  if (isSidebarOpen) {
     // Open state
     finalSidebarClasses += 'fixed inset-y-0 left-0 w-full transform translate-x-0 md:static md:w-72 md:translate-x-0';
-  } else { 
+  } else {
     // Closed state
     finalSidebarClasses += 'fixed -left-full w-full transform -translate-x-full md:static md:w-0 md:p-0 md:overflow-hidden md:border-r-0';
   }
 
   // ---------------- Handlers ----------------
-  
+
   // Handles model selection and server state update
   const handleSelectModel = async (slot: RVCModelSlot) => {
     guiState.startLoading(`Swapping to model: ${slot.name}`);

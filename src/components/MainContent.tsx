@@ -1,17 +1,6 @@
 import { useState } from 'react';
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-} from '@dnd-kit/sortable';
-
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import SortableCardItem from './Helpers/SortableCardItem';
 import ModelSettingsCard from './ModelSettings/ModelSettingsCard';
 import PerformanceStatsCard from './PerformanceStats/PerformanceStatsCard';
@@ -27,6 +16,7 @@ const CARD_IDS = {
 };
 
 function MainContent() {
+  // ---------------- States ----------------
   const [cardOrder, setCardOrder] = useState<string[]>([
     CARD_IDS.MODEL_SETTINGS,
     CARD_IDS.PERFORMANCE,
@@ -34,10 +24,16 @@ function MainContent() {
     CARD_IDS.AUDIO_SETTINGS,
   ]);
 
+  // ---------------- Hooks ----------------
+
+  // Create drag-and-drop sensor for the cards
   const sensors = useSensors(
     useSensor(PointerSensor)
   );
 
+  // ---------------- Functions ----------------
+
+  // Handle drag end and updates position index of card
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -49,6 +45,8 @@ function MainContent() {
     }
   };
 
+  // ---------------- Render ----------------
+
   return (
     <DndContext
       sensors={sensors}
@@ -57,7 +55,6 @@ function MainContent() {
     >
       <SortableContext
         items={cardOrder}
-      // strategy={rectSwappingStrategy} // Default strategy works well with grid
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {cardOrder.map((cardId) => {

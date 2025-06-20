@@ -1,10 +1,6 @@
 import React from 'react';
 
-interface WelcomeModalProps {
-  onGetStarted: () => void | Promise<void>;
-}
-
-const WelcomeModal: React.FC<WelcomeModalProps> = ({ onGetStarted }) => {
+const WelcomeModal: React.FC = () => {
   return (
     <div className="text-center">
       <div className="mb-6">

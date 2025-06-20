@@ -1,14 +1,15 @@
 
-
 interface PerformanceHistoryProps {
     maxDataPoints: number;
     setMaxDataPoints: (maxDataPoints: number) => void;
 }
 
 function PerformanceHistory({ maxDataPoints, setMaxDataPoints }: PerformanceHistoryProps) {
+    // ---------------- Render ----------------
     return (
         <div className="flex items-center space-x-2">
             <span className="text-xs text-slate-500 dark:text-gray-400 self-center">History:</span>
+            {/* Display the last 20, 50, or 100 data points */}
             {[20, 50, 100].map(num => (
                 <button
                     key={num}

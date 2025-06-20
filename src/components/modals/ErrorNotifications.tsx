@@ -14,6 +14,10 @@ interface ErrorNotificationsProps {
 }
 
 const ErrorNotifications: React.FC<ErrorNotificationsProps> = ({ errors, removeError }) => (
+
+  // ---------------- Render ----------------
+
+
   <div className="fixed top-4 right-4 space-y-2 z-50">
     {errors.map(err => (
       <div
