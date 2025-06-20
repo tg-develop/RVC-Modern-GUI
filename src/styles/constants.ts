@@ -7,14 +7,14 @@ export const CSS_CLASSES = {
     rangeDisabled: "w-full h-2 bg-slate-100 dark:bg-gray-700 rounded-lg appearance-none cursor-not-allowed accent-slate-300 dark:accent-gray-500 opacity-50 transition-colors duration-150",
     checkbox: "mr-2 accent-blue-500 dark:accent-blue-400",
     radioButton: "mr-2 accent-blue-500 dark:accent-blue-400",
-    
+
     // Typography
     label: "block text-sm font-medium text-slate-600 dark:text-gray-400 mt-1 mb-1",
     heading: "text-lg font-semibold text-slate-700 dark:text-gray-200",
     sliderValue: "text-xs text-slate-600 dark:text-gray-400 text-right",
     checkboxLabel: "flex items-center text-sm text-slate-700 dark:text-gray-300",
     radioLabel: "inline-flex items-center mr-4 text-sm text-slate-700 dark:text-gray-300",
-    
+
     // Buttons
     iconButton: "p-1 text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-150",
     primaryButton: "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-150",
@@ -24,7 +24,7 @@ export const CSS_CLASSES = {
     // Layout
     card: "p-4 border border-slate-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 transition-all duration-300",
     cardHeader: "flex justify-between items-center mb-3 pb-2 border-b border-slate-200 dark:border-gray-700",
-    
+
     // States
     error: "p-2 mb-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded",
     success: "p-2 mb-4 text-sm text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 rounded",
@@ -43,13 +43,13 @@ export const AUDIO_KEYS = {
 };
 
 export const INDEXEDDB_KEYS = {
-  INDEXEDDB_KEY_AUDIO_INPUT: "INDEXEDDB_KEY_AUDIO_INPUT",
-  INDEXEDDB_KEY_AUDIO_OUTPUT: "INDEXEDDB_KEY_AUDIO_OUTPUT",
-  INDEXEDDB_KEY_AUDIO_MONITOR: "INDEXEDDB_KEY_AUDIO_MONITOR",
-  INDEXEDDB_KEY_DEFAULT_MODEL_TYPE: "INDEXEDDB_KEY_DEFALT_MODEL_TYPE",
-  INDEXEDDB_KEY_NOISE1: "INDEXEDDB_KEY_NOISE1",
-  INDEXEDDB_KEY_NOISE2: "INDEXEDDB_KEY_NOISE2",
-  INDEXEDDB_KEY_ECHO: "INDEXEDDB_KEY_ECHO",
+    INDEXEDDB_KEY_AUDIO_INPUT: "INDEXEDDB_KEY_AUDIO_INPUT",
+    INDEXEDDB_KEY_AUDIO_OUTPUT: "INDEXEDDB_KEY_AUDIO_OUTPUT",
+    INDEXEDDB_KEY_AUDIO_MONITOR: "INDEXEDDB_KEY_AUDIO_MONITOR",
+    INDEXEDDB_KEY_DEFAULT_MODEL_TYPE: "INDEXEDDB_KEY_DEFALT_MODEL_TYPE",
+    INDEXEDDB_KEY_NOISE1: "INDEXEDDB_KEY_NOISE1",
+    INDEXEDDB_KEY_NOISE2: "INDEXEDDB_KEY_NOISE2",
+    INDEXEDDB_KEY_ECHO: "INDEXEDDB_KEY_ECHO",
 };
 
 export const isDesktopApp = () => {

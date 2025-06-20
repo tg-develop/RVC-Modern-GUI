@@ -9,9 +9,13 @@ import { ThemeProvider, useThemeContext } from './context/ThemeContext';
 import { AppRootProvider } from './context/AppRootProvider';
 
 const AppContent: React.FC = () => {
+  // ---------------- State ----------------
   const [showWelcome, setShowWelcome] = React.useState<boolean>(true);
   const { theme } = useThemeContext();
 
+  // ---------------- Functions ----------------
+
+  // Handle welcome modal completion
   const handleWelcomeComplete = async () => {
     setShowWelcome(false);
   };
@@ -33,32 +37,36 @@ const AppContent: React.FC = () => {
 
   const particleConfig = getParticleConfig();
 
+  // ---------------- Render ----------------
+
+  // Render welcome modal if showWelcome is true
   if (showWelcome) {
     return (
       <>
-        <ParticleBackground 
-          zIndex={1} 
-          particleCount={100} 
+        <ParticleBackground
+          zIndex={1}
+          particleCount={100}
           particleColor={particleConfig.particleColor}
           backgroundColor={particleConfig.backgroundColor}
         />
-          <GenericModal
-            isOpen={true}
-            transparent={true}
-            onClose={handleWelcomeComplete}
-            title="RVC VoiceChanger"
-            primaryButton={{
-              text: "Continue",
-              onClick: handleWelcomeComplete
+        <GenericModal
+          isOpen={true}
+          transparent={true}
+          onClose={handleWelcomeComplete}
+          title="RVC VoiceChanger"
+          primaryButton={{
+            text: "Continue",
+            onClick: handleWelcomeComplete
           }}
         >
-          <WelcomeModal onGetStarted={handleWelcomeComplete} />
+          <WelcomeModal />
         </GenericModal>
 
       </>
     );
   }
-  
+
+  // Render app if showWelcome is false
   return (
     <>
       <AppContextProvider>
@@ -70,7 +78,10 @@ const AppContent: React.FC = () => {
   );
 };
 
+// Wrapper around the AppContent with relevant context providers
 export const AppWrapper: React.FC = () => {
+  // ---------------- Render ----------------
+
   return (
     <ThemeProvider>
       <AppRootProvider>
